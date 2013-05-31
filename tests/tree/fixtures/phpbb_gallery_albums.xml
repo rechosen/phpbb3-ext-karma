@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+	<table name="phpbb_gallery_albums">
+		<column>album_id</column>
+		<column>parent_id</column>
+		<column>user_id</column>
+		<column>left_id</column>
+		<column>right_id</column>
+		<column>album_parents</column>
+		<column>album_desc</column>
+	</table>
+</dataset>
