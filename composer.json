@@ -1,5 +1,5 @@
 {
-	"name": "karma",
+	"name": "phpbb/karma",
 	"type": "phpbb3-extension",
 	"description": "Karma extension for phpBB 3.1",
 	"homepage": "https://github.com/rechosen/phpbb3-ext-karma",

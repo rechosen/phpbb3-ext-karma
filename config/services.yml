@@ -1,0 +1,7 @@
+services:
+    karma.controller.givekarma:
+        class: phpbb_ext_phpbb_karma_controller_givekarma
+        arguments:
+            - @request
+            - @template
+            - @controller.helper

@@ -15,6 +15,6 @@ if (!defined('IN_PHPBB'))
 exit;
 }
 
-class phpbb_ext_karma_ext extends phpbb_extension_base
+class phpbb_ext_phpbb_karma_ext extends phpbb_extension_base
 {
 }
