@@ -86,6 +86,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		}*/
 
 		// Set the template variables
+		$phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
 		$post_url = append_sid("{$phpbb_root_path}viewtopic.{$this->php_ext}", "p=$postid") . "#p$postid";
 		$post_link = "<a href=\"$post_url\">{$post_data['post_subject']}</a>";
 		$receiving_user = get_username_string('full', $post_data['poster_id'], $post_data['username'], $post_data['user_colour']);
