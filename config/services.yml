@@ -2,6 +2,10 @@ services:
     karma.controller.givekarma:
         class: phpbb_ext_phpbb_karma_controller_givekarma
         arguments:
+            - @auth
+            - @dbal.conn
             - @request
             - @template
+            - @user
             - @controller.helper
+            - %core.php_ext%

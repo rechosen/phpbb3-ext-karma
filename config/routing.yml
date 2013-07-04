@@ -1,3 +1,5 @@
 karma_givekarma_controller:
     pattern: /givekarma/{postid}
     defaults: { _controller: karma.controller.givekarma:handle, postid: -1 }
+    requirements:
+        postid: \d+
