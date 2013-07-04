@@ -48,7 +48,6 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 				),
 			),
 		);
-		file_put_contents('/tmp/woei', print_r($ret, true));
 		return $ret;
 	}
 
