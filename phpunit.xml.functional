@@ -12,7 +12,7 @@
          verbose="true"
          bootstrap="tests/bootstrap.php">
     <testsuites>
-        <testsuite name="phpBB Gallery Test Suite">
+        <testsuite name="phpBB Karma Extension Test Suite">
             <directory suffix="_test.php">./tests/</directory>
             <exclude>./tests/vendor</exclude>
         </testsuite>

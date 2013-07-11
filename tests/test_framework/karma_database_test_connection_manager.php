@@ -1,13 +1,13 @@
 <?php
 /**
 *
-* @package phpBB Gallery Testing
-* @copyright (c) 2013 nickvergessen
+* @package phpBB Karma Testing
+* @copyright (c) 2013 rechosen
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
 
-class phpbb_ext_gallery_database_test_connection_manager extends phpbb_database_test_connection_manager
+class phpbb_ext_phpbb_karma_database_test_connection_manager extends phpbb_database_test_connection_manager
 {
 	public function load_schema()
 	{

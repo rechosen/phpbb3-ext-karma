@@ -1,8 +1,8 @@
 <?php
 /**
 *
-* @package phpBB Gallery Testing
-* @copyright (c) 2013 nickvergessen
+* @package phpBB Karma Testing
+* @copyright (c) 2013 rechosen
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -28,8 +28,8 @@ require_once $phpbb_root_path . '../tests/test_framework/phpbb_test_case.' . $ph
 require_once $phpbb_root_path . '../tests/test_framework/phpbb_database_test_case.' . $phpEx;
 require_once $phpbb_root_path . '../tests/test_framework/phpbb_database_test_connection_manager.' . $phpEx;
 require_once $phpbb_root_path . '../tests/test_framework/phpbb_functional_test_case.' . $phpEx;
-require_once 'test_framework/gallery_test_case_helpers.' . $phpEx;
-require_once 'test_framework/gallery_test_case.' . $phpEx;
-require_once 'test_framework/gallery_database_test_case.' . $phpEx;
-require_once 'test_framework/gallery_database_test_connection_manager.' . $phpEx;
-require_once 'test_framework/gallery_functional_test_case.' . $phpEx;
+require_once 'test_framework/karma_test_case_helpers.' . $phpEx;
+require_once 'test_framework/karma_test_case.' . $phpEx;
+require_once 'test_framework/karma_database_test_case.' . $phpEx;
+require_once 'test_framework/karma_database_test_connection_manager.' . $phpEx;
+require_once 'test_framework/karma_functional_test_case.' . $phpEx;

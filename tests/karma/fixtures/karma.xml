@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+	<table name="phpbb_karma">
+		<column>post_id</column>
+		<column>giving_user_id</column>
+		<column>receiving_user_id</column>
+		<column>karma_score</column>
+		<column>karma_time</column>
+		<column>karma_comment</column>
+	</table>
+</dataset>
