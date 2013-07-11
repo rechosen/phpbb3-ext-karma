@@ -15,7 +15,7 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-class phpbb_ext_phpbb_karma_model_karma
+class phpbb_ext_phpbb_karma_includes_karma_model
 {
 	/**
 	 * Database object
