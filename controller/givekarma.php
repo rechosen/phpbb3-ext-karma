@@ -23,6 +23,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	* the dependencies defined in the services.yml file for this service.
 	*
 	* @param phpbb_auth					$auth		Auth object
+	* @param ContainerBuilder			$container	Container object
 	* @param phpbb_db_driver			$db			Database object
 	* @param phpbb_request				$request	Request object
 	* @param phpbb_template				$template	Template object
@@ -30,9 +31,10 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	* @param phpbb_controller_helper	$helper		Controller helper object
 	* @param string						$php_ext	phpEx
 	*/
-	public function __construct(phpbb_auth $auth, phpbb_db_driver $db, phpbb_request $request, phpbb_template $template, phpbb_user $user, phpbb_controller_helper $helper, $php_ext)
+	public function __construct(phpbb_auth $auth, /* TODO ask about impossibility of checking type */$container, phpbb_db_driver $db, phpbb_request $request, phpbb_template $template, phpbb_user $user, phpbb_controller_helper $helper, $php_ext)
 	{
 		$this->auth = $auth;
+		$this->container = $container;
 		$this->db = $db;
 		$this->request = $request;
 		$this->template = $template;
@@ -44,7 +46,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	/**
 	* @return Symfony\Component\HttpFoundation\Response A Symfony Response object
 	*/
-	public function handle($postid)
+	public function handle($post_id)
 	{
 		// Load the extension's language file
 		$this->user->add_lang_ext('phpbb/karma', 'karma');
@@ -56,17 +58,17 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 				POSTS_TABLE		=> 'p',
 				USERS_TABLE		=> 'u',
 			),
-			'WHERE'		=> "p.post_id = $postid AND u.user_id = p.poster_id",
+			'WHERE'		=> "p.post_id = $post_id AND u.user_id = p.poster_id",
 		);
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query($sql);
 		$post_data = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
 
-		// No $post_data means the post doesn't exist
-		if (!$post_data)
+		// If $post_data === false, the post doesn't exist
+		if ($post_data === false)
 		{
-			trigger_error('NO_TOPIC'); // TODO reporting "post doesn't exist" might make more sense
+			trigger_error('NO_POST');
 		}
 
 		// Does the user have permission to view this post?
@@ -85,9 +87,9 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			trigger_error(TODO);
 		}*/
 
-		// Set the template variables
+		// Set the template variables TODO needs a form key
 		$phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
-		$post_url = append_sid("{$phpbb_root_path}viewtopic.{$this->php_ext}", "p=$postid") . "#p$postid";
+		$post_url = append_sid("{$phpbb_root_path}viewtopic.{$this->php_ext}", "p=$post_id") . "#p$post_id";
 		$post_link = "<a href=\"$post_url\">{$post_data['post_subject']}</a>";
 		$receiving_user = get_username_string('full', $post_data['poster_id'], $post_data['username'], $post_data['user_colour']);
 		$template_vars = array(
