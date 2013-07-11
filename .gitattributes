@@ -1,3 +1,5 @@
+# Contrary to what the documentation says, do _not_ add a slash after a
+# directory name! It will not work with certain git versions.
 .gitattributes export-ignore
 README.md export-ignore
 tests export-ignore
