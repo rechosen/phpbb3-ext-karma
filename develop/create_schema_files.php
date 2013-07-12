@@ -809,7 +809,7 @@ function get_schema_struct()
 			'receiving_user_id'	=> array('UINT', 0),
 			'karma_score'		=> array('TINT:4', 0),
 			'karma_time'		=> array('UINT:11', 0),
-			'karma_comment'		=> array('MTEXT_UNI', ''),
+			'karma_comment'		=> array('TEXT_UNI', ''),
 		),
 		'PRIMARY KEY'	=> array('post_id', 'giving_user_id'),
 	);
