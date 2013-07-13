@@ -1,6 +1,6 @@
 services:
-    karma.model.karma:
-        class: phpbb_ext_phpbb_karma_model_karma
+    karma.includes.karma_model:
+        class: phpbb_ext_phpbb_includes_karma_model
         arguments:
             - @dbal.conn
             - %core.table_prefix%karma
