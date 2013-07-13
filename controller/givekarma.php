@@ -99,7 +99,6 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 				try
 				{
 					$karma_model->store_karma($post_id, $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
-					// TODO Check for existing karma and overwrite or fail.
 
 					// Show the success page and redirect after three seconds
 					meta_refresh(3, $post_data['post_url']);

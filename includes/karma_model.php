@@ -88,15 +88,35 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 		}
 
 		// Insert the karma into the database
-		$sql_ary = array(
-			'post_id'			=> (int) $post_id,
-			'giving_user_id'	=> (int) $giving_user_id,
-			'receiving_user_id'	=> (int) $receiving_user_id,
-			'karma_score'		=> (int) $karma_score,
-			'karma_time'		=> $karma_time,
-			'karma_comment'		=> $karma_comment,
-		);
-		$this->db->sql_query('INSERT INTO ' . $this->table_name . ' ' . $this->db->sql_build_array('INSERT', $sql_ary)); // TODO 80 characters wide?
+		if (!$this->karma_exists($post_id, $giving_user_id))
+		{
+			$sql_ary = array(
+				'post_id'			=> (int) $post_id,
+				'giving_user_id'	=> (int) $giving_user_id,
+				'receiving_user_id'	=> (int) $receiving_user_id,
+				'karma_score'		=> (int) $karma_score,
+				'karma_time'		=> $karma_time,
+				'karma_comment'		=> $karma_comment,
+			);
+			$this->db->sql_query(
+				'INSERT INTO ' . $this->table_name . ' ' . $this->db->sql_build_array('INSERT', $sql_ary)
+			);
+		}
+		else
+		{
+			// TODO only allow updating if an option is true
+			$sql_ary = array(
+				'karma_score'	=> (int) $karma_score,
+				'karma_time'	=> $karma_time,
+				'karma_comment'	=> $karma_comment,
+			);
+			$this->db->sql_query('
+				UPDATE ' . $this->table_name . '
+				SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
+				WHERE post_id = ' . (int) $post_id . '
+					AND giving_user_id = ' . (int) $giving_user_id
+			);
+		}
 	}
 
 	/**
@@ -126,6 +146,12 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 		return $row['poster_id'];
 	}
 
+	/**
+	 * Checks if the given user ID belongs to an existing user
+	 * 
+	 * @param	int		$user_id	The user ID to be validated
+	 * @return	boolean				true if the user exists, false otherwise
+	 */
 	private function user_id_exists($user_id) {
 		$sql_array = array(
 			'SELECT'	=> 'count(*) AS num_users',
@@ -138,5 +164,28 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 		$this->db->sql_freeresult($result);
 
 		return $num_users == 1;
+	}
+
+	/**
+	 * Checks if the karma identified by post_id and giving_user_id exists
+	 * 
+	 * @param	int		$post_id		The post on which the karma was given
+	 * @param	int		$giving_user_id	The user which gave the karma
+	 * @return	boolean					true if the karma exists, false otherwise
+	 */
+	private function karma_exists($post_id, $giving_user_id)
+	{
+		$sql_array = array(
+			'SELECT'	=> 'count(*) AS num_karma',
+			'FROM'		=> array($this->table_name => 'k'),
+			'WHERE'		=> 'post_id = ' . (int) $post_id . '
+							AND giving_user_id = ' . (int) $giving_user_id,
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$num_karma = $this->db->sql_fetchfield('num_karma');
+		$this->db->sql_freeresult($result);
+
+		return $num_karma == 1;
 	}
 }

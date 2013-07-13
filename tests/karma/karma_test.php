@@ -116,14 +116,34 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 
 		if (empty($expected_exception))
 		{
-			$sql_ary = $karma;
-			unset($sql_ary['karma_comment']); // Need to match this with LIKE due to string truncation
-			$sql = 'SELECT COUNT(*) AS num_rows FROM phpbb_karma WHERE ' . $this->db->sql_build_array('SELECT', $sql_ary);
-			$karma['karma_comment'] = $this->db->sql_escape($karma['karma_comment']);
-			$sql .= " AND '{$karma['karma_comment']}' LIKE CONCAT(karma_comment, '%')";
-			$result = $this->db->sql_query($sql);
-			$this->assertEquals(1, $this->db->sql_fetchfield('num_rows'));
-			$this->db->sql_freeresult($result);
+			$this->assert_karma_row_exists($karma);
 		}
+	}
+	
+	public function test_update_karma()
+	{
+		$time = time();
+		$this->karma_model->store_karma(1, 1, 1, '', $time);
+		$time++;
+		$this->karma_model->store_karma(1, 1, -1, 'abc', $time);
+		$this->assert_karma_row_exists(array(
+			'post_id'			=> 1,
+			'giving_user_id'	=> 1,
+			'karma_score'		=> -1,
+			'karma_time'		=> $time,
+			'karma_comment'		=> 'abc',
+		));
+	}
+	
+	protected function assert_karma_row_exists($row)
+	{
+		$sql_ary = $row;
+		unset($sql_ary['karma_comment']); // Need to match this with LIKE due to string truncation
+		$sql = 'SELECT COUNT(*) AS num_rows FROM phpbb_karma WHERE ' . $this->db->sql_build_array('SELECT', $sql_ary);
+		$row['karma_comment'] = $this->db->sql_escape($row['karma_comment']);
+		$sql .= " AND '{$row['karma_comment']}' LIKE CONCAT(karma_comment, '%')";
+		$result = $this->db->sql_query($sql);
+		$this->assertEquals(1, $this->db->sql_fetchfield('num_rows'));
+		$this->db->sql_freeresult($result);
 	}
 }
