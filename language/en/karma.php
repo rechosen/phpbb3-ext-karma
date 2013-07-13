@@ -44,5 +44,7 @@ $lang = array_merge($lang, array(
 	'KARMA_COMMENT'				=> 'Comment',
 	'KARMA_SCORE_OUTOFBOUNDS'	=> 'Karma score too high or too low.',
 	'KARMA_TIME_TOO_LARGE'		=> 'Karma time too large.',
+	'KARMA_TYPE_INVALID'		=> 'Please select a karma type.',
+	'KARMA_KARMA_GIVEN'			=> 'Karma successfully given.',
 
 ));
