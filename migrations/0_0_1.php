@@ -39,7 +39,7 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 						'karma_time'		=> array('UINT:11', 0),
 						'karma_comment'		=> array('TEXT_UNI', ''),
 					),
-					'PRIMARY KEY'	=> array('post_id', 'giving_user_id'),
+					'PRIMARY_KEY'	=> array('post_id', 'giving_user_id'),
 				),
 			),
 			'add_columns'	=> array(
