@@ -7,6 +7,10 @@
 *
 */
 
+// Include these files to make truncate_string() work in includes/karma_model.php
+require_once(dirname(__FILE__) . '/../../../../../includes/utf/utf_tools.php');
+require_once(dirname(__FILE__) . '/../../../../../includes/functions_content.php');
+
 class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma_database_test_case
 {
 	public function getDataSet()
@@ -18,6 +22,8 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 
 	public function setUp()
 	{
+		global $phpbb_root_path, $phpEx;
+
 		parent::setUp();
 
 		$this->karma_model = new phpbb_ext_phpbb_karma_includes_karma_model(
@@ -27,51 +33,97 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 
 	public function create_data()
 	{
-		// List all the options that should be tested
-		$big_number = 1000000;
-		$testoptions = array(
-			'post_id' => array(1, -1, $big_number),
-			'giving_user_id' => array(2, -1, $big_number),
-			'receiving_user_id' => array(2, -1, $big_number),
-			'karma_score' => array(1, -1, -128, 127),
-			'karma_time' => array(0, time(), $big_number),
-			'karma_comment' => array('', str_repeat('Long comment.', 100)),
-			// TODO test values that _should_ go wrong and catch errors
-			// Attain full code coverage
+		// Basic test (should succeed)
+		$basic_test = array(
+			'post_id'			=> 1,
+			'giving_user_id'	=> 1,
+			'karma_score'		=> 1,
+			'karma_time'		=> time(),
+			'karma_comment'		=> '',
 		);
 
-		// Generate testing rows so that every option is tested at least once
-		$max_options = 0;
-		foreach ($testoptions as $options)
-		{
-			if (sizeof($options) > $max_options)
-			{
-				$max_options = sizeof($options);
-			}
-		}
-		$return = array();
-		for ($i = 0; $i < $max_options; $i++) {
-			$row = array();
-			foreach ($testoptions as $field => $options) {
-				$row[$field] = $options[min($i, sizeof($options))];
-			}
-			$return[] = array($row);
-		}
+		// Big values (should succeed)
+		$big_number = 1000000;
+		$big_string = str_repeat('a', pow(2, 16) + 100);
+		$big_values_test = array(
+			'post_id'			=> $big_number,
+			'giving_user_id'	=> $big_number,
+			'karma_score'		=> -128,
+			'karma_time'		=> pow(2, 32) - 1,
+			'karma_comment'		=> $big_string,
+		);
+		
+		// Missing values (should succeed as the missing values are optional)
+		$missing_values_test = array(
+			'post_id'			=> 1,
+			'giving_user_id'	=> 1,
+			'karma_score'		=> 1,
+		);
 
+		// Illegal values (OutOfBoundsException expected)
+		// These are all tried individually, with the basic test as a template
+		$too_large_int = pow(2, 32);
+		$illegal_values = array(
+			'post_id'			=> array(-1, $too_large_int),
+			'giving_user_id'	=> array(-1, $too_large_int),
+			'karma_score'		=> array(-129, 128),
+			'karma_time'		=> array($too_large_int),
+		);
+
+		// Combine the above test values into an array of data
+		$return = array(
+			array($basic_test, ''),
+			array($big_values_test, ''),
+			array($missing_values_test, ''),
+		);
+		foreach ($illegal_values as $field => $values)
+		{
+			$template = $basic_test;
+			foreach ($values as $value)
+			{
+				$template[$field] = $value;
+				$return[] = array($template, 'OutOfBoundsException');
+			}
+		}
 		return $return;
 	}
 
 	/**
 	 * @dataProvider create_data
 	 */
-	public function test_store_karma($karma)
+	public function test_store_karma($karma, $expected_exception)
 	{
-		$this->karma_model->store_karma($karma);
+		if (!empty($expected_exception))
+		{
+			$this->setExpectedException($expected_exception);
+		}
 
-		$sql_ary = $karma;
-		$sql = 'SELECT COUNT(*) AS num_rows FROM phpbb_karma WHERE ' . $this->db->sql_build_array('SELECT', $sql_ary);
-		$result = $this->db->sql_query($sql);
-		$this->assertEquals(1, $this->db->sql_fetchfield('num_rows'));
-		$this->db->sql_freeresult($result);	
+		if (!isset($karma['karma_time']))
+		{
+			if (!isset($karma['karma_comment']))
+			{
+				$this->karma_model->store_karma($karma['post_id'], $karma['giving_user_id'], $karma['karma_score']);
+			}
+			else
+			{
+				$this->karma_model->store_karma($karma['post_id'], $karma['giving_user_id'], $karma['karma_score'], $karma['karma_comment']);
+			}
+		}
+		else
+		{
+			$this->karma_model->store_karma($karma['post_id'], $karma['giving_user_id'], $karma['karma_score'], $karma['karma_comment'], $karma['karma_time']);
+		}
+
+		if (empty($expected_exception))
+		{
+			$sql_ary = $karma;
+			unset($sql_ary['karma_comment']); // Need to match this with LIKE due to string truncation
+			$sql = 'SELECT COUNT(*) AS num_rows FROM phpbb_karma WHERE ' . $this->db->sql_build_array('SELECT', $sql_ary);
+			$karma['karma_comment'] = $this->db->sql_escape($karma['karma_comment']);
+			$sql .= " AND '{$karma['karma_comment']}' LIKE CONCAT(karma_comment, '%')";
+			$result = $this->db->sql_query($sql);
+			$this->assertEquals(1, $this->db->sql_fetchfield('num_rows'));
+			$this->db->sql_freeresult($result);
+		}
 	}
 }

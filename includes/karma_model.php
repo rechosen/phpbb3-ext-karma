@@ -53,44 +53,46 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 	 * 								karma_time, karma_comment) will be set to
 	 * 								a default unless they are specified.
 	 */
-	public function store_karma($karma_row)
+	public function store_karma($post_id, $giving_user_id, $karma_score, $karma_comment = '', $karma_time = -1)
 	{
-		// Get the optional fields if they're set, otherwise use the default
-		if (isset($karma_row['receiving_user_id']))
+		// Set the receiving user ID and check if post_id is valid at the same time
+		$receiving_user_id = $this->get_author_of_post($post_id);
+		if ($receiving_user_id === false)
 		{
-			$receiving_user_id = $karma_row['receiving_user_id'];
+			throw new OutOfBoundsException('NO_POST');
 		}
-		else
+
+		// Check if the giving user ID exists
+		if (!$this->user_id_exists($giving_user_id))
 		{
-			$receiving_user_id = $this->get_author_of_post($karma_row['post_id']);
-			if ($receiving_user_id === false)
-			{
-				throw new OutOfBoundsException('NO_POST');
-			}
+			throw new OutOfBoundsException('NO_USER');
 		}
-		if (isset($karma_row['karma_time']))
+
+		// Check if the karma score is within bounds
+		if ($karma_score < -128 || $karma_score > 127)
 		{
-			$karma_time = $karma_row['karma_time'];
+			throw new OutOfBoundsException('KARMA_SCORE_OUTOFBOUNDS');
 		}
-		else
+
+		// Ensure the karma comment isn't too long
+		$karma_comment = truncate_string($karma_comment, 65535, 65535);
+
+		// Validate the karma time and ensure it is set
+		if ($karma_time >= pow(2, 32))
+		{
+			throw new OutOfBoundsException('KARMA_TIME_TOO_LARGE');
+		}
+		if ($karma_time < 0)
 		{
 			$karma_time = time();
-		}
-		if (isset($karma_row['karma_comment']))
-		{
-			$karma_comment = $karma_row['karma_comment'];
-		}
-		else
-		{
-			$karma_comment = '';
 		}
 
 		// Insert the karma into the database
 		$sql_ary = array(
-			'post_id'			=> $karma_row['post_id'],
-			'giving_user_id'	=> $karma_row['giving_user_id'],
-			'receiving_user_id'	=> $receiving_user_id,
-			'karma_score'		=> $karma_row['karma_score'],
+			'post_id'			=> (int) $post_id,
+			'giving_user_id'	=> (int) $giving_user_id,
+			'receiving_user_id'	=> (int) $receiving_user_id,
+			'karma_score'		=> (int) $karma_score,
 			'karma_time'		=> $karma_time,
 			'karma_comment'		=> $karma_comment,
 		);
@@ -122,5 +124,19 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 			return false;
 		}
 		return $row['poster_id'];
+	}
+
+	private function user_id_exists($user_id) {
+		$sql_array = array(
+			'SELECT'	=> 'count(*) AS num_users',
+			'FROM'		=> array(USERS_TABLE => 'u'),
+			'WHERE'		=> 'user_id = ' . (int) $user_id,
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$num_users = $this->db->sql_fetchfield('num_users');
+		$this->db->sql_freeresult($result);
+
+		return $num_users == 1;
 	}
 }

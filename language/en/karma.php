@@ -37,10 +37,12 @@ if (empty($lang) || !is_array($lang))
 //
 
 $lang = array_merge($lang, array(
-	'KARMA_GIVING_KARMA'	=> 'You\'re giving karma on post %1$s by %2$s.',
-	'KARMA_TYPE'			=> 'Type',
-	'KARMA_POSITIVE'		=> 'Positive',
-	'KARMA_NEGATIVE'		=> 'Negative',
-	'KARMA_COMMENT'			=> 'Comment',
+	'KARMA_GIVING_KARMA'		=> 'You\'re giving karma on post %1$s by %2$s.',
+	'KARMA_TYPE'				=> 'Type',
+	'KARMA_POSITIVE'			=> 'Positive',
+	'KARMA_NEGATIVE'			=> 'Negative',
+	'KARMA_COMMENT'				=> 'Comment',
+	'KARMA_SCORE_OUTOFBOUNDS'	=> 'Karma score too high or too low.',
+	'KARMA_TIME_TOO_LARGE'		=> 'Karma time too large.',
 
 ));
