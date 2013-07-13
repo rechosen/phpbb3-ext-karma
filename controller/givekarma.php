@@ -61,23 +61,11 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		{
 			trigger_error('NO_POST');
 		}
+		
+		// Check permissions
+		$this->check_permission($post_data['forum_id']);
 
-		// Does the user have permission to view this post?
-		if (!$this->auth->acl_get('f_read', $post_data['forum_id']))
-		{
-			if ($this->user->data['user_id'] != ANONYMOUS)
-			{
-				trigger_error('SORRY_AUTH_READ');
-			}
-
-			login_box('', $user->lang['LOGIN_VIEWFORUM']);
-		}
-
-		// Does the user have permission to give karma on this post? TODO
-		/*if (!$this->auth->acl_get('u_give_karma') {
-			trigger_error(TODO);
-		}*/
-
+		// Handle the form submission if appropriate
 		if ($this->request->is_set_post('submit'))
 		{
 			if (!check_form_key('give_karma_form'))
@@ -85,38 +73,18 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 				trigger_error('FORM_INVALID');
 			}
 
-			// Validate the input TODO make karma_comment required depending on a setting
-			$karma_score = $this->request->variable('karma_type', 0);
-			if ($karma_score == 0)
-			{
-				$error[] = 'KARMA_TYPE_INVALID';
-			}
+			$error = $this->validate_and_store_karma($post_id);
 
-			// Store the karma into the database
 			if (empty($error))
 			{
-				$karma_model = $this->container->get('karma.includes.karma_model');
-				try
-				{
-					$karma_model->store_karma($post_id, $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
-
-					// Show the success page and redirect after three seconds
-					meta_refresh(3, $post_data['post_url']);
-					$message = $this->user->lang['KARMA_KARMA_GIVEN'] . '<br /><br />' . sprintf($user->lang['VIEW_MESSAGE'], '<a href="' . $post_data['post_url'] . '">', '</a>');
-					trigger_error($message);
-				}
-				catch (Exception $e)
-				{
-					trigger_error($e->getMessage());
-				}
+				// Show the success page and redirect after three seconds
+				meta_refresh(3, $post_data['post_url']);
+				$message = $this->user->lang['KARMA_KARMA_GIVEN'] . '<br /><br />' . sprintf($this->user->lang['KARMA_VIEW_POST'], '<a href="' . $post_data['post_url'] . '">', '</a>');
+				trigger_error($message);
 			}
-
-			// Replace "error" strings with their real, localised form
-			$error = array_map(array($this->user, 'lang'), $error);
 		}
 
-		// Set the template variables
-		$phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
+		// Set the template variables to display the form
 		$post_link = "<a href=\"{$post_data['post_url']}\">{$post_data['post_subject']}</a>";
 		$receiving_user = get_username_string('full', $post_data['poster_id'], $post_data['username'], $post_data['user_colour']);
 		$template_vars = array(
@@ -181,5 +149,66 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	private function get_post_url($post_id, $topic_id)
 	{
 		return append_sid($this->phpbb_root_path . 'viewtopic.' . $this->php_ext, "t=$topic_id&amp;p=$post_id") . "#p$post_id";
+	}
+
+	/**
+	 * Checks if the user has permission to give karma on this post
+	 * 
+	 * @param	int	$forum_id	The ID of the forum in which the post is located
+	 * @return	void
+	 */
+	private function check_permission($forum_id)
+	{
+		// Does the user have permission to view this post?
+		if (!$this->auth->acl_get('f_read', $forum_id))
+		{
+			if ($this->user->data['user_id'] != ANONYMOUS)
+			{
+				trigger_error('SORRY_AUTH_READ');
+			}
+
+			login_box('', $user->lang['LOGIN_VIEWFORUM']);
+		}
+
+		// Does the user have permission to give karma on this post? TODO
+		/*if (!$this->auth->acl_get('u_give_karma') {
+			trigger_error(TODO);
+		}*/
+	}
+
+	/**
+	 * Validates the POST variables and, if successful, stores the karma
+	 * 
+	 * @return	array	An array of form errors to be displayed to the user
+	 */
+	private function validate_and_store_karma($post_id)
+	{
+		$error = array();
+
+		// Validate the input TODO make karma_comment required depending on a setting
+		$karma_score = $this->request->variable('karma_type', 0);
+		if ($karma_score == 0)
+		{
+			$error[] = 'KARMA_TYPE_INVALID';
+		}
+
+		// Store the karma into the database
+		if (empty($error))
+		{
+			$karma_model = $this->container->get('karma.includes.karma_model');
+			try
+			{
+				$karma_model->store_karma($post_id, $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
+			}
+			catch (Exception $e)
+			{
+				trigger_error($e->getMessage());
+			}
+		}
+
+		// Replace "error" strings with their real, localised form
+		$error = array_map(array($this->user, 'lang'), $error);
+
+		return $error;
 	}
 }
