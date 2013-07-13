@@ -117,6 +117,7 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 		if (empty($expected_exception))
 		{
 			$this->assert_karma_row_exists($karma);
+			$this->assert_user_karma_score_equals($karma['post_id'], $karma['karma_score']);
 		}
 	}
 	
@@ -133,6 +134,7 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 			'karma_time'		=> $time,
 			'karma_comment'		=> 'abc',
 		));
+		$this->assert_user_karma_score_equals(1, -1);
 	}
 	
 	protected function assert_karma_row_exists($row)
@@ -144,6 +146,18 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 		$sql .= " AND '{$row['karma_comment']}' LIKE CONCAT(karma_comment, '%')";
 		$result = $this->db->sql_query($sql);
 		$this->assertEquals(1, $this->db->sql_fetchfield('num_rows'));
+		$this->db->sql_freeresult($result);
+	}
+	
+	protected function assert_user_karma_score_equals($post_id, $karma_score)
+	{
+		$result = $this->db->sql_query("
+			SELECT u.user_karma_score
+			FROM phpbb_posts AS p, phpbb_users AS u
+			WHERE p.poster_id = u.user_id
+				AND p.post_id = $post_id"
+		);
+		$this->assertEquals($karma_score, $this->db->sql_fetchfield('user_karma_score'));
 		$this->db->sql_freeresult($result);
 	}
 }

@@ -16,8 +16,8 @@ CREATE TABLE [phpbb_karma] (
 	[receiving_user_id] [int] DEFAULT (0) NOT NULL ,
 	[karma_score] [int] DEFAULT (0) NOT NULL ,
 	[karma_time] [int] DEFAULT (0) NOT NULL ,
-	[karma_comment] [text] DEFAULT ('') NOT NULL 
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+	[karma_comment] [varchar] (4000) DEFAULT ('') NOT NULL 
+) ON [PRIMARY]
 GO
 
 

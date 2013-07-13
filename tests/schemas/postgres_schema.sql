@@ -16,7 +16,7 @@ CREATE TABLE phpbb_karma (
 	receiving_user_id INT4 DEFAULT '0' NOT NULL CHECK (receiving_user_id >= 0),
 	karma_score INT2 DEFAULT '0' NOT NULL,
 	karma_time INT4 DEFAULT '0' NOT NULL CHECK (karma_time >= 0),
-	karma_comment TEXT DEFAULT '' NOT NULL
+	karma_comment varchar(4000) DEFAULT '' NOT NULL
 );
 
 

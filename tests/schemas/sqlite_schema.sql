@@ -11,7 +11,7 @@ CREATE TABLE phpbb_karma (
 	receiving_user_id INTEGER UNSIGNED NOT NULL DEFAULT '0',
 	karma_score tinyint(4) NOT NULL DEFAULT '0',
 	karma_time INTEGER UNSIGNED NOT NULL DEFAULT '0',
-	karma_comment mediumtext(16777215) NOT NULL DEFAULT ''
+	karma_comment text(65535) NOT NULL DEFAULT ''
 );
 
 

@@ -88,7 +88,8 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 		}
 
 		// Insert the karma into the database
-		if (!$this->karma_exists($post_id, $giving_user_id))
+		$current_score = $this->get_karma_score($post_id, $giving_user_id);
+		if ($current_score === 0)
 		{
 			$sql_ary = array(
 				'post_id'			=> (int) $post_id,
@@ -117,6 +118,14 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 					AND giving_user_id = ' . (int) $giving_user_id
 			);
 		}
+		// Now update the karma_score column in the _users table
+		$score_change = $karma_score - $current_score;
+		$change_sign = ($score_change < 0) ? '-' : '+';
+		$this->db->sql_query('
+			UPDATE ' . USERS_TABLE . '
+			SET user_karma_score = user_karma_score ' . $change_sign . ' ' . abs($score_change) . '
+			WHERE user_id = ' . (int) $receiving_user_id
+		);
 	}
 
 	/**
@@ -167,25 +176,25 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 	}
 
 	/**
-	 * Checks if the karma identified by post_id and giving_user_id exists
+	 * Gets the karma score given on the specified post by the specified user
 	 * 
 	 * @param	int		$post_id		The post on which the karma was given
 	 * @param	int		$giving_user_id	The user which gave the karma
-	 * @return	boolean					true if the karma exists, false otherwise
+	 * @return	int						The given karma, or 0 if no karma was found
 	 */
-	private function karma_exists($post_id, $giving_user_id)
+	private function get_karma_score($post_id, $giving_user_id)
 	{
 		$sql_array = array(
-			'SELECT'	=> 'count(*) AS num_karma',
+			'SELECT'	=> 'karma_score',
 			'FROM'		=> array($this->table_name => 'k'),
 			'WHERE'		=> 'post_id = ' . (int) $post_id . '
 							AND giving_user_id = ' . (int) $giving_user_id,
 		);
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query($sql);
-		$num_karma = $this->db->sql_fetchfield('num_karma');
+		$karma_score = $this->db->sql_fetchfield('karma_score');
 		$this->db->sql_freeresult($result);
 
-		return $num_karma == 1;
+		return (int) $karma_score;
 	}
 }
