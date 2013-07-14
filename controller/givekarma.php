@@ -15,6 +15,8 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+
 class phpbb_ext_phpbb_karma_controller_givekarma
 {
 	/**
@@ -32,7 +34,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	* @param string						$phpbb_root_path	phpBB root path
 	* @param string						$php_ext			phpEx
 	*/
-	public function __construct(phpbb_auth $auth, /* TODO ask about impossibility of checking type */$container, phpbb_db_driver $db, phpbb_request $request, phpbb_template $template, phpbb_user $user, phpbb_controller_helper $helper, $phpbb_root_path, $php_ext)
+	public function __construct(phpbb_auth $auth, ContainerBuilder $container, phpbb_db_driver $db, phpbb_request $request, phpbb_template $template, phpbb_user $user, phpbb_controller_helper $helper, $phpbb_root_path, $php_ext)
 	{
 		$this->auth = $auth;
 		$this->container = $container;
