@@ -159,7 +159,7 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 	 * Checks if the given user ID belongs to an existing user
 	 * 
 	 * @param	int		$user_id	The user ID to be validated
-	 * @return	boolean				true if the user exists, false otherwise
+	 * @return	bool				true if the user exists, false otherwise
 	 */
 	private function user_id_exists($user_id) {
 		$sql_array = array(

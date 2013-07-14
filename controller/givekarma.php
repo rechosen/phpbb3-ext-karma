@@ -114,7 +114,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	 * Gets information this controller requires about a post
 	 * 
 	 * @param	int	$post_id	The ID of the post
-	 * @return	mixed			An array of information, or false if the post doesn't exist.
+	 * @return	bool|array		An array of information, or false if the post doesn't exist.
 	 */
 	private function get_post_data($post_id)
 	{
@@ -155,7 +155,6 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	 * Checks if the user has permission to give karma on this post
 	 * 
 	 * @param	int	$forum_id	The ID of the forum in which the post is located
-	 * @return	void
 	 */
 	private function check_permission($forum_id)
 	{
