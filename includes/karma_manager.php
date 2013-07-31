@@ -15,8 +15,16 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-class phpbb_ext_phpbb_karma_includes_karma_model
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+
+class phpbb_ext_phpbb_karma_includes_karma_manager
 {
+	/**
+	 * Container object
+	 * @var ContainerBuilder
+	 */
+	private $container;
+
 	/**
 	 * Database object
 	 * @var phpbb_db_driver
@@ -34,11 +42,13 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 	 * NOTE: The parameters of this method must match in order and type with
 	 * the dependencies defined in the services.yml file for this service.
 	 * 
-	 * @param	phpbb_db_driver	$db			Database Object
-	 * @param	string			$table_name	Name of the karma database table
+	 * @param ContainerBuilder	$container	Container object
+	 * @param phpbb_db_driver	$db			Database Object
+	 * @param string			$table_name	Name of the karma database table
 	 */
-	public function __construct(phpbb_db_driver $db, $table_name)
+	public function __construct(ContainerBuilder $container, phpbb_db_driver $db, $table_name)
 	{
+		$this->container = $container;
 		$this->db = $db;
 		$this->table_name = $table_name;
 	}
@@ -53,13 +63,25 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 	 * 								karma_time, karma_comment) will be set to
 	 * 								a default unless they are specified.
 	 */
-	public function store_karma($post_id, $giving_user_id, $karma_score, $karma_comment = '', $karma_time = -1)
+	public function store_karma($item_id, $karma_type_name, $giving_user_id, $karma_score, $karma_comment = '', $karma_time = -1)
 	{
-		// Set the receiving user ID and check if post_id is valid at the same time
-		$receiving_user_id = $this->get_author_of_post($post_id);
-		if ($receiving_user_id === false)
+		// Set the receiving user ID
+		$karma_type = $this->container->get('karma.type.post'); // TODO do this dynamically
+		$receiving_user_id = $karma_type->get_author($item_id);
+
+		// Get the karma_type_id, simultaneously checking if the karma_type_name exists TODO make less ugly :P
+		$sql_array = array(
+			'SELECT'	=> 'karma_type_id',
+			'FROM'		=> array('phpbb_karma_type' => 'k'),
+			'WHERE'		=> "karma_type_name = '" . $this->db->sql_escape($karma_type_name) . "'",
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$karma_type_id = $this->db->sql_fetchfield('karma_type_id');
+		$this->db->sql_freeresult($result);
+		if ($karma_type_id === false)
 		{
-			throw new OutOfBoundsException('NO_POST');
+			throw new OutOfBoundsException('NO_KARMA_TYPE');
 		}
 
 		// Check if the giving user ID exists
@@ -88,11 +110,12 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 		}
 
 		// Insert the karma into the database
-		$current_score = $this->get_karma_score($post_id, $giving_user_id);
+		$current_score = $this->get_karma_score($item_id, $karma_type_id, $giving_user_id);
 		if ($current_score === 0)
 		{
 			$sql_ary = array(
-				'post_id'			=> (int) $post_id,
+				'item_id'			=> (int) $item_id,
+				'karma_type_id'		=> (int) $karma_type_id,
 				'giving_user_id'	=> (int) $giving_user_id,
 				'receiving_user_id'	=> (int) $receiving_user_id,
 				'karma_score'		=> (int) $karma_score,
@@ -114,7 +137,8 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 			$this->db->sql_query('
 				UPDATE ' . $this->table_name . '
 				SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
-				WHERE post_id = ' . (int) $post_id . '
+				WHERE item_id = ' . (int) $item_id . '
+					AND karma_type_id = ' . (int) $karma_type_id . '
 					AND giving_user_id = ' . (int) $giving_user_id
 			);
 		}
@@ -176,18 +200,20 @@ class phpbb_ext_phpbb_karma_includes_karma_model
 	}
 
 	/**
-	 * Gets the karma score given on the specified post by the specified user
+	 * Gets the karma score given on the specified item by the specified user
 	 * 
-	 * @param	int		$post_id		The post on which the karma was given
+	 * @param	int		$item_id		The item on which the karma was given
+	 * @param	int		$karma_type_id	The type of the item on which the karma was given
 	 * @param	int		$giving_user_id	The user which gave the karma
 	 * @return	int						The given karma, or 0 if no karma was found
 	 */
-	private function get_karma_score($post_id, $giving_user_id)
+	private function get_karma_score($item_id, $karma_type_id, $giving_user_id)
 	{
 		$sql_array = array(
 			'SELECT'	=> 'karma_score',
 			'FROM'		=> array($this->table_name => 'k'),
-			'WHERE'		=> 'post_id = ' . (int) $post_id . '
+			'WHERE'		=> 'item_id = ' . (int) $item_id . '
+							AND karma_type_id = ' . (int) $karma_type_id . '
 							AND giving_user_id = ' . (int) $giving_user_id,
 		);
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);

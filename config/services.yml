@@ -1,7 +1,8 @@
 services:
     karma.includes.karma_model:
-        class: phpbb_ext_phpbb_karma_includes_karma_model
+        class: phpbb_ext_phpbb_karma_includes_karma_manager
         arguments:
+            - @service_container
             - @dbal.conn
             - %core.table_prefix%karma
 
@@ -17,3 +18,11 @@ services:
             - @controller.helper
             - %core.root_path%
             - %core.php_ext%
+
+    karma.type.post:
+        class: phpbb_ext_phpbb_karma_includes_type_post
+        arguments:
+            - @dbal.conn
+            - %core.root_path%
+            - %core.php_ext%
+            - %core.table_prefix%karma

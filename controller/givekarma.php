@@ -199,7 +199,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			$karma_model = $this->container->get('karma.includes.karma_model');
 			try
 			{
-				$karma_model->store_karma($post_id, $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
+				$karma_model->store_karma($post_id, 'post', $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
 			}
 			catch (Exception $e)
 			{
