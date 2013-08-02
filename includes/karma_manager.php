@@ -66,7 +66,7 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 	public function store_karma($item_id, $karma_type_name, $giving_user_id, $karma_score, $karma_comment = '', $karma_time = -1)
 	{
 		// Set the receiving user ID
-		$karma_type = $this->container->get('karma.type.post'); // TODO do this dynamically
+		$karma_type = $this->get_type_class($karma_type_name);
 		$receiving_user_id = $karma_type->get_author($item_id);
 
 		// Get the karma_type_id, simultaneously checking if the karma_type_name exists TODO make less ugly :P
@@ -150,6 +150,37 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 			SET user_karma_score = user_karma_score ' . $change_sign . ' ' . abs($score_change) . '
 			WHERE user_id = ' . (int) $receiving_user_id
 		);
+	}
+
+	/**
+	 * Retrieves the url, title and author user_id of the specified item
+	 * 
+	 * @param	string	$karma_type_name	The type of the item
+	 * @param	int		$item_id			The ID of the item
+	 * @return	array						An array containing the keys 'url', 'title' and 'author' pointing to the corresponding information
+	 */
+	public function get_item_data($karma_type_name, $item_id)
+	{
+		$karma_type = $this->get_type_class($karma_type_name);
+
+		return array(
+			'url'		=> $karma_type->get_url($item_id),
+			'title'		=> $karma_type->get_title($item_id),
+			'author'	=> $karma_type->get_author($item_id),
+		);
+	}
+
+	/**
+	 * Helper to get the type class of a certain karma type
+	 * 
+	 * @param	string	$karma_type_name						The name of the type to get a class instance of
+	 * @return	phpbb_ext_phpbb_karma_includes_type_interface	An instance of the corresponding type class
+	 */
+	private function get_type_class($karma_type_name)
+	{
+		$karma_type_name = (strpos($karma_type_name, 'karma.type.') === 0) ? $karma_type_name : 'karma.type.' . $karma_type_name;
+
+		return $this->container->get($karma_type_name);
 	}
 
 	/**

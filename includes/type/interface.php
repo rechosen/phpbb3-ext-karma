@@ -40,4 +40,12 @@ interface phpbb_ext_phpbb_karma_includes_type_interface
 	 * @return	int			The user_id of the author of the specified item
 	 */
 	public function get_author($item_id);
+
+	/**
+	 * Checks if the current user has permission to read the specified item
+	 * 
+	 * @param	$item_id	The ID of the item
+	 * @return	bool		Whether the current user has reading permissions
+	 */
+	public function check_permission($item_id);
 }

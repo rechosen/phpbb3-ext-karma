@@ -89,4 +89,59 @@ class phpbb_ext_phpbb_karma_includes_type_post extends phpbb_ext_phpbb_karma_inc
 
 		return $user_id;
 	}
+
+	/**
+	 * Checks if the current user has permission to read the specified item
+	 * 
+	 * @param	$item_id	The ID of the item
+	 * @return	bool		Whether the current user has reading permissions
+	 */
+	public function check_permission($item_id)
+	{
+		// Get the forum_id of this post TODO make this code more DRY
+		$sql_array = array(
+			'SELECT'	=> 'forum_id',
+			'FROM'		=> array(POSTS_TABLE => 'p'),
+			'WHERE'		=> 'post_id = ' . (int) $item_id,
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$forum_id = $this->db->sql_fetchfield('forum_id');
+		$this->db->sql_freeresult($result);
+		if ($forum_id === false) {
+			throw new OutOfBoundsException('NO_POST');
+		}
+
+		// Check if the user has read permissions for this post
+		if (!$this->auth->acl_get('f_read', $forum_id))
+		{
+			if ($this->user->data['user_id'] != ANONYMOUS)
+			{
+				trigger_error('SORRY_AUTH_READ');
+			}
+
+			login_box('', $user->lang['LOGIN_VIEWFORUM']); // TODO if login_forum_box can be avoided, avoid this as well
+		}
+
+		// Check if the forum is password-protected but no password was entered yet
+		// TODO this query could be avoided by using a JOIN earlier
+		$sql_array = array(
+			'SELECT'	=> 'forum_password',
+			'FROM'		=> array(FORUMS_TABLE => 'f'),
+			'WHERE'		=> 'forum_id = ' . (int) $forum_id,
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$forum_password = $this->db->sql_fetchfield('forum_password');
+		$this->db->sql_freeresult($result);
+		if ($forum_password === false) {
+			throw new OutOfBoundsException('NO_TOPIC');
+		}
+
+		// TODO There must be a way to check this without overriding output with a password form
+		if ($forum_password)
+		{
+			login_forum_box($topic_data);
+		}
+	}
 }

@@ -70,6 +70,7 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 			),
 			'drop_tables'	=> array(
 				$this->table_prefix . 'karma',
+				$this->table_prefix . 'karma_type',
 			),
 		);
 	}

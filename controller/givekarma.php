@@ -50,22 +50,27 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	/**
 	* @return Symfony\Component\HttpFoundation\Response A Symfony Response object
 	*/
-	public function handle($post_id)
+	public function handle($karma_type_name, $item_id)
 	{
 		// Load the extension's language file and the posting language file
 		$this->user->add_lang_ext('phpbb/karma', 'karma');
 		$this->user->add_lang(array('posting'));
-		
-		// Retrieve info about the post karma is given on
-		$post_data = $this->get_post_data($post_id);
-		// If $post_data === false, the post doesn't exist
-		if ($post_data === false)
+
+		// Get an instance of the karma manager
+		$karma_manager = $this->container->get('karma.includes.karma_manager');
+
+		// Retrieve info about the item karma is given on
+		try
 		{
-			trigger_error('NO_POST');
+			$item_data = $karma_manager->get_item_data($karma_type_name, $item_id);
+		}
+		catch (Exception $e)
+		{
+			trigger_error(e.getMessage());
 		}
 		
-		// Check permissions
-		$this->check_permission($post_data['forum_id']);
+		// Check permissions TODO properly move this to the type class
+		// $this->check_permission($post_data['forum_id']);
 
 		// Handle the form submission if appropriate
 		if ($this->request->is_set_post('submit'))
@@ -75,23 +80,23 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 				trigger_error('FORM_INVALID');
 			}
 
-			$error = $this->validate_and_store_karma($post_id);
+			$error = $this->validate_and_store_karma($karma_type_name, $item_id);
 
 			if (empty($error))
 			{
 				// Show the success page and redirect after three seconds
-				meta_refresh(3, $post_data['post_url']);
-				$message = $this->user->lang['KARMA_KARMA_GIVEN'] . '<br /><br />' . sprintf($this->user->lang['KARMA_VIEW_POST'], '<a href="' . $post_data['post_url'] . '">', '</a>');
+				meta_refresh(3, $item_data['url']);
+				$message = $this->user->lang['KARMA_KARMA_GIVEN'] . '<br /><br />' . sprintf($this->user->lang['KARMA_VIEW_ITEM'], '<a href="' . $item_data['url'] . '">', '</a>');
 				trigger_error($message);
 			}
 		}
 
 		// Set the template variables to display the form
-		$post_link = "<a href=\"{$post_data['post_url']}\">{$post_data['post_subject']}</a>";
-		$receiving_user = get_username_string('full', $post_data['poster_id'], $post_data['username'], $post_data['user_colour']);
+		$item_link = "<a href=\"{$item_data['url']}\">{$item_data['title']}</a>";
+		$receiving_user = $this->get_full_username_string($item_data['author']);
 		$template_vars = array(
 			'ERROR'					=> (!empty($error)) ? implode('<br />', $error) : '',
-			'KARMA_GIVING_KARMA'	=> sprintf($this->user->lang['KARMA_GIVING_KARMA'], $post_link, $receiving_user),
+			'KARMA_GIVING_KARMA'	=> sprintf($this->user->lang['KARMA_GIVING_KARMA'], $item_link, $receiving_user),
 			'KARMA_COMMENT'			=> $this->request->variable('karma_comment', ''),
 			'KARMA_TYPE'			=> $this->request->variable('karma_type', 0),
 		);
@@ -113,7 +118,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	}
 
 	/**
-	 * Gets information this controller requires about a post
+	 * *OBSOLETE* Gets information this controller requires about a post
 	 * 
 	 * @param	int	$post_id	The ID of the post
 	 * @return	bool|array		An array of information, or false if the post doesn't exist.
@@ -142,7 +147,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	}
 
 	/**
-	 * Generates a url for the specified post
+	 * *OBSOLETE* Generates a url for the specified post
 	 * 
 	 * @param	int		$post_id	The ID of the post
 	 * @param	int		$topic_id	The ID of the topic the post is in
@@ -154,7 +159,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	}
 
 	/**
-	 * Checks if the user has permission to give karma on this post
+	 * *OBSOLETE* Checks if the user has permission to give karma on this post
 	 * 
 	 * @param	int	$forum_id	The ID of the forum in which the post is located
 	 */
@@ -182,24 +187,30 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	 * 
 	 * @return	array	An array of form errors to be displayed to the user
 	 */
-	private function validate_and_store_karma($post_id)
+	private function validate_and_store_karma($karma_type_name, $item_id)
 	{
 		$error = array();
 
 		// Validate the input TODO make karma_comment required depending on a setting
-		$karma_score = $this->request->variable('karma_type', 0);
+		// TODO prevent the anonymous user from giving karma?
+		$karma_score = $this->request->variable('karma_score', 0);
 		if ($karma_score == 0)
 		{
-			$error[] = 'KARMA_TYPE_INVALID';
+			$error[] = 'KARMA_SCORE_INVALID';
+		}
+		else
+		{
+			// Any positive number becomes 1, any negative number -1
+			$karma_score /= abs($karma_score);
 		}
 
 		// Store the karma into the database
 		if (empty($error))
 		{
-			$karma_model = $this->container->get('karma.includes.karma_model');
+			$karma_manager = $this->container->get('karma.includes.karma_manager');
 			try
 			{
-				$karma_model->store_karma($post_id, 'post', $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
+				$karma_manager->store_karma($item_id, $karma_type_name, $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
 			}
 			catch (Exception $e)
 			{
@@ -211,5 +222,27 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		$error = array_map(array($this->user, 'lang'), $error);
 
 		return $error;
+	}
+
+	/**
+	 * Get a linked and colored string of the username belonging with the specified user_id
+	 * 
+	 * @param	int	$user_id	The ID of the user to get the username string of
+	 * @return	string			A linked an colored username string, obtained from get_username_string('full', ...)
+	 */
+	private function get_full_username_string($user_id)
+	{
+		$sql_array = array(
+			'SELECT'	=> 'username, user_colour',
+			'FROM'		=> array(USERS_TABLE => 'u'),
+			'WHERE'		=> 'user_id = ' . (int) $user_id,
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$username = $this->db->sql_fetchfield('username');
+		$user_colour = $this->db->sql_fetchfield('user_colour');
+		$this->db->sql_freeresult($result);
+
+		return get_username_string('full', $user_id, $username, $user_colour);
 	}
 }
