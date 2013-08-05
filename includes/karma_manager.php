@@ -81,12 +81,12 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 	/**
 	 * Stores given karma in the database
 	 * 
-	 * @param	array	$karma_row	An array containing at least the
-	 * 								following keys (with appropriate values):
-	 * 								post_id, giving_user_id, and karma_score.
-	 * 								The other fields (receiving_user_id,
-	 * 								karma_time, karma_comment) will be set to
-	 * 								a default unless they are specified.
+	 * @param int		$item_id			The ID of the item on which the karma was given
+	 * @param string	$karma_type_name	The type of item on which the karma was given
+	 * @param int		$giving_user_id		The ID of the user giving the karma
+	 * @param int		$karma_score		The given karma score
+	 * @param string	$karma_comment		The comment given with the karma
+	 * @param int		$karma_time			The time on which the karma was given
 	 */
 	public function store_karma($item_id, $karma_type_name, $giving_user_id, $karma_score, $karma_comment = '', $karma_time = -1)
 	{
@@ -176,6 +176,9 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 	{
 		$karma_type = $this->get_type_class($karma_type_name);
 
+		// Ensure the current user has permission to get this information
+		$karma_type->check_permission($item_id);
+
 		return array(
 			'url'		=> $karma_type->get_url($item_id),
 			'title'		=> $karma_type->get_title($item_id),
@@ -194,33 +197,6 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 		$karma_type_name = (strpos($karma_type_name, 'karma.type.') === 0) ? $karma_type_name : 'karma.type.' . $karma_type_name;
 
 		return $this->container->get($karma_type_name);
-	}
-
-	/**
-	 * *OBSOLETE* Returns the ID of the user who wrote the specified post
-	 * 
-	 * @param	int	$post_id	The ID of the post of which the author is
-	 * 							requested
-	 * @return	int				The ID of the user who wrote post $post_id,
-	 * 							or false if the post doesn't exist
-	 */
-	private function get_author_of_post($post_id)
-	{
-		$sql_array = array(
-			'SELECT'	=> 'poster_id',
-			'FROM'		=> array(POSTS_TABLE => 'p'),
-			'WHERE'		=> 'post_id = ' . (int) $post_id,
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
-		$result = $this->db->sql_query($sql);
-		$row = $this->db->sql_fetchrow($result);
-		$this->db->sql_freeresult($result);
-
-		if ($row === false)
-		{
-			return false;
-		}
-		return $row['poster_id'];
 	}
 
 	/**

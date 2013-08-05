@@ -68,9 +68,6 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		{
 			trigger_error(e.getMessage());
 		}
-		
-		// Check permissions TODO properly move this to the type class
-		// $this->check_permission($post_data['forum_id']);
 
 		// Handle the form submission if appropriate
 		if ($this->request->is_set_post('submit'))
@@ -115,71 +112,6 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		* @param int Status code of the page (200 - OK [ default ], 403 - Unauthorized, 404 - Page not found)
 		*/
 		return $this->helper->render('karma/givekarma_body.html', 'Give karma', 200);
-	}
-
-	/**
-	 * *OBSOLETE* Gets information this controller requires about a post
-	 * 
-	 * @param	int	$post_id	The ID of the post
-	 * @return	bool|array		An array of information, or false if the post doesn't exist.
-	 */
-	private function get_post_data($post_id)
-	{
-		$sql_array = array(
-			'SELECT'	=> 'p.topic_id, p.forum_id, p.post_subject, p.poster_id, u.username, u.user_colour',
-			'FROM'		=> array(
-				POSTS_TABLE		=> 'p',
-				USERS_TABLE		=> 'u',
-			),
-			'WHERE'		=> "p.post_id = $post_id AND u.user_id = p.poster_id",
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
-		$result = $this->db->sql_query($sql);
-		$post_data = $this->db->sql_fetchrow($result);
-		$this->db->sql_freeresult($result);
-
-		if (is_array($post_data))
-		{
-			$post_data['post_url'] = $this->get_post_url($post_id, $post_data['topic_id']);
-		}
-
-		return $post_data;
-	}
-
-	/**
-	 * *OBSOLETE* Generates a url for the specified post
-	 * 
-	 * @param	int		$post_id	The ID of the post
-	 * @param	int		$topic_id	The ID of the topic the post is in
-	 * @return	string				The url of the specified post
-	 */
-	private function get_post_url($post_id, $topic_id)
-	{
-		return append_sid($this->phpbb_root_path . 'viewtopic.' . $this->php_ext, "t=$topic_id&amp;p=$post_id") . "#p$post_id";
-	}
-
-	/**
-	 * *OBSOLETE* Checks if the user has permission to give karma on this post
-	 * 
-	 * @param	int	$forum_id	The ID of the forum in which the post is located
-	 */
-	private function check_permission($forum_id)
-	{
-		// Does the user have permission to view this post?
-		if (!$this->auth->acl_get('f_read', $forum_id))
-		{
-			if ($this->user->data['user_id'] != ANONYMOUS)
-			{
-				trigger_error('SORRY_AUTH_READ');
-			}
-
-			login_box('', $user->lang['LOGIN_VIEWFORUM']);
-		}
-
-		// Does the user have permission to give karma on this post? TODO
-		/*if (!$this->auth->acl_get('u_give_karma') {
-			trigger_error(TODO);
-		}*/
 	}
 
 	/**
