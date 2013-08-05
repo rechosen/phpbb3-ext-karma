@@ -46,7 +46,8 @@
 		</row>
 	</table>
 	<table name="phpbb_karma">
-		<column>post_id</column>
+		<column>item_id</column>
+		<column>karma_type_id</column>
 		<column>giving_user_id</column>
 		<column>receiving_user_id</column>
 		<column>karma_score</column>

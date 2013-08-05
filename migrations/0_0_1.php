@@ -44,7 +44,7 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 				),
 				$this->table_prefix . 'karma_types'	=> array(
 					'COLUMNS'		=> array(
-						'karma_type_id'			=> array('UINT', 0),
+						'karma_type_id'			=> array('UINT', NULL, 'auto_increment'),
 						'karma_type_name'		=> array('VCHAR:255', ''),
 						'karma_type_enabled'	=> array('BOOL', 0),
 					),

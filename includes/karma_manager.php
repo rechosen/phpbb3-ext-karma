@@ -15,8 +15,6 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-
 class phpbb_ext_phpbb_karma_includes_karma_manager
 {
 	/**
@@ -45,6 +43,12 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 	private $db;
 
 	/**
+	 * User object
+	 * @var phpbb_user
+	 */
+	private $user;
+
+	/**
 	 * Name of the karma database table
 	 * @var string
 	 */
@@ -63,17 +67,18 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 	 * 
 	 * @param array					$karma_types		Available karma type names
 	 * @param phpbb_cache_service	$cache				Cache object
-	 * @param ContainerBuilder		$container			Container object
+	 * @param ContainerBuilder		$container			Container object (no type verification to allow testing with a mock container)
 	 * @param phpbb_db_driver		$db					Database Object
 	 * @param string				$karma_table		Name of the karma database table
 	 * @param string				$karma_types_table	Name of the karma_types database table
 	 */
-	public function __construct($karma_types, phpbb_cache_service $cache, ContainerBuilder $container, phpbb_db_driver $db, $karma_table, $karma_types_table)
+	public function __construct($karma_types, phpbb_cache_service $cache, $container, phpbb_db_driver $db, phpbb_user $user, $karma_table, $karma_types_table)
 	{
 		$this->karma_types = $karma_types;
 		$this->cache = $cache;
 		$this->container = $container;
 		$this->db = $db;
+		$this->user = $user;
 		$this->karma_table = $karma_table;
 		$this->karma_types_table = $karma_types_table;
 	}
@@ -250,7 +255,7 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 	 * @param	string	$karma_type_name	The karma type to get the id of
 	 * @return	int							The id of the requested karma type
 	 */
-	private function get_karma_type_id($karma_type_name)
+	private function get_karma_type_id($karma_type_name) // TODO use protected instead of private unless the method _must_ not change, even when extending
 	{
 		$karma_type_ids = $this->cache->get('karma_type_ids');
 
@@ -276,8 +281,11 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 		if (!isset($karma_type_ids[$karma_type_name]))
 		{
 			if (!isset($this->karma_types[$karma_type_name]) && !isset($this->karma_types['karma.type.' . $karma_type_name]))
+			// TODO giving a full type class name passed the first of these two tests but isn't valid at all otherwise
+			// That very mistake is in the notification system code, too; ask EXreaction
 			{
-				throw new OutOfBoundsException('NO_KARMA_TYPE'); // TODO error should name the nonexistent type
+				//throw new OutOfBoundsException($this->user->lang('NO_KARMA_TYPE', $karma_type_name));
+				throw new OutOfBoundsException(print_r($this->karma_types, true));
 			}
 
 			$sql = 'INSERT INTO ' . $this->karma_types_table . ' ' . $this->db->sql_build_array('INSERT', array(

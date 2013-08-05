@@ -800,18 +800,27 @@ foreach ($supported_dbms as $dbms)
 */
 function get_schema_struct()
 {
-	$schema_data = array();
-
-	$schema_data['phpbb_karma'] = array(
-		'COLUMNS'		=> array(
-			'post_id'			=> array('UINT', 0),
-			'giving_user_id'	=> array('UINT', 0),
-			'receiving_user_id'	=> array('UINT', 0),
-			'karma_score'		=> array('TINT:4', 0),
-			'karma_time'		=> array('UINT:11', 0),
-			'karma_comment'		=> array('TEXT_UNI', ''),
+	$schema_data = array(
+		'phpbb_karma'		=> array(
+			'COLUMNS'			=> array(
+				'item_id'				=> array('UINT', 0),
+				'karma_type_id'			=> array('UINT', 0),
+				'giving_user_id'		=> array('UINT', 0),
+				'receiving_user_id'		=> array('UINT', 0),
+				'karma_score'			=> array('TINT:4', 0),
+				'karma_time'			=> array('TIMESTAMP', 0),
+				'karma_comment'			=> array('TEXT_UNI', ''),
+			),
+			'PRIMARY_KEY'	=> array('item_id', 'karma_type_id', 'giving_user_id'),
 		),
-		'PRIMARY KEY'	=> array('post_id', 'giving_user_id'),
+		'phpbb_karma_types'	=> array(
+			'COLUMNS'			=> array(
+				'karma_type_id'			=> array('UINT', NULL, 'auto_increment'),
+				'karma_type_name'		=> array('VCHAR:255', ''),
+				'karma_type_enabled'	=> array('BOOL', 0),
+			),
+			'PRIMARY_KEY'	=> 'karma_type_id',
+				),
 	);
 
 	return $schema_data;

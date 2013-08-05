@@ -47,5 +47,6 @@ $lang = array_merge($lang, array(
 	'KARMA_SCORE_INVALID'		=> 'Please select a karma score.',
 	'KARMA_KARMA_GIVEN'			=> 'Karma successfully given.',
 	'KARMA_VIEW_ITEM'			=> '%sView the item you gave karma on%s',
+	'NO_KARMA_TYPE'				=> 'Karma type %s does not exist.',
 
 ));
