@@ -42,7 +42,7 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 					),
 					'PRIMARY_KEY'	=> array('item_id', 'karma_type_id', 'giving_user_id'),
 				),
-				$this->table_prefix . 'karma_type'	=> array(
+				$this->table_prefix . 'karma_types'	=> array(
 					'COLUMNS'		=> array(
 						'karma_type_id'			=> array('UINT', 0),
 						'karma_type_name'		=> array('VCHAR:255', ''),
@@ -70,7 +70,7 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 			),
 			'drop_tables'	=> array(
 				$this->table_prefix . 'karma',
-				$this->table_prefix . 'karma_type',
+				$this->table_prefix . 'karma_types',
 			),
 		);
 	}

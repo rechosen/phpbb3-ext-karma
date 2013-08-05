@@ -20,6 +20,19 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 class phpbb_ext_phpbb_karma_includes_karma_manager
 {
 	/**
+	 * Array that contains all available karma types which are passed via the
+	 * service container
+	 * @var array
+	 */
+	private $karma_types;
+
+	/**
+	 * Cache object
+	 * @var phpbb_cache_service
+	 */
+	private $cache;
+
+	/**
 	 * Container object
 	 * @var ContainerBuilder
 	 */
@@ -35,22 +48,34 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 	 * Name of the karma database table
 	 * @var string
 	 */
-	private $table_name;
+	private $karma_table;
+
+	/**
+	 * Name of the karma_types database table
+	 * @var string
+	 */
+	private $karma_types_table;
 
 	/**
 	 * Constructor
 	 * NOTE: The parameters of this method must match in order and type with
 	 * the dependencies defined in the services.yml file for this service.
 	 * 
-	 * @param ContainerBuilder	$container	Container object
-	 * @param phpbb_db_driver	$db			Database Object
-	 * @param string			$table_name	Name of the karma database table
+	 * @param array					$karma_types		Available karma type names
+	 * @param phpbb_cache_service	$cache				Cache object
+	 * @param ContainerBuilder		$container			Container object
+	 * @param phpbb_db_driver		$db					Database Object
+	 * @param string				$karma_table		Name of the karma database table
+	 * @param string				$karma_types_table	Name of the karma_types database table
 	 */
-	public function __construct(ContainerBuilder $container, phpbb_db_driver $db, $table_name)
+	public function __construct($karma_types, phpbb_cache_service $cache, ContainerBuilder $container, phpbb_db_driver $db, $karma_table, $karma_types_table)
 	{
+		$this->karma_types = $karma_types;
+		$this->cache = $cache;
 		$this->container = $container;
 		$this->db = $db;
-		$this->table_name = $table_name;
+		$this->karma_table = $karma_table;
+		$this->karma_types_table = $karma_types_table;
 	}
 
 	/**
@@ -69,20 +94,8 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 		$karma_type = $this->get_type_class($karma_type_name);
 		$receiving_user_id = $karma_type->get_author($item_id);
 
-		// Get the karma_type_id, simultaneously checking if the karma_type_name exists TODO make less ugly :P
-		$sql_array = array(
-			'SELECT'	=> 'karma_type_id',
-			'FROM'		=> array('phpbb_karma_type' => 'k'),
-			'WHERE'		=> "karma_type_name = '" . $this->db->sql_escape($karma_type_name) . "'",
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
-		$result = $this->db->sql_query($sql);
-		$karma_type_id = $this->db->sql_fetchfield('karma_type_id');
-		$this->db->sql_freeresult($result);
-		if ($karma_type_id === false)
-		{
-			throw new OutOfBoundsException('NO_KARMA_TYPE');
-		}
+		// Get the karma_type_id
+		$karma_type_id = $this->get_karma_type_id($karma_type_name);
 
 		// Check if the giving user ID exists
 		if (!$this->user_id_exists($giving_user_id))
@@ -123,7 +136,7 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 				'karma_comment'		=> $karma_comment,
 			);
 			$this->db->sql_query(
-				'INSERT INTO ' . $this->table_name . ' ' . $this->db->sql_build_array('INSERT', $sql_ary)
+				'INSERT INTO ' . $this->karma_table . ' ' . $this->db->sql_build_array('INSERT', $sql_ary)
 			);
 		}
 		else
@@ -135,7 +148,7 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 				'karma_comment'	=> $karma_comment,
 			);
 			$this->db->sql_query('
-				UPDATE ' . $this->table_name . '
+				UPDATE ' . $this->karma_table . '
 				SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
 				WHERE item_id = ' . (int) $item_id . '
 					AND karma_type_id = ' . (int) $karma_type_id . '
@@ -184,7 +197,7 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 	}
 
 	/**
-	 * Returns the ID of the user who wrote the specified post
+	 * *OBSOLETE* Returns the ID of the user who wrote the specified post
 	 * 
 	 * @param	int	$post_id	The ID of the post of which the author is
 	 * 							requested
@@ -242,7 +255,7 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 	{
 		$sql_array = array(
 			'SELECT'	=> 'karma_score',
-			'FROM'		=> array($this->table_name => 'k'),
+			'FROM'		=> array($this->karma_table => 'k'),
 			'WHERE'		=> 'item_id = ' . (int) $item_id . '
 							AND karma_type_id = ' . (int) $karma_type_id . '
 							AND giving_user_id = ' . (int) $giving_user_id,
@@ -253,5 +266,55 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 		$this->db->sql_freeresult($result);
 
 		return (int) $karma_score;
+	}
+
+	/**
+	 * Get the karma type ID from the name
+	 * 
+	 * @param	string	$karma_type_name	The karma type to get the id of
+	 * @return	int							The id of the requested karma type
+	 */
+	private function get_karma_type_id($karma_type_name)
+	{
+		$karma_type_ids = $this->cache->get('karma_type_ids');
+
+		if ($karma_type_ids === false)
+		{
+			$karma_type_ids = array();
+
+			$sql_array = array(
+				'SELECT'	=> 'karma_type_id, karma_type_name',
+				'FROM'		=> array($this->karma_types_table => 'kt'),
+			);
+			$sql = $this->db->sql_build_query('SELECT', $sql_array);
+			$result = $this->db->sql_query($sql);
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$karma_type_ids[$row['karma_type_name']] = (int) $row['karma_type_id'];
+			}
+			$this->db->sql_freeresult($result);
+
+			$this->cache->put('karma_type_ids', $karma_type_ids);
+		}
+
+		if (!isset($karma_type_ids[$karma_type_name]))
+		{
+			if (!isset($this->karma_types[$karma_type_name]) && !isset($this->karma_types['karma.type.' . $karma_type_name]))
+			{
+				throw new OutOfBoundsException('NO_KARMA_TYPE'); // TODO error should name the nonexistent type
+			}
+
+			$sql = 'INSERT INTO ' . $this->karma_types_table . ' ' . $this->db->sql_build_array('INSERT', array(
+				'karma_type_name'		=> $karma_type_name,
+				'karma_type_enabled'	=> 1,
+			));
+			$this->db->sql_query($sql);
+
+			$karma_type_ids[$karma_type_name] = (int) $this->db->sql_nextid();
+
+			$this->cache->put('karma_type_ids', $karma_type_ids);
+		}
+
+		return $karma_type_ids[$karma_type_name];
 	}
 }
