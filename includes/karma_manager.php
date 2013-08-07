@@ -171,6 +171,42 @@ class phpbb_ext_phpbb_karma_includes_karma_manager
 	}
 
 	/**
+	 * Gets the karma score of the user(s) with the specified ID(s)
+	 * 
+	 * @param	int|array	$user_id	A user_id or array of user_ids
+	 * @return	int						The karma score of the specified user
+	 */
+	public function get_user_karma_score($user_id)
+	{
+		if (is_array($user_id))
+		{
+			$karma_scores = array();
+			foreach ($user_id as $id)
+			{
+				$karma_score[$id] = get_user_karma_score($id);
+			}
+			return $karma_scores;
+		}
+
+		$sql_array = array(
+			'SELECT'	=> 'user_karma_score',
+			'FROM'		=> array(USERS_TABLE => 'u'),
+			'WHERE'		=> 'user_id = ' . (int) $user_id
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$user_karma_score = $this->db->sql_fetchfield('user_karma_score');
+		$this->db->sql_freeresult($result);
+
+		if ($user_karma_score === false)
+		{
+			throw new OutOfBoundsException('NO_USER');
+		}
+
+		return (int) $user_karma_score;
+	}
+
+	/**
 	 * Retrieves the url, title and author user_id of the specified item
 	 * 
 	 * @param	string	$karma_type_name	The type of the item

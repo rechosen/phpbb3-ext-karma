@@ -37,6 +37,7 @@ if (empty($lang) || !is_array($lang))
 //
 
 $lang = array_merge($lang, array(
+	'KARMA'						=> 'Karma',
 	'KARMA_GIVING_KARMA'		=> 'You\'re giving karma on %1$s by %2$s.',
 	'KARMA_SCORE'				=> 'Score',
 	'KARMA_POSITIVE'			=> 'Positive',
