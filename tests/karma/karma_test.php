@@ -38,7 +38,13 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 		$this->user = new phpbb_user();
 
 		$this->karma_manager = new phpbb_ext_phpbb_karma_includes_manager(
-			array('karma.type.post' => array()), $this->cache,  $this->container, $this->db, $this->user, 'phpbb_karma', 'phpbb_karma_types'
+			array('karma.type.post' => array()),
+			$this->cache,
+			$this->container,
+			$this->db,
+			$this->user,
+			'phpbb_karma',
+			'phpbb_karma_types'
 		);
 
 		$this->container->set(
