@@ -25,23 +25,29 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 	static public function getSubscribedEvents()
 	{
 		return array(
+			'core.viewtopic_cache_user_data' => 'add_karma_score_to_user_cache_data',
 			'core.viewtopic_modify_post_row' => 'add_postrow_user_karma_score',
 		);
 	}
 
+	public function add_karma_score_to_user_cache_data($event)
+	{
+		$user_cache_data = $event['user_cache_data'];
+		$user_cache_data['karma_score'] = $event['row']['user_karma_score'];
+		$event['user_cache_data'] = $user_cache_data;
+	}
+
 	public function add_postrow_user_karma_score($event)
 	{
-		global $user, $phpbb_container;
+		global $user;
 
 		if ($event['row']['user_id'] != ANONYMOUS)
 		{
 			// Load the karma language file
 			$user->add_lang_ext('phpbb/karma', 'karma');
 
-			$karma_manager = $phpbb_container->get('karma.includes.manager');
-
 			$post_row = $event['post_row'];
-			$post_row['POSTER_KARMA'] = $karma_manager->get_user_karma_score($event['row']['user_id']);
+			$post_row['POSTER_KARMA'] = $event['user_poster_data']['karma_score'];
 			$event['post_row'] = $post_row;
 		}
 	}
