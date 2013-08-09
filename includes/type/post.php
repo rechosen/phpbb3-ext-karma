@@ -108,7 +108,8 @@ class phpbb_ext_phpbb_karma_includes_type_post extends phpbb_ext_phpbb_karma_inc
 		$result = $this->db->sql_query($sql);
 		$forum_id = $this->db->sql_fetchfield('forum_id');
 		$this->db->sql_freeresult($result);
-		if ($forum_id === false) {
+		if ($forum_id === false)
+		{
 			throw new OutOfBoundsException('NO_POST');
 		}
 
