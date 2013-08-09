@@ -17,8 +17,8 @@ services:
         tags:
             - { name: karma.type }
 
-    karma.includes.karma_manager:
-        class: phpbb_ext_phpbb_karma_includes_karma_manager
+    karma.includes.manager:
+        class: phpbb_ext_phpbb_karma_includes_manager
         arguments:
             - @karma.type_collection
             - @cache

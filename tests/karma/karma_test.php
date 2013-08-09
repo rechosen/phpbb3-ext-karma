@@ -7,7 +7,7 @@
 *
 */
 
-// Include these files to make truncate_string() work in includes/karma_manager.php
+// Include these files to make truncate_string() work in includes/manager.php
 require_once(dirname(__FILE__) . '/../../../../../includes/utf/utf_tools.php');
 require_once(dirname(__FILE__) . '/../../../../../includes/functions_content.php');
 
@@ -37,7 +37,7 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 		$this->container = new phpbb_mock_container_builder();
 		$this->user = new phpbb_user();
 
-		$this->karma_manager = new phpbb_ext_phpbb_karma_includes_karma_manager(
+		$this->karma_manager = new phpbb_ext_phpbb_karma_includes_manager(
 			array('karma.type.post' => array()), $this->cache,  $this->container, $this->db, $this->user, 'phpbb_karma', 'phpbb_karma_types'
 		);
 

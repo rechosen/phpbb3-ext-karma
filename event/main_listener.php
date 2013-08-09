@@ -36,7 +36,7 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 		// Load the karma language file
 		$user->add_lang_ext('phpbb/karma', 'karma');
 
-		$karma_manager = $phpbb_container->get('karma.includes.karma_manager');
+		$karma_manager = $phpbb_container->get('karma.includes.manager');
 
 		$post_row = $event['post_row'];
 		$post_row['POSTER_KARMA'] = $karma_manager->get_user_karma_score($event['row']['user_id']);

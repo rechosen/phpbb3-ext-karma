@@ -15,7 +15,7 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-class phpbb_ext_phpbb_karma_includes_karma_manager
+class phpbb_ext_phpbb_karma_includes_manager
 {
 	/**
 	 * Array that contains all available karma types which are passed via the

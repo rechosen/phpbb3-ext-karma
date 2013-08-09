@@ -57,7 +57,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		$this->user->add_lang(array('posting'));
 
 		// Get an instance of the karma manager
-		$karma_manager = $this->container->get('karma.includes.karma_manager');
+		$karma_manager = $this->container->get('karma.includes.manager');
 
 		// Retrieve info about the item karma is given on
 		try
@@ -139,7 +139,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		// Store the karma into the database
 		if (empty($error))
 		{
-			$karma_manager = $this->container->get('karma.includes.karma_manager');
+			$karma_manager = $this->container->get('karma.includes.manager');
 			try
 			{
 				$karma_manager->store_karma($item_id, $karma_type_name, $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
