@@ -1,3 +1,6 @@
+imports:
+    - { resource: parameters.yml }
+
 services:
     karma.type_collection:
         class: phpbb_di_service_collection
@@ -13,7 +16,7 @@ services:
             - @dbal.conn
             - %core.root_path%
             - %core.php_ext%
-            - %core.table_prefix%karma # TODO put in separate file for easy configuration?
+            - %tables.karma.karma%
         tags:
             - { name: karma.type }
 
@@ -25,8 +28,8 @@ services:
             - @service_container
             - @dbal.conn
             - @user
-            - %core.table_prefix%karma
-            - %core.table_prefix%karma_types
+            - %tables.karma.karma%
+            - %tables.karma.karma_types%
 
     karma.controller.givekarma:
         class: phpbb_ext_phpbb_karma_controller_givekarma

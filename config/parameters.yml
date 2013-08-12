@@ -1,0 +1,3 @@
+parameters:
+    tables.karma.karma: %core.table_prefix%karma
+    tables.karma.karma_types: %core.table_prefix%karma_types
