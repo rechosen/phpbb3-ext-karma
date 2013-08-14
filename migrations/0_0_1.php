@@ -79,6 +79,15 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 	{
 		return array(
 			array('config.add', array('phpbb_karma_version', '0.0.1')),
+
+			// UCP module
+			array('module.add', array('ucp', '', 'UCP_KARMA')),
+			array('module.add', array('ucp', 'UCP_KARMA', array(
+				'module_basename'	=> 'phpbb_ext_phpbb_karma_ucp_recent_karma',
+				'module_langname'	=> 'UCP_RECENT_KARMA',
+				'module_mode'		=> 'overview',
+				'module_auth'		=> '',
+			))),
 		);
 	}
 }

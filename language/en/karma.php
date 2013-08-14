@@ -51,5 +51,7 @@ $lang = array_merge($lang, array(
 	'NO_KARMA_TYPE'				=> 'Karma type %s does not exist.',
 	'GIVEKARMA_POSITIVE'		=> 'Give this post a positive karma score.',
 	'GIVEKARMA_NEGATIVE'		=> 'Give this post a negative karma score.',
+	'UCP_KARMA'					=> 'Karma',
+	'UCP_RECENT_KARMA'			=> 'Recent karma',
 
 ));
