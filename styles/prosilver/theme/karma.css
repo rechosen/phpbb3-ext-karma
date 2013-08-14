@@ -1,0 +1,16 @@
+ul.profile-icons li.givekarma-positive-icon, ul.profile-icons li.givekarma-negative-icon {
+	height: 20px;
+	width: 20px;
+}
+
+ul.profile-icons li.givekarma-positive-icon {
+	margin: 0 0 0 10px;
+}
+
+.givekarma-positive-icon, .givekarma-positive-icon a {
+	background-image: url("./images/icon_karma_positive.gif");
+}
+
+.givekarma-negative-icon, .givekarma-negative-icon a {
+	background-image: url("./images/icon_karma_negative.gif");
+}

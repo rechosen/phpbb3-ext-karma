@@ -91,11 +91,24 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		// Set the template variables to display the form
 		$item_link = "<a href=\"{$item_data['url']}\">{$item_data['title']}</a>";
 		$receiving_user = $this->get_full_username_string($item_data['author']);
+		$karma_score = $this->request->variable('karma_score', 0);
+		if ($karma_score === 0)
+		{
+			$get_score = $this->request->variable('score', '');
+			if ($get_score === 'positive')
+			{
+				$karma_score = 1;
+			}
+			if ($get_score === 'negative')
+			{
+				$karma_score = -1;
+			}
+		}
 		$template_vars = array(
 			'ERROR'					=> (!empty($error)) ? implode('<br />', $error) : '',
 			'KARMA_GIVING_KARMA'	=> sprintf($this->user->lang['KARMA_GIVING_KARMA'], $item_link, $receiving_user),
 			'KARMA_COMMENT'			=> $this->request->variable('karma_comment', ''),
-			'KARMA_TYPE'			=> $this->request->variable('karma_type', 0),
+			'KARMA_SCORE'			=> $karma_score,
 		);
 		$this->template->assign_vars($template_vars);
 
@@ -133,6 +146,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		else
 		{
 			// Any positive number becomes 1, any negative number -1
+			// TODO change this when implementing weighted karma scores
 			$karma_score /= abs($karma_score);
 		}
 
