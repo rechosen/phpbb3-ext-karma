@@ -25,11 +25,21 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 	static public function getSubscribedEvents()
 	{
 		return array(
+			'core.user_setup'						=> 'load_global_translations',
 			'core.viewtopic_cache_user_data'		=> 'viewtopic_body_add_karma_score_to_user_cache_data',
 			'core.viewtopic_modify_post_row'		=> 'viewtopic_body_postrow_add_karma_score_and_controls',
 			'core.ucp_pm_view_messsage'				=> 'ucp_pm_viewmessage_add_pm_author_karma_score',
 			'core.memberlist_prepare_profile_data'	=> 'memberlist_view_add_karma_score_to_user_statistics',
 		);
+	}
+
+	public function load_global_translations($event)
+	{
+		global $user;
+
+		// Load the karma global language file
+		// TODO fix the core.user_setup event so that extension language files may be loaded
+		$user->add_lang_ext('phpbb/karma', 'karma_global');
 	}
 
 	public function viewtopic_body_add_karma_score_to_user_cache_data($event)

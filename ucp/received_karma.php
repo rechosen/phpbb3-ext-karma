@@ -15,7 +15,7 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-class phpbb_ext_phpbb_karma_ucp_recent_karma
+class phpbb_ext_phpbb_karma_ucp_received_karma
 {
 	public function __construct()
 	{
@@ -29,11 +29,13 @@ class phpbb_ext_phpbb_karma_ucp_recent_karma
 
 	public function main($id, $mode)
 	{
-		$this->tpl_name = 'ucp_karma_recent_karma';
-		$this->page_title = $this->user->lang['UCP_RECENT_KARMA'];
+		$this->user->add_lang_ext('phpbb/karma', 'karma');
+
+		$this->tpl_name = 'ucp_karma_received_karma';
+		$this->page_title = $this->user->lang['UCP_RECEIVED_KARMA'];
 
 		$this->template->assign_vars(array(
-			'L_TITLE'			=> $this->user->lang['UCP_RECENT_KARMA'],
+			'L_TITLE'			=> $this->user->lang['UCP_RECEIVED_KARMA'],
 		));
 	}
 }

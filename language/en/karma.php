@@ -36,6 +36,7 @@ if (empty($lang) || !is_array($lang))
 // ’ » “ ” …
 //
 
+// These translations are only needed where the extension can load them in time
 $lang = array_merge($lang, array(
 	'KARMA'						=> 'Karma',
 	'KARMA_GIVING_KARMA'		=> 'You’re giving karma on %1$s by %2$s.',
@@ -51,7 +52,10 @@ $lang = array_merge($lang, array(
 	'NO_KARMA_TYPE'				=> 'Karma type %s does not exist.',
 	'GIVEKARMA_POSITIVE'		=> 'Give this post a positive karma score.',
 	'GIVEKARMA_NEGATIVE'		=> 'Give this post a negative karma score.',
-	'UCP_KARMA'					=> 'Karma',
-	'UCP_RECENT_KARMA'			=> 'Recent karma',
+	'KARMA_RECEIVED_KARMA'		=> 'Below you can see all karma that has been given on contributions by you.',
+	'KARMA_RECEIVED_ON_ITEM'	=> 'Received on',
+	'KARMA_RECEIVED_TIME'		=> 'Received at',
+	'KARMA_GIVEN_BY'			=> 'Given by',
+	'KARMA_NO_RECEIVED_KARMA'	=> 'No karma received yet.',
 
 ));

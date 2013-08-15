@@ -1,0 +1,35 @@
+<!-- INCLUDE ucp_header.html -->
+
+<h2>{L_TITLE}</h2>
+<div class="panel">
+	<div class="inner">
+
+	<p>{L_KARMA_RECEIVED_KARMA}</p><br />
+	<table cellspacing="1" class="table1">
+	<thead>
+	<tr>
+		<th>{L_KARMA_SCORE}</th>
+		<th>{L_KARMA_RECEIVED_ON_ITEM}</th>
+		<th>{L_KARMA_RECEIVED_TIME}</th>
+		<th>{L_KARMA_GIVEN_BY}</th>
+		<th>{L_KARMA_COMMENT}</th>
+	</tr>
+	</thead>
+	<tbody>
+	<!-- BEGIN received_karma -->
+		<!-- IF received_karma.S_ROW_COUNT is even --><tr class="bg1"><!-- ELSE --><tr class="bg2"><!-- ENDIF -->
+			<td>{received_karma.SCORE}</td>
+			<td>{received_karma.ITEM}</td>
+			<td>{received_karma.TIME}</td>
+			<td>{received_karma.GIVEN_BY}</td>
+			<td>{received_karma.COMMENT}</td>
+		</tr>
+	<!-- BEGINELSE -->
+		<tr><td colspan="5" class="bg1" style="text-align: center">{L_KARMA_NO_RECEIVED_KARMA}</td></tr>
+	<!-- END received_karma -->
+	</tbody>
+	</table>
+	</div>
+</div>
+
+<!-- INCLUDE ucp_footer.html -->
