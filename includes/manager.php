@@ -228,6 +228,50 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
+	 * Gets all karma that was ever received by a certain user
+	 * 
+	 * @param	int		$user_id		The ID of the user
+	 * @param	bool	$newestfirst	Sort on time DESC (true) or ASC (false)
+	 * @return	array					The received karma, one array per row, with keys 'score', 'item_url', 'item_title', 'received_at', 'given_by', 'comment'
+	 */
+	public function get_karma_received_by_user($user_id, $newestfirst = true)
+	{
+		$received_karma = array();
+
+		$sql_array = array(
+			'SELECT'	=> 'k.*, kt.*, u.user_id, u.username, u.user_colour',
+			'FROM'		=> array(
+				$this->karma_table 			=> 'k',
+				$this->karma_types_table	=> 'kt',
+				USERS_TABLE					=> 'u',
+			),
+			'WHERE'		=> 'k.karma_type_id = kt.karma_type_id
+							AND k.giving_user_id = u.user_id
+							AND kt.karma_type_enabled = 1
+							AND receiving_user_id = ' . (int) $user_id,
+			'ORDER BY'	=> 'karma_time '. (($newestfirst) ? 'DESC' : 'ASC'),
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$karma_type = $this->get_type_class($row['karma_type_name']);
+
+			$received_karma[] = array(
+				'score'			=> $row['karma_score'],
+				'item_url'		=> $karma_type->get_url($row['item_id']),
+				'item_title'	=> $karma_type->get_title($row['item_id']),
+				'received_at'	=> $this->user->format_date($row['karma_time']),
+				'given_by'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour']),
+				'comment'		=> $row['karma_comment'],
+			);
+		}
+		$this->db->sql_freeresult($result);
+
+		return $received_karma;
+	}
+
+	/**
 	 * Helper to get the type class of a certain karma type
 	 * 
 	 * @param	string	$karma_type_name						The name of the type to get a class instance of

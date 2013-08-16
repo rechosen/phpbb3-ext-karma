@@ -5,7 +5,7 @@
 	<div class="inner">
 
 	<p>{L_KARMA_RECEIVED_KARMA}</p><br />
-	<table cellspacing="1" class="table1">
+	<table cellspacing="1" class="table1 karma-table">
 	<thead>
 	<tr>
 		<th>{L_KARMA_SCORE}</th>
@@ -19,8 +19,8 @@
 	<!-- BEGIN received_karma -->
 		<!-- IF received_karma.S_ROW_COUNT is even --><tr class="bg1"><!-- ELSE --><tr class="bg2"><!-- ENDIF -->
 			<td>{received_karma.SCORE}</td>
-			<td>{received_karma.ITEM}</td>
-			<td>{received_karma.TIME}</td>
+			<td><a href="{received_karma.ITEM_URL}">{received_karma.ITEM_TITLE}</a></td>
+			<td>{received_karma.RECEIVED_AT}</td>
 			<td>{received_karma.GIVEN_BY}</td>
 			<td>{received_karma.COMMENT}</td>
 		</tr>

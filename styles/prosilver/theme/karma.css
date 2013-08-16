@@ -1,3 +1,5 @@
+/* Styles for the thumbs up/down icons with posts
+---------------------------------------- */
 ul.profile-icons li.givekarma-positive-icon, ul.profile-icons li.givekarma-negative-icon {
 	height: 20px;
 	width: 20px;
@@ -14,3 +16,15 @@ ul.profile-icons li.givekarma-positive-icon {
 .givekarma-negative-icon, .givekarma-negative-icon a {
 	background-image: url("./images/icon_karma_negative.gif");
 }
+
+/* Styles for the UCP received karma table
+---------------------------------------- */
+table.karma-table thead th {
+	text-align: left;
+}
+
+/*table.karma-table tbody td {
+	border-collapse: separate;
+	border-spacing: 2px 0;
+	border-right: 1px solid #FFFFFF;
+}*/
