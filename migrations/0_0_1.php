@@ -32,15 +32,17 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 			'add_tables'	=> array(
 				$this->table_prefix . 'karma'		=> array(
 					'COLUMNS'		=> array(
-						'item_id'				=> array('UINT', 0),
+						'karma_id'				=> array('UINT', NULL, 'auto_increment'),
 						'karma_type_id'			=> array('UINT', 0),
+						'item_id'				=> array('UINT', 0),
 						'giving_user_id'		=> array('UINT', 0),
 						'receiving_user_id'		=> array('UINT', 0),
 						'karma_score'			=> array('TINT:4', 0),
 						'karma_time'			=> array('TIMESTAMP', 0),
 						'karma_comment'			=> array('TEXT_UNI', ''),
 					),
-					'PRIMARY_KEY'	=> array('item_id', 'karma_type_id', 'giving_user_id'),
+					'PRIMARY_KEY'	=> 'karma_id',
+					// TODO add indexes to speed up SELECT queries
 				),
 				$this->table_prefix . 'karma_types'	=> array(
 					'COLUMNS'		=> array(

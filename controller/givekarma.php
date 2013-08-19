@@ -156,7 +156,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			$karma_manager = $this->container->get('karma.includes.manager');
 			try
 			{
-				$karma_manager->store_karma($item_id, $karma_type_name, $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
+				$karma_manager->store_karma($karma_type_name, $item_id, $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
 			}
 			catch (Exception $e)
 			{

@@ -86,14 +86,14 @@ class phpbb_ext_phpbb_karma_includes_manager
 	/**
 	 * Stores given karma in the database
 	 * 
-	 * @param int		$item_id			The ID of the item on which the karma was given
 	 * @param string	$karma_type_name	The type of item on which the karma was given
+	 * @param int		$item_id			The ID of the item on which the karma was given
 	 * @param int		$giving_user_id		The ID of the user giving the karma
 	 * @param int		$karma_score		The given karma score
 	 * @param string	$karma_comment		The comment given with the karma
 	 * @param int		$karma_time			The time on which the karma was given
 	 */
-	public function store_karma($item_id, $karma_type_name, $giving_user_id, $karma_score, $karma_comment = '', $karma_time = -1)
+	public function store_karma($karma_type_name, $item_id, $giving_user_id, $karma_score, $karma_comment = '', $karma_time = -1)
 	{
 		// Set the receiving user ID
 		$karma_type = $this->get_type_class($karma_type_name);
@@ -128,12 +128,12 @@ class phpbb_ext_phpbb_karma_includes_manager
 		}
 
 		// Insert the karma into the database
-		$current_score = $this->get_karma_score($item_id, $karma_type_id, $giving_user_id);
-		if ($current_score === 0)
+		$current_score = $this->get_karma_score($karma_type_id, $item_id, $giving_user_id);
+		if ($current_score === false)
 		{
 			$sql_ary = array(
-				'item_id'			=> (int) $item_id,
 				'karma_type_id'		=> (int) $karma_type_id,
+				'item_id'			=> (int) $item_id,
 				'giving_user_id'	=> (int) $giving_user_id,
 				'receiving_user_id'	=> (int) $receiving_user_id,
 				'karma_score'		=> (int) $karma_score,
@@ -155,8 +155,8 @@ class phpbb_ext_phpbb_karma_includes_manager
 			$this->db->sql_query('
 				UPDATE ' . $this->karma_table . '
 				SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
-				WHERE item_id = ' . (int) $item_id . '
-					AND karma_type_id = ' . (int) $karma_type_id . '
+				WHERE karma_type_id = ' . (int) $karma_type_id . '
+					AND item_id = ' . (int) $item_id . '
 					AND giving_user_id = ' . (int) $giving_user_id
 			);
 		}
@@ -307,18 +307,18 @@ class phpbb_ext_phpbb_karma_includes_manager
 	/**
 	 * Gets the karma score given on the specified item by the specified user
 	 * 
-	 * @param	int		$item_id		The item on which the karma was given
 	 * @param	int		$karma_type_id	The type of the item on which the karma was given
+	 * @param	int		$item_id		The item on which the karma was given
 	 * @param	int		$giving_user_id	The user which gave the karma
-	 * @return	int						The given karma, or 0 if no karma was found
+	 * @return	int|bool				The given karma, or false if no karma was found
 	 */
-	private function get_karma_score($item_id, $karma_type_id, $giving_user_id)
+	private function get_karma_score($karma_type_id, $item_id, $giving_user_id)
 	{
 		$sql_array = array(
 			'SELECT'	=> 'karma_score',
 			'FROM'		=> array($this->karma_table => 'k'),
-			'WHERE'		=> 'item_id = ' . (int) $item_id . '
-							AND karma_type_id = ' . (int) $karma_type_id . '
+			'WHERE'		=> 'karma_type_id = ' . (int) $karma_type_id . '
+							AND item_id = ' . (int) $item_id . '
 							AND giving_user_id = ' . (int) $giving_user_id,
 		);
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
@@ -326,7 +326,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 		$karma_score = $this->db->sql_fetchfield('karma_score');
 		$this->db->sql_freeresult($result);
 
-		return (int) $karma_score;
+		return ($karma_score !== false) ? (int) $karma_score : false;
 	}
 
 	/**

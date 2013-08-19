@@ -133,16 +133,16 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 		{
 			if (!isset($karma['karma_comment']))
 			{
-				$this->karma_manager->store_karma($karma['item_id'], $karma['karma_type_name'], $karma['giving_user_id'], $karma['karma_score']);
+				$this->karma_manager->store_karma($karma['karma_type_name'], $karma['item_id'], $karma['giving_user_id'], $karma['karma_score']);
 			}
 			else
 			{
-				$this->karma_manager->store_karma($karma['item_id'], $karma['karma_type_name'], $karma['giving_user_id'], $karma['karma_score'], $karma['karma_comment']);
+				$this->karma_manager->store_karma($karma['karma_type_name'], $karma['item_id'], $karma['giving_user_id'], $karma['karma_score'], $karma['karma_comment']);
 			}
 		}
 		else
 		{
-			$this->karma_manager->store_karma($karma['item_id'], $karma['karma_type_name'], $karma['giving_user_id'], $karma['karma_score'], $karma['karma_comment'], $karma['karma_time']);
+			$this->karma_manager->store_karma($karma['karma_type_name'], $karma['item_id'], $karma['giving_user_id'], $karma['karma_score'], $karma['karma_comment'], $karma['karma_time']);
 		}
 
 		if (empty($expected_exception))
@@ -155,9 +155,9 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 	public function test_update_karma()
 	{
 		$time = time();
-		$this->karma_manager->store_karma(1, 'post', 1, 1, '', $time);
+		$this->karma_manager->store_karma('post', 1, 1, 1, '', $time);
 		$time++;
-		$this->karma_manager->store_karma(1, 'post', 1, -1, 'abc', $time);
+		$this->karma_manager->store_karma('post', 1, 1, -1, 'abc', $time);
 		$this->assert_karma_row_exists(array(
 			'item_id'			=> 1,
 			'karma_type_id'		=> $this->get_karma_type_id('post'),
