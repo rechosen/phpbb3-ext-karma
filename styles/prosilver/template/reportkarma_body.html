@@ -1,0 +1,25 @@
+<!-- INCLUDE overall_header.html -->
+
+<h2>{L_KARMA_REPORT_KARMA}</h2>
+
+<div class="panel bg3">
+	<form method="post" action="">
+		<p>{L_KARMA_REPORTING_KARMA}</p>
+		<!-- INCLUDE received_karma_table.html -->
+		<fieldset>
+			<!-- IF 0 --><!-- TODO: this way of displaying errors is ugly; fix in givekarma_body.html as well! --><!-- ENDIF -->
+			<!-- IF ERROR --><p class="error">{ERROR}</p><!-- ENDIF -->
+			<dl>
+				<dt><label for="karma_report_text">{L_KARMA_REPORT_DESCRIPTION}{L_COLON}</label></dt>
+				<dd><textarea name="karma_report_text" id="karma_report_text" rows="10" cols="76" class="inputbox">{KARMA_REPORT_TEXT}</textarea></dd>
+			</dl>
+		</fieldset>
+		<fieldset class="submit-buttons">
+			<input type="reset" value="{L_RESET}" name="reset" class="button2" />&nbsp;
+			<input type="submit" name="submit" value="{L_SUBMIT}" class="button1" />
+			{S_FORM_TOKEN}
+		</fieldset>
+	</form>
+</div>
+
+<!-- INCLUDE overall_footer.html -->

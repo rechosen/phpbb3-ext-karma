@@ -19,8 +19,16 @@ ul.profile-icons li.givekarma-positive-icon {
 
 /* Styles for the UCP received karma table
 ---------------------------------------- */
+table.karma-table {
+	margin-bottom: 1em;
+}
+
 table.karma-table thead th {
 	text-align: left;
+	font-weight: bold;
+	padding: 5px;
+	border-bottom-color: #333333;
+	color: #333333;
 }
 
 /*table.karma-table tbody td {

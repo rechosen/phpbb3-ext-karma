@@ -19,6 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class phpbb_ext_phpbb_karma_controller_givekarma
 {
+	// TODO add variable declarations
+
 	/**
 	* Constructor
 	* NOTE: The parameters of this method must match in order and type with
@@ -124,7 +126,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		* @param string Page title
 		* @param int Status code of the page (200 - OK [ default ], 403 - Unauthorized, 404 - Page not found)
 		*/
-		return $this->helper->render('karma/givekarma_body.html', 'Give karma', 200);
+		return $this->helper->render('givekarma_body.html', $this->user->lang['KARMA_GIVE_KARMA'], 200);
 	}
 
 	/**

@@ -1,0 +1,26 @@
+<table cellspacing="1" class="table1 karma-table">
+	<thead>
+		<tr>
+			<th>{L_KARMA_SCORE}</th>
+			<th>{L_KARMA_RECEIVED_ON_ITEM}</th>
+			<th>{L_KARMA_RECEIVED_TIME}</th>
+			<th>{L_KARMA_GIVEN_BY}</th>
+			<th>{L_KARMA_COMMENT}</th>
+			<!-- IF S_REPORT_KARMA --><th>{L_KARMA_REPORT}</th><!-- ENDIF -->
+		</tr>
+	</thead>
+	<tbody>
+	<!-- BEGIN received_karma -->
+		<!-- IF received_karma.S_ROW_COUNT is even --><tr class="bg1"><!-- ELSE --><tr class="bg2"><!-- ENDIF -->
+			<td>{received_karma.SCORE}</td>
+			<td><a href="{received_karma.ITEM_URL}">{received_karma.ITEM_TITLE}</a></td>
+			<td>{received_karma.RECEIVED_AT}</td>
+			<td>{received_karma.GIVEN_BY}</td>
+			<td>{received_karma.COMMENT}</td>
+			<!-- IF S_REPORT_KARMA --><td><a href="{received_karma.REPORT_URL}">{L_KARMA_REPORT}</a></td><!-- ENDIF -->
+		</tr>
+	<!-- BEGINELSE -->
+		<tr><td colspan="<!-- IF S_REPORT_KARMA -->6<!-- ELSE -->5<!-- ENDIF -->" class="bg1" style="text-align: center">{L_KARMA_NO_RECEIVED_KARMA}</td></tr>
+	<!-- END received_karma -->
+	</tbody>
+</table>

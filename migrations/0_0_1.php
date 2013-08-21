@@ -30,27 +30,41 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 	{
 		$ret = array(
 			'add_tables'	=> array(
-				$this->table_prefix . 'karma'		=> array(
+				$this->table_prefix . 'karma'			=> array(
 					'COLUMNS'		=> array(
-						'karma_id'				=> array('UINT', NULL, 'auto_increment'),
-						'karma_type_id'			=> array('UINT', 0),
-						'item_id'				=> array('UINT', 0),
-						'giving_user_id'		=> array('UINT', 0),
-						'receiving_user_id'		=> array('UINT', 0),
-						'karma_score'			=> array('TINT:4', 0),
-						'karma_time'			=> array('TIMESTAMP', 0),
-						'karma_comment'			=> array('TEXT_UNI', ''),
+						'karma_id'					=> array('UINT', NULL, 'auto_increment'),
+						'karma_type_id'				=> array('UINT', 0),
+						'item_id'					=> array('UINT', 0),
+						'giving_user_id'			=> array('UINT', 0),
+						'receiving_user_id'			=> array('UINT', 0),
+						'karma_score'				=> array('TINT:4', 0),
+						'karma_time'				=> array('TIMESTAMP', 0),
+						'karma_comment'				=> array('TEXT_UNI', ''),
+						'karma_reported'			=> array('BOOL', 0),
 					),
 					'PRIMARY_KEY'	=> 'karma_id',
 					// TODO add indexes to speed up SELECT queries
 				),
-				$this->table_prefix . 'karma_types'	=> array(
+				$this->table_prefix . 'karma_types'		=> array(
 					'COLUMNS'		=> array(
-						'karma_type_id'			=> array('UINT', NULL, 'auto_increment'),
-						'karma_type_name'		=> array('VCHAR:255', ''),
-						'karma_type_enabled'	=> array('BOOL', 0),
+						'karma_type_id'				=> array('UINT', NULL, 'auto_increment'),
+						'karma_type_name'			=> array('VCHAR:255', ''),
+						'karma_type_enabled'		=> array('BOOL', 0),
 					),
 					'PRIMARY_KEY'	=> 'karma_type_id',
+				),
+				$this->table_prefix . 'karma_reports'	=> array(
+					'COLUMNS'		=> array(
+						'karma_report_id'			=> array('UINT', NULL, 'auto_increment'),
+						'karma_id'					=> array('UINT', 0),
+						'reporter_id'				=> array('UINT', 0),
+						'karma_report_closed'		=> array('BOOL', 0),
+						'karma_report_time'			=> array('TIMESTAMP', 0),
+						'karma_report_text'			=> array('TEXT_UNI', ''),
+						'reported_karma_score'		=> array('TINT:4', 0),
+						'reported_karma_comment'	=> array('TEXT_UNI', ''),
+					),
+					'PRIMARY_KEY'	=> 'karma_report_id',
 				),
 			),
 			'add_columns'	=> array(

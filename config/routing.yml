@@ -3,3 +3,9 @@ karma_givekarma_controller:
     defaults: { _controller: karma.controller.givekarma:handle, item_id: -1 }
     requirements:
         item_id: \d+
+
+karma_reportkarma_controller:
+    pattern: /reportkarma/{karma_id}
+    defaults: { _controller: karma.controller.reportkarma:handle, karma_id = -1 }
+    requirements:
+        karma_id: \d+
