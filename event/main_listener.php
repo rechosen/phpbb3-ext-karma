@@ -35,11 +35,12 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 
 	public function load_global_translations($event)
 	{
-		global $user;
-
-		// Load the karma global language file
-		// TODO fix the core.user_setup event so that extension language files may be loaded
-		$user->add_lang_ext('phpbb/karma', 'karma_global');
+		$lang_set_ext = $event['lang_set_ext'];
+		$lang_set_ext[] = array(
+			'ext_name' => 'phpbb/karma',
+			'lang_set' => 'karma_global',
+		);
+		$event['lang_set_ext'] = $lang_set_ext;
 	}
 
 	public function viewtopic_body_add_karma_score_to_user_cache_data($event)
