@@ -14,15 +14,15 @@ before_script:
   - cd ../../
   - git clone "git://github.com/phpbb/phpbb3.git" "phpBB3"
   - mkdir phpBB3/phpBB/ext
-  - mkdir phpBB3/phpBB/ext/gallery
-  - mv nickvergessen/phpbb3-ext-gallery-core phpBB3/phpBB/ext/gallery/core
+  - mkdir phpBB3/phpBB/ext/phpbb
+  - mv rechosen/phpbb3-ext-karma phpBB3/phpBB/ext/phpbb/karma
 
   # Setup the dependencies
   - cd phpBB3/phpBB
   - php ../composer.phar install --dev --no-interaction --prefer-source
 
   # Setup the tests/travis
-  - cd ext/gallery/core
+  - cd ext/phpbb/karma
   - sh -c "if [ '$DB' = 'postgres' ]; then psql -c 'DROP DATABASE IF EXISTS phpbb_tests;' -U postgres; fi"
   - sh -c "if [ '$DB' = 'postgres' ]; then psql -c 'create database phpbb_tests;' -U postgres; fi"
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database IF NOT EXISTS phpbb_tests;'; fi"
@@ -36,6 +36,6 @@ script:
 notifications:
   email:
     recipients:
-      - nickvergessen@gmx.de
+      - rechosen@gmail.com
     on_success: change
     on_failure: change
