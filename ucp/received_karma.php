@@ -31,7 +31,7 @@ class phpbb_ext_phpbb_karma_ucp_received_karma
 	public function main($id, $mode)
 	{
 		$this->tpl_name = 'ucp_karma_received_karma';
-		$this->page_title = $this->user->lang['UCP_RECEIVED_KARMA'];
+		$this->page_title = 'UCP_RECEIVED_KARMA';
 
 		// Get the received karma
 		$karma_manager = $this->container->get('karma.includes.manager');

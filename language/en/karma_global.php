@@ -38,7 +38,11 @@ if (empty($lang) || !is_array($lang))
 
 // These translations need to be available globally
 $lang = array_merge($lang, array(
-	'UCP_KARMA'				=> 'Karma',
-	'UCP_RECEIVED_KARMA'	=> 'Received karma',
+	'UCP_KARMA'					=> 'Karma',
+	'UCP_RECEIVED_KARMA'		=> 'Received karma',
+	'MCP_KARMA'					=> 'Reported karma',
+	'MCP_KARMA_REPORTS_OPEN'	=> 'Open reports',
+	'MCP_KARMA_REPORTS_CLOSED'	=> 'Closed reports',
+	'MCP_KARMA_REPORT_DETAILS'	=> 'Report details',
 
 ));

@@ -62,6 +62,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		$karma_manager = $this->container->get('karma.includes.manager');
 
 		// Retrieve info about the item karma is given on
+		// TODO prevent the user from giving karma on his/her own item
 		try
 		{
 			$item_data = $karma_manager->get_item_data($karma_type_name, $item_id);
@@ -143,6 +144,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		$karma_score = $this->request->variable('karma_score', 0);
 		if ($karma_score == 0)
 		{
+			// TODO perhaps a score of 0 could be used to delete given karma?
 			$error[] = 'KARMA_SCORE_INVALID';
 		}
 		else

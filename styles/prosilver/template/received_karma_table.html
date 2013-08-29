@@ -11,14 +11,18 @@
 	</thead>
 	<tbody>
 	<!-- BEGIN received_karma -->
-		<!-- IF received_karma.S_ROW_COUNT is even --><tr class="bg1"><!-- ELSE --><tr class="bg2"><!-- ENDIF -->
-			<td>{received_karma.SCORE}</td>
-			<td><a href="{received_karma.ITEM_URL}">{received_karma.ITEM_TITLE}</a></td>
-			<td>{received_karma.RECEIVED_AT}</td>
-			<td>{received_karma.GIVEN_BY}</td>
-			<td>{received_karma.COMMENT}</td>
-			<!-- IF S_REPORT_KARMA --><td><a href="{received_karma.REPORT_URL}">{L_KARMA_REPORT}</a></td><!-- ENDIF -->
-		</tr>
+		<!-- IF 0 -->Hide this row if the range values are set and it's outside them<!-- ENDIF -->
+		<!-- IF 0 --><!-- TODO get rid of the ugly workaround spaces once https://github.com/phpbb/phpbb3/pull/1683 is merged --><!-- ENDIF -->
+		<!-- IF not (( $RECEIVED_KARMA_START != '' and received_karma.S_ROW_COUNT < $RECEIVED_KARMA_START) or ( $RECEIVED_KARMA_END != '' and received_karma.S_ROW_COUNT > $RECEIVED_KARMA_START)) -->
+			<!-- IF received_karma.S_ROW_COUNT is even --><tr class="bg1"><!-- ELSE --><tr class="bg2"><!-- ENDIF -->
+				<td>{received_karma.SCORE}</td>
+				<td><a href="{received_karma.ITEM_URL}">{received_karma.ITEM_TITLE}</a></td>
+				<td>{received_karma.RECEIVED_AT}</td>
+				<td>{received_karma.GIVEN_BY}</td>
+				<td>{received_karma.COMMENT}</td>
+				<!-- IF S_REPORT_KARMA --><td><a href="{received_karma.REPORT_URL}">{L_KARMA_REPORT}</a></td><!-- ENDIF -->
+			</tr>
+		<!-- ENDIF -->
 	<!-- BEGINELSE -->
 		<tr><td colspan="<!-- IF S_REPORT_KARMA -->6<!-- ELSE -->5<!-- ENDIF -->" class="bg1" style="text-align: center">{L_KARMA_NO_RECEIVED_KARMA}</td></tr>
 	<!-- END received_karma -->

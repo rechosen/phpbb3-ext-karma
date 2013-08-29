@@ -112,6 +112,30 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		$this->db->sql_query($sql);
 	}
 
+	public function get_karma_report($karma_report_id)
+	{
+		$sql_array = array(
+			'SELECT'	=> 'kr.*, u.user_id, u.username, u.user_colour',
+			'FROM'		=> array(
+				$this->karma_reports_table => 'kr',
+				USERS_TABLE => 'u',
+			),
+			'WHERE'		=> 'kr.reporter_id = u.user_id
+							AND karma_report_id = ' . (int) $karma_report_id
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$karma_report = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		if ($karma_report === false)
+		{
+			throw new OutOfBoundsException('NO_KARMA_REPORT');
+		}
+
+		return $karma_report;
+	}
+
 	/**
 	 * Checks if the given user ID belongs to an existing user
 	 * 

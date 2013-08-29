@@ -68,5 +68,12 @@ $lang = array_merge($lang, array(
 	'KARMA_REPORT_DESCRIPTION'		=> 'Why are you reporting this karma?',
 	'KARMA_REPORT_TEXT_EMPTY'		=> 'You must specify why you’re reporting this karma.',
 	'KARMA_ALREADY_REPORTED'		=> 'This karma has already been reported.',
+	'MCP_REPORTED_KARMA'			=> 'Reported karma',
+	'NO_KARMA_REPORT'				=> 'The requested karma report does not exist.',
+	'KARMA_REPORT_DETAILS'			=> 'Report details.',
+	'KARMA_REPORTED_BY_ON'			=> '%1$s reported with the following reason on %2$s',
+	'KARMA_REPORTED_KARMA'			=> 'The reported karma',
+	'KARMA_REPORT_ITEM_EDITED'		=> 'Note: the item has been edited after the reported karma was given.',
+	'KARMA_REPORT_KARMA_EDITED'		=> 'The reported karma has been altered since it was reported. It now is',
 
 ));

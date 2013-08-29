@@ -1,0 +1,47 @@
+<!-- INCLUDE mcp_header.html -->
+
+<h2>{L_KARMA_REPORT_DETAILS}</h2>
+
+<div id="report" class="panel">
+	<div class="inner">
+
+		<div class="postbody">
+			<div class="content">
+				<blockquote>
+					<div>
+						<cite>{KARMA_REPORTED_BY_ON}{L_COLON}</cite>
+						{KARMA_REPORT_TEXT}
+					</div>
+				</blockquote>
+			</div>
+		</div>
+
+		<p>{L_KARMA_REPORTED_KARMA}{L_COLON}<p>
+		<!-- DEFINE $RECEIVED_KARMA_END = 0 -->
+		<!-- INCLUDE received_karma_table.html -->
+
+		<!-- IF S_KARMA_REPORT_ITEM_EDITED --><p>{L_KARMA_REPORT_ITEM_EDITED}</p><!-- ENDIF -->
+
+		<!-- IF S_KARMA_REPORT_KARMA_EDITED -->
+			<p>{L_KARMA_REPORT_KARMA_EDITED}{L_COLON}</p>
+			<!-- DEFINE $RECEIVED_KARMA_START = 1 -->
+			<!-- DEFINE $RECEIVED_KARMA_END = 1 -->
+			<!-- INCLUDE received_karma_table.html -->
+		<!-- ENDIF -->
+
+	</div>
+</div>
+
+<form method="post" id="mcp_karma_report" action="{S_CLOSE_ACTION}">
+
+<fieldset class="submit-buttons">
+	<!-- IF S_POST_REPORTED -->
+		<input class="button1" type="submit" value="{L_CLOSE_REPORT}" name="action[close]" /> &nbsp;
+	<!-- ENDIF -->
+	<input class="button2" type="submit" value="{L_DELETE_REPORT}" name="action[delete]" />
+	<input type="hidden" name="karma_report_id_list[]" value="{KARMA_REPORT_ID}" />
+	{S_FORM_TOKEN}
+</fieldset>
+</form>
+
+<!-- INCLUDE mcp_footer.html -->

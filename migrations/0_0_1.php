@@ -104,6 +104,27 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 				'module_mode'		=> 'overview',
 				'module_auth'		=> '',
 			))),
+
+			// MCP module
+			array('module.add', array('mcp', '', 'MCP_KARMA')),
+			array('module.add', array('mcp', 'MCP_KARMA', array(
+				'module_basename'	=> 'phpbb_ext_phpbb_karma_mcp_reported_karma',
+				'module_langname'	=> 'MCP_KARMA_REPORTS_OPEN',
+				'module_mode'		=> 'reports',
+				'module_auth'		=> '', //TODO
+			))),
+			array('module.add', array('mcp', 'MCP_KARMA', array(
+				'module_basename'	=> 'phpbb_ext_phpbb_karma_mcp_reported_karma',
+				'module_langname'	=> 'MCP_KARMA_REPORTS_CLOSED',
+				'module_mode'		=> 'reports_closed',
+				'module_auth'		=> '', //TODO
+			))),
+			array('module.add', array('mcp', 'MCP_KARMA', array(
+				'module_basename'	=> 'phpbb_ext_phpbb_karma_mcp_reported_karma',
+				'module_langname'	=> 'MCP_KARMA_REPORT_DETAILS',
+				'module_mode'		=> 'report_details',
+				'module_auth'		=> '', //TODO
+			))),
 		);
 	}
 }
