@@ -74,7 +74,7 @@ $lang = array_merge($lang, array(
 	'KARMA_REPORT_DETAILS'			=> 'Report details.',
 	'KARMA_REPORTED_BY'				=> 'Reported by',
 	'KARMA_REPORTED_KARMA'			=> 'The reported karma',
-	'KARMA_REPORT_ITEM_EDITED'		=> 'Note: the item has been edited after the reported karma was given.',
-	'KARMA_REPORT_KARMA_EDITED'		=> 'The reported karma has been altered since it was reported. It now is',
+	'KARMA_REPORT_ITEM_EDITED'		=> 'This item was edited after the karma was given',
+	'KARMA_REPORT_KARMA_EDITED'		=> 'Note: the reported karma has been altered since it was reported. It now is',
 
 ));

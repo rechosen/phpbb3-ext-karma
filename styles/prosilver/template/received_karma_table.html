@@ -16,7 +16,7 @@
 		<!-- IF not (( $RECEIVED_KARMA_START != '' and received_karma.S_ROW_COUNT < $RECEIVED_KARMA_START) or ( $RECEIVED_KARMA_END != '' and received_karma.S_ROW_COUNT > $RECEIVED_KARMA_START)) -->
 			<!-- IF received_karma.S_ROW_COUNT is even --><tr class="bg1"><!-- ELSE --><tr class="bg2"><!-- ENDIF -->
 				<td>{received_karma.SCORE}</td>
-				<td><a href="{received_karma.ITEM_URL}">{received_karma.ITEM_TITLE}</a></td>
+				<td><a href="{received_karma.ITEM_URL}">{received_karma.ITEM_TITLE}</a><!-- IF received_karma.ITEM_REMARK --><br /><span class="error">{received_karma.ITEM_REMARK}</span><!-- ENDIF --></td>
 				<td>{received_karma.RECEIVED_AT}</td>
 				<td>{received_karma.GIVEN_BY}</td>
 				<td>{received_karma.COMMENT}</td>

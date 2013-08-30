@@ -66,6 +66,11 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					}
 					$block_row[strtoupper($key)] = $value;
 				}
+				// Determine if the item was edited after the reported karma was given
+				if ($karma['item_last_edit'] > $karma_report['karma_report_time'])
+				{
+					$block_row['ITEM_REMARK'] = $this->user->lang['KARMA_REPORT_ITEM_EDITED'];
+				}
 				$this->template->assign_block_vars('received_karma', $block_row);
 
 				// Determine if the karma was altered after being reported
@@ -79,6 +84,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					{
 						$block_row[strtoupper($key)] = $value;
 					}
+					// TODO Determine if the item was edited after the karma was updated?
 					$this->template->assign_block_vars('received_karma', $block_row);
 				}
 
