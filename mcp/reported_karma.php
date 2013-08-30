@@ -80,10 +80,9 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					$this->template->assign_block_vars('received_karma', $block_row);
 				}
 
-				$reporter = get_username_string('full', $karma_report['user_id'], $karma_report['username'], $karma_report['user_colour']);
-				$report_time = $this->user->format_date($karma_report['karma_report_time']);
 				$this->template->assign_vars(array(
-					'KARMA_REPORTED_BY_ON'			=> sprintf($this->user->lang['KARMA_REPORTED_BY_ON'], $reporter, $report_time),
+					'KARMA_REPORTER'				=> get_username_string('full', $karma_report['user_id'], $karma_report['username'], $karma_report['user_colour']),
+					'KARMA_REPORT_DATE'				=> $this->user->format_date($karma_report['karma_report_time']),
 					'KARMA_REPORT_TEXT'				=> $karma_report['karma_report_text'],
 					'S_KARMA_REPORT_ITEM_EDITED'	=> false, // TODO make this actually work
 				));
