@@ -62,6 +62,7 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 						'karma_report_time'			=> array('TIMESTAMP', 0),
 						'karma_report_text'			=> array('TEXT_UNI', ''),
 						'reported_karma_score'		=> array('TINT:4', 0),
+						'reported_karma_time'		=> array('TIMESTAMP', 0),
 						'reported_karma_comment'	=> array('TEXT_UNI', ''),
 					),
 					'PRIMARY_KEY'	=> 'karma_report_id',
@@ -87,6 +88,7 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 			'drop_tables'	=> array(
 				$this->table_prefix . 'karma',
 				$this->table_prefix . 'karma_types',
+				$this->table_prefix . 'karma_reports',
 			),
 		);
 	}

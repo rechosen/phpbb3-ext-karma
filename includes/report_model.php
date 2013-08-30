@@ -96,6 +96,7 @@ class phpbb_ext_phpbb_karma_includes_report_model
 			'karma_report_time'			=> $karma_report_time,
 			'karma_report_text'			=> $karma_report_text,
 			'reported_karma_score'		=> $karma_row['karma_score'],
+			'reported_karma_time'		=> $karma_row['karma_time'],
 			'reported_karma_comment'	=> $karma_row['karma_comment'],
 		);
 		$this->db->sql_query(

@@ -48,6 +48,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					trigger_error('NO_KARMA_REPORT');
 				}
 
+				// TODO What happens if the karma the report refers to doesn't exist anymore?
 				$karma_manager = $this->container->get('karma.includes.manager');
 				$karma = $karma_manager->get_karma_data($karma_report['karma_id']);
 
@@ -58,9 +59,10 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					switch ($key)
 					{
 						case 'score':
+						case 'received_at':
 						case 'comment':
-							$value = $karma_report['reported_karma_' . $key];
-							// TODO perhaps it wasn't the best idea to stop the karma_data keys from matching database field names?
+							$value = ($key == 'received_at') ? $this->user->format_date($karma_report['reported_karma_time']) : $karma_report['reported_karma_' . $key];
+							// TODO perhaps it wasn't the best idea to stop the karma_data keys from matching database field names? :)
 					}
 					$block_row[strtoupper($key)] = $value;
 				}
