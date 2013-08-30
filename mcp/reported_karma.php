@@ -86,7 +86,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					'KARMA_REPORTER'				=> get_username_string('full', $karma_report['user_id'], $karma_report['username'], $karma_report['user_colour']),
 					'KARMA_REPORT_DATE'				=> $this->user->format_date($karma_report['karma_report_time']),
 					'KARMA_REPORT_TEXT'				=> $karma_report['karma_report_text'],
-					'S_KARMA_REPORT_ITEM_EDITED'	=> false, // TODO make this actually work
+					'S_KARMA_REPORT_ITEM_EDITED'	=> $karma['item_last_edit'] > $karma_report['karma_report_time'],
 				));
 
 				$this->tpl_name = 'mcp_karma_report_details';

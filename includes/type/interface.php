@@ -42,6 +42,14 @@ interface phpbb_ext_phpbb_karma_includes_type_interface
 	public function get_author($item_id);
 
 	/**
+	 * Get the timestamp of the last edit of the specified item
+	 * 
+	 * @param	$item_id	The ID of the item
+	 * @return	int			The timestamp of the last edit of the specified item
+	 */
+	public function get_last_edit($item_id);
+
+	/**
 	 * Checks if the current user has permission to read the specified item
 	 * 
 	 * @param	$item_id	The ID of the item

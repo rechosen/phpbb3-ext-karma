@@ -91,6 +91,30 @@ class phpbb_ext_phpbb_karma_includes_type_post extends phpbb_ext_phpbb_karma_inc
 	}
 
 	/**
+	 * Get the timestamp of the last edit of the specified item
+	 * 
+	 * @param	$item_id	The ID of the item
+	 * @return	int			The timestamp of the last edit of the specified item
+	 */
+	public function get_last_edit($item_id)
+	{
+		$sql_array = array(
+			'SELECT'	=> 'post_edit_time',
+			'FROM'		=> array(POSTS_TABLE => 'p'),
+			'WHERE'		=> 'post_id = ' . (int) $item_id,
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$last_edit = $this->db->sql_fetchfield('post_edit_time');
+		$this->db->sql_freeresult($result);
+		if ($last_edit === false) {
+			throw new OutOfBoundsException('NO_POST');
+		}
+
+		return $last_edit;
+	}
+
+	/**
 	 * Checks if the current user has permission to read the specified item
 	 * 
 	 * @param	$item_id	The ID of the item
