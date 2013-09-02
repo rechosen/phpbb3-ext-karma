@@ -137,6 +137,70 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		return $karma_report;
 	}
 
+	public function get_karma_reports($karma_report_id_list)
+	{
+		$sql_array = array(
+			'SELECT'	=> 'kr.*, u.user_id, u.username, u.user_colour',
+			'FROM'		=> array(
+				$this->karma_reports_table => 'kr',
+				USERS_TABLE => 'u',
+			),
+			'WHERE'		=> 'kr.reporter_id = u.user_id
+							AND ' . $this->db->sql_in_set('kr.karma_report_id', $karma_report_id_list)
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$karma_reports = array();
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$karma_reports[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		if (empty($karma_reports))
+		{
+			throw new OutOfBoundsException('NO_KARMA_REPORT');
+		}
+
+		return $karma_reports;
+	}
+
+	public function close_karma_reports($karma_report_id_list, $delete = false)
+	{
+		// Get the ids of the karma reported
+		$karma_reports = $this->get_karma_reports($karma_report_id_list);
+		$karma_id_list = array();
+		foreach ($karma_reports as $karma_report)
+		{
+			$karma_id_list[] = $karma_report['karma_id'];
+		}
+
+		// Start a transaction to prevent ending up in an inconsistent state
+		$this->db->sql_transaction('begin');
+
+		// Close/delete the reports
+		if ($delete)
+		{
+			$sql = 'DELETE FROM ' . $this->karma_reports_table;
+		}
+		else
+		{
+			$sql = 'UPDATE ' . $this->karma_reports_table . '
+					SET karma_report_closed = 1';
+		}
+		$sql .= ' WHERE ' . $this->db->sql_in_set('karma_report_id', $karma_report_id_list);
+		$this->db->sql_query($sql);
+
+		// Unmark the reported karma
+		$sql = 'UPDATE ' . $this->karma_table . '
+				SET karma_reported = 0
+				WHERE ' . $this->db->sql_in_set('karma_id', $karma_id_list);
+		$this->db->sql_query($sql);
+
+		// Commit the transaction
+		$this->db->sql_transaction('commit');
+	}
+
 	/**
 	 * Checks if the given user ID belongs to an existing user
 	 * 

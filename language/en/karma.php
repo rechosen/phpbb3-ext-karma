@@ -76,5 +76,9 @@ $lang = array_merge($lang, array(
 	'KARMA_REPORTED_KARMA'			=> 'The reported karma',
 	'KARMA_REPORT_ITEM_EDITED'		=> 'This item was edited after the karma was given',
 	'KARMA_REPORT_KARMA_EDITED'		=> 'Note: the reported karma has been altered since it was reported. It now is',
+	'KARMA_REPORT_CLOSED_SUCCESS'	=> 'The selected karma report has been closed successfully.',
+	'KARMA_REPORTS_CLOSED_SUCCESS'	=> 'The selected karma reports have been closed successfully.',
+	'KARMA_REPORT_DELETED_SUCCESS'	=> 'The selected karma report has been deleted successfully.',
+	'KARMA_REPORTS_DELETED_SUCCESS'	=> 'The selected karma reports have been deleted successfully.',
 
 ));

@@ -143,6 +143,8 @@ class phpbb_ext_phpbb_karma_includes_manager
 		}
 
 		// Insert the karma into the database
+		// TODO make this a transaction to prevent ending up in an inconsistent state
+		// TODO and look for other places where a transaction might be appropriate
 		$current_score = $this->get_karma_score($karma_type_id, $item_id, $giving_user_id);
 		if ($current_score === false)
 		{
