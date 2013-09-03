@@ -19,9 +19,10 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 {
 	public function __construct()
 	{
-		global $phpbb_container, $request, $user, $template;
+		global $phpbb_container, $phpbb_log, $request, $user, $template;
 
 		$this->container = $phpbb_container;
+		$this->phpbb_log = $phpbb_log;
 		$this->request = $request;
 		$this->user = $user;
 		$this->template = $template;
@@ -60,9 +61,12 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					trigger_error($e->getMessage());
 				}
 
-				// TODO What happens if the karma the report refers to doesn't exist anymore?
 				$karma_manager = $this->container->get('karma.includes.manager');
 				$karma = $karma_manager->get_karma_data($karma_report['karma_id']);
+				if ($karma === false)
+				{
+					trigger_error('NO_KARMA');
+				}
 
 				// Ready the reported karma for display
 				$block_row = array();
@@ -123,6 +127,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 
 	private function close_karma_report($karma_report_id_list, $action)
 	{
+		global $phpbb_root_path, $phpEx; // TODO see note with user_get_id_name() below
 		$report_model = $this->container->get('karma.includes.report_model');
 
 		// Get the karma reports
@@ -154,7 +159,46 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 			$delete = ($action == 'delete');
 			$report_model->close_karma_reports($karma_report_id_list, $delete);
 
-			// TODO log the closing
+			// Log the operation
+			$karma_manager = $this->container->get('karma.includes.manager');
+			foreach ($karma_reports as $karma_report)
+			{
+				$karma_row = $karma_manager->get_karma_row($karma_report['karma_id']);
+				if ($karma_row === false)
+				{
+					$item_data = array(
+						'author'	=> '[karma deleted]',
+						'title'		=> '[karma deleted]',
+					);
+				}
+				else
+				{
+					$item_data = $karma_manager->get_item_data($karma_row['karma_type_name'], $karma_row['karma_id']);
+
+					// TODO there must be a prettier way to convert a user_id to a username
+					include_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+					$user_ids = array($item_data['author']);
+					$usernames = array();
+					user_get_id_name($user_ids, $usernames);
+					$item_data['author'] = reset($usernames);
+				}
+
+				// TODO That phpbb_log::add() function seriously needs some examples or documentation; requires lots of source reading now :/
+				$this->phpbb_log->add(
+					'mod',
+					$this->user->data['user_id'],
+					$this->user->ip,
+					'LOG_KARMA_REPORT_' . strtoupper($action) . 'D',
+					time(),
+					array(
+						'forum_id'	=> 0,
+						'topic_id'	=> 0,
+						$item_data['title'],
+						$item_data['author'],
+					)
+				);
+				// TODO Would it be a good idea to use the forum_id and topic_id when the karma_type_name === 'post'?
+			}
 
 			// TODO notifications
 

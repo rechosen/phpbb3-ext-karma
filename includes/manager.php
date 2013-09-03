@@ -108,7 +108,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 	 * @param string	$karma_comment		The comment given with the karma
 	 * @param int		$karma_time			The time on which the karma was given
 	 */
-	public function store_karma($karma_type_name, $item_id, $giving_user_id, $karma_score, $karma_comment = '', $karma_time = -1)
+	public function store_karma($karma_type_name, $item_id, $giving_user_id, $karma_score, $karma_comment = '', $karma_time = -1 /* TODO perhaps false is better than -1 as a default? */)
 	{
 		// Set the receiving user ID
 		$karma_type = $this->get_type_class($karma_type_name);
