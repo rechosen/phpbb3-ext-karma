@@ -19,10 +19,12 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 {
 	public function __construct()
 	{
-		global $phpbb_container, $phpbb_log, $request, $user, $template;
+		global $phpbb_container, $phpbb_log, $phpbb_root_path, $phpEx, $request, $user, $template;
 
 		$this->container = $phpbb_container;
 		$this->phpbb_log = $phpbb_log;
+		$this->phpbb_root_path = $phpbb_root_path;
+		$this->php_ext = $phpEx;
 		$this->request = $request;
 		$this->user = $user;
 		$this->template = $template;
@@ -105,6 +107,8 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 				}
 
 				$this->template->assign_vars(array(
+					'L_TITLE'			=> $this->user->lang['MCP_REPORTED_KARMA'],
+
 					'KARMA_REPORTER'				=> get_username_string('full', $karma_report['user_id'], $karma_report['username'], $karma_report['user_colour']),
 					'KARMA_REPORT_DATE'				=> $this->user->format_date($karma_report['karma_report_time']),
 					'KARMA_REPORT_TEXT'				=> $karma_report['karma_report_text'],
@@ -116,13 +120,69 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 			break;
 			case 'reports':
 			case 'reports_closed':
-				// Get the reports TODO
+				// Get the reports
 				// TODO only show reports for forums that this moderator may moderate
-		}
+				// TODO allow different ways of sorting
+				// TODO allow only showing recent reports?
+				$closed = ($mode == 'reports_closed');
+				$karma_reports = $report_model->list_karma_reports($closed);
 
-		$this->template->assign_vars(array(
-			'L_TITLE'			=> $this->user->lang['MCP_REPORTED_KARMA'],
-		));
+				// Put them in a template block variable
+				$karma_manager = $this->container->get('karma.includes.manager'); // TODO We use this everywhere, so only get it once above
+				foreach ($karma_reports as $karma_report)
+				{
+					// Get the reported karma
+					$karma_row = $karma_manager->get_karma_row($karma_report['karma_id']);
+					if ($karma_row === false)
+					{
+						$item_data = array(
+							'author'	=> '[karma deleted]',
+							'title'		=> '[karma deleted]',
+						);
+						// TODO Showing '[karma deleted]' multiple times is messy, fix that
+					}
+					else
+					{
+						$item_data = $karma_manager->get_item_data($karma_row['karma_type_name'], $karma_row['karma_id']);
+
+						// TODO there must be a prettier way to convert a user_id to a username
+						include_once($this->phpbb_root_path . 'includes/functions_user.' . $this->php_ext);
+						$user_ids = array($item_data['author']);
+						$usernames = array();
+						user_get_id_name($user_ids, $usernames);
+						$item_data['author'] = reset($usernames);
+					}
+					
+					// TODO it might make sense to write a get_item_data alternative that takes a karma_id :P
+					$item_data = $karma_manager->get_item_data($karma_row['karma_type_name'], $karma_row['karma_id']);
+					$this->template->assign_block_vars('karma_reports', array(
+						// TODO that module name is ridiculously long right now, there probably should be a way to define a shorter one
+						'U_VIEW_DETAILS'			=> append_sid("{$this->phpbb_root_path}mcp.{$this->php_ext}", "i=phpbb_ext_phpbb_karma_mcp_reported_karma&amp;mode=report_details&amp;r={$karma_report['karma_report_id']}"),
+						'REPORTED_KARMA_SUMMARY'	=> sprintf($this->user->lang['REPORTED_KARMA_SUMMARY'], $karma_report['reported_karma_score'], $item_data['title'], $item_data['author']),
+// 						'REPORTED_KARMA_GIVER_FULL'	=> get_username_string('full', $karma_row['user_id'], $karma_row['username'], $karma_row['user_colour']),
+						'REPORTED_KARMA_TIME'		=> $this->user->format_date($karma_report['reported_karma_time']),
+
+						'REPORTER_FULL'			=> get_username_string('full', $karma_report['user_id'], $karma_report['username'], $karma_report['user_colour']),
+						'REPORT_TIME'			=> $this->user->format_date($karma_report['karma_report_time']),
+						'REPORT_ID'				=> $karma_report['karma_report_id']
+					));
+				}
+
+				$this->template->assign_vars(array(
+					'L_EXPLAIN'				=> ($mode == 'reports') ? $this->user->lang['MCP_KARMA_REPORTS_OPEN_EXPLAIN'] : $this->user->lang['MCP_PM_REPORTS_CLOSED_EXPLAIN'],
+					'L_TITLE'				=> ($mode == 'reports') ? $this->user->lang['MCP_KARMA_REPORTS_OPEN'] : $this->user->lang['MCP_KARMA_REPORTS_CLOSED'],
+					
+					'S_MCP_ACTION'			=> $this->u_action,
+					'S_CLOSED'				=> $closed,
+
+					// TODO 'PAGE_NUMBER'			=> phpbb_on_page($template, $user, $base_url, $total, $config['topics_per_page'], $start),
+					// 'TOTAL'					=> $total,
+					// 'TOTAL_REPORTS'			=> $user->lang('LIST_REPORTS', (int) $total),
+					)
+				);
+
+				$this->tpl_name = 'mcp_karma_reports';
+		}
 	}
 
 	private function close_karma_report($karma_report_id_list, $action)

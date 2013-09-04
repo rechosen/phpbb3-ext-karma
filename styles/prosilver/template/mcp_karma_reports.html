@@ -1,0 +1,70 @@
+<!-- INCLUDE mcp_header.html -->
+
+<form id="mcp" method="post" action="{S_MCP_ACTION}">
+
+<h2>{L_TITLE}</h2>
+
+<div class="panel">
+	<div class="inner">
+
+	<p>{L_EXPLAIN}</p>
+
+	<!-- IF .karma_reports -->
+		<!-- IF 0 --><!-- TODO implement pagination -->
+		<ul class="linklist">
+			<li class="rightside pagination">
+				<!-- IF TOTAL -->{TOTAL_REPORTS} &bull; <!-- ENDIF -->
+				<!-- IF .pagination --> 
+					<!-- INCLUDE pagination.html -->
+				<!-- ELSE --> 
+					{PAGE_NUMBER}
+				<!-- ENDIF -->
+			</li>
+		</ul>
+		<!-- ENDIF -->
+		<ul class="topiclist missing-column">
+			<li class="header">
+				<dl>
+					<dt><div class="list-inner">{L_VIEW_DETAILS}</div></dt>
+					<dd class="moderation"><span>{L_REPORTER}</span></dd>
+					<dd class="mark">{L_MARK}</dd>
+				</dl>
+			</li>
+		</ul>
+		<ul class="topiclist cplist missing-column">
+
+		<!-- BEGIN karma_reports -->
+			<li class="row<!-- IF karma_reports.S_ROW_COUNT is odd --> bg1<!-- ELSE --> bg2<!-- ENDIF -->">
+				<dl>
+					<dt>
+						<div class="list-inner">
+							<a href="{karma_reports.U_VIEW_DETAILS}" class="topictitle">{karma_reports.REPORTED_KARMA_SUMMARY}</a><br />
+							<!-- TODO fill these values <span>{L_KARMA_GIVEN_BY} {karma_reports.REPORTED_KARMA_GIVER_FULL} &raquo; {karma_reports.REPORTED_KARMA_TIME}</span><br />-->
+						</div>
+					</dt>
+					<dd class="moderation">
+						<span>{karma_reports.REPORTER_FULL} &laquo; {karma_reports.REPORT_TIME}</span>
+					</dd>
+					<dd class="mark"><input type="checkbox" name="report_id_list[]" value="{karma_reports.REPORT_ID}" /></dd>
+				</dl>
+			</li>
+		<!-- END karma_reports -->
+		</ul>
+
+	<!-- ELSE -->
+		<p><strong>{L_NO_REPORTS}</strong></p>
+	<!-- ENDIF -->
+
+	</div>
+</div>
+
+<!-- IF .karma_reports -->
+	<fieldset class="display-actions">
+		<input class="button2" type="submit" value="{L_DELETE_REPORTS}" name="action[delete]" />
+		<!-- IF not S_CLOSED -->&nbsp;<input class="button1" type="submit" name="action[close]" value="{L_CLOSE_REPORTS}" /><!-- ENDIF -->
+		<div><a href="#" onclick="marklist('mcp', 'report_id_list', true); return false;">{L_MARK_ALL}</a> :: <a href="#" onclick="marklist('mcp', 'report_id_list', false); return false;">{L_UNMARK_ALL}</a></div>
+	</fieldset>
+<!-- ENDIF -->
+</form>
+
+<!-- INCLUDE mcp_footer.html -->

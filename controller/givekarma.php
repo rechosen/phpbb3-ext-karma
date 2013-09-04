@@ -86,7 +86,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			{
 				// Show the success page and redirect after three seconds
 				meta_refresh(3, $item_data['url']);
-				$message = $this->user->lang['KARMA_KARMA_GIVEN'] . '<br /><br />' . sprintf($this->user->lang['KARMA_VIEW_ITEM'], '<a href="' . $item_data['url'] . '">', '</a>');
+				$message = $this->user->lang['KARMA_KARMA_GIVEN'] . '<br /><br />' . sprintf($this->user->lang['KARMA_VIEW_ITEM'], "<a href=\"{$item_data['url']}\">", '</a>');
 				trigger_error($message);
 			}
 		}

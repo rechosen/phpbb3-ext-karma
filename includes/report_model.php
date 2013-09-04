@@ -122,7 +122,7 @@ class phpbb_ext_phpbb_karma_includes_report_model
 				USERS_TABLE => 'u',
 			),
 			'WHERE'		=> 'kr.reporter_id = u.user_id
-							AND karma_report_id = ' . (int) $karma_report_id
+							AND karma_report_id = ' . (int) $karma_report_id,
 		);
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query($sql);
@@ -146,7 +146,7 @@ class phpbb_ext_phpbb_karma_includes_report_model
 				USERS_TABLE => 'u',
 			),
 			'WHERE'		=> 'kr.reporter_id = u.user_id
-							AND ' . $this->db->sql_in_set('kr.karma_report_id', $karma_report_id_list)
+							AND ' . $this->db->sql_in_set('kr.karma_report_id', $karma_report_id_list),
 		);
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query($sql);
@@ -161,6 +161,37 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		{
 			throw new OutOfBoundsException('NO_KARMA_REPORT');
 		}
+
+		return $karma_reports;
+	}
+
+	public function list_karma_reports($closed = false)
+	{
+		// TODO the code of these functions isn't dry enough; they all look so alike that I often type something in the wrong function :P
+		$sql_array = array(
+			'SELECT'	=> 'kr.*, u.user_id, u.username, u.user_colour',
+			'FROM'		=> array(
+				$this->karma_reports_table => 'kr',
+				USERS_TABLE => 'u',
+			),
+			'WHERE'		=> 'kr.reporter_id = u.user_id
+							AND kr.karma_report_closed = ' . (int) $closed,
+			'ORDER BY'	=> 'kr.karma_report_time DESC' // TODO this should probably be an option
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$karma_reports = array();
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$karma_reports[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		// TODO is not throwing an exception the right way?
+// 		if (empty($karma_reports))
+// 		{
+// 			throw new OutOfBoundsException('NO_KARMA_REPORT');
+// 		}
 
 		return $karma_reports;
 	}
