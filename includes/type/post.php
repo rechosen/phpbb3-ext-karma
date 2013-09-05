@@ -20,8 +20,7 @@ class phpbb_ext_phpbb_karma_includes_type_post extends phpbb_ext_phpbb_karma_inc
 	/**
 	 * Get the url of the specified item
 	 * 
-	 * @param	$item_id	The ID of the item
-	 * @return	string		A url to the specified item
+	 * {@inheritdoc}
 	 */
 	public function get_url($item_id)
 	{
@@ -45,8 +44,7 @@ class phpbb_ext_phpbb_karma_includes_type_post extends phpbb_ext_phpbb_karma_inc
 	/**
 	 * Get the title of the specified item
 	 * 
-	 * @param	$item_id	The ID of the item
-	 * @return	string		The title of the specified item
+	 * {@inheritdoc}
 	 */
 	public function get_title($item_id)
 	{
@@ -67,34 +65,36 @@ class phpbb_ext_phpbb_karma_includes_type_post extends phpbb_ext_phpbb_karma_inc
 	}
 
 	/**
-	 * Get the user_id of the author of the specified item
+	 * Get the user_id, username and user_colour of the author of the specified item
 	 * 
-	 * @param	$item_id	The ID of the item
-	 * @return	int			The user_id of the author of the specified item
+	 * {@inheritdoc}
 	 */
 	public function get_author($item_id)
 	{
 		$sql_array = array(
-			'SELECT'	=> 'poster_id',
-			'FROM'		=> array(POSTS_TABLE => 'p'),
-			'WHERE'		=> 'post_id = ' . (int) $item_id,
+			'SELECT'	=> 'u.user_id, u.username, u.user_colour',
+			'FROM'		=> array(
+				POSTS_TABLE => 'p',
+				USERS_TABLE => 'u',
+			),
+			'WHERE'		=> 'p.poster_id = u.user_id
+							AND post_id = ' . (int) $item_id,
 		);
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query($sql);
-		$user_id = $this->db->sql_fetchfield('poster_id');
+		$author = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
-		if ($user_id === false) {
+		if ($author === false) {
 			throw new OutOfBoundsException('NO_POST');
 		}
 
-		return $user_id;
+		return $author;
 	}
 
 	/**
 	 * Get the timestamp of the last edit of the specified item
 	 * 
-	 * @param	$item_id	The ID of the item
-	 * @return	int			The timestamp of the last edit of the specified item
+	 * {@inheritdoc}
 	 */
 	public function get_last_edit($item_id)
 	{
@@ -117,8 +117,7 @@ class phpbb_ext_phpbb_karma_includes_type_post extends phpbb_ext_phpbb_karma_inc
 	/**
 	 * Checks if the current user has permission to read the specified item
 	 * 
-	 * @param	$item_id	The ID of the item
-	 * @return	bool		Whether the current user has reading permissions
+	 * {@inheritdoc}
 	 */
 	public function check_permission($item_id)
 	{

@@ -80,10 +80,12 @@ $lang = array_merge($lang, array(
 	'KARMA_REPORTS_CLOSED_SUCCESS'		=> 'The selected karma reports have been closed successfully.',
 	'KARMA_REPORT_DELETED_SUCCESS'		=> 'The selected karma report has been deleted successfully.',
 	'KARMA_REPORTS_DELETED_SUCCESS'		=> 'The selected karma reports have been deleted successfully.',
-	'REPORTED_KARMA_SUMMARY'			=> '%1$s on %2$s by %3$s',
+	'REPORTED_KARMA_SUMMARY'			=> '%1$s on “%2$s”',
 	'MCP_KARMA_REPORTS_OPEN_EXPLAIN'	=> 'This is a list of all reported karma that is still to be handled.',
 	'MCP_KARMA_REPORTS_CLOSED_EXPLAIN'	=> 'This is a list of all reported karma that has previously been resolved.',
 	'MCP_KARMA_REPORTS_OPEN'			=> 'Karma reports',
 	'MCP_KARMA_REPORTS_CLOSED'			=> 'Karma reports',
+	'KARMA_DELETED'						=> '[karma deleted]',
+	'KARMA_GIVEN_TO'					=> 'To',
 
 ));

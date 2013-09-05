@@ -133,43 +133,31 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 				{
 					// Get the reported karma
 					$karma_row = $karma_manager->get_karma_row($karma_report['karma_id']);
-					if ($karma_row === false)
+					if ($karma_row !== false)
 					{
-						$item_data = array(
-							'author'	=> '[karma deleted]',
-							'title'		=> '[karma deleted]',
-						);
-						// TODO Showing '[karma deleted]' multiple times is messy, fix that
-					}
-					else
-					{
+						// TODO it might make sense to write a get_item_data alternative that takes a karma_id :P
+						// On the other hand, I could follow the pattern I see most in phpBB and always get the reported karma with the report... Hmmm...
 						$item_data = $karma_manager->get_item_data($karma_row['karma_type_name'], $karma_row['karma_id']);
-
-						// TODO there must be a prettier way to convert a user_id to a username
-						include_once($this->phpbb_root_path . 'includes/functions_user.' . $this->php_ext);
-						$user_ids = array($item_data['author']);
-						$usernames = array();
-						user_get_id_name($user_ids, $usernames);
-						$item_data['author'] = reset($usernames);
 					}
 					
-					// TODO it might make sense to write a get_item_data alternative that takes a karma_id :P
-					$item_data = $karma_manager->get_item_data($karma_row['karma_type_name'], $karma_row['karma_id']);
 					$this->template->assign_block_vars('karma_reports', array(
 						// TODO that module name is ridiculously long right now, there probably should be a way to define a shorter one
-						'U_VIEW_DETAILS'			=> append_sid("{$this->phpbb_root_path}mcp.{$this->php_ext}", "i=phpbb_ext_phpbb_karma_mcp_reported_karma&amp;mode=report_details&amp;r={$karma_report['karma_report_id']}"),
-						'REPORTED_KARMA_SUMMARY'	=> sprintf($this->user->lang['REPORTED_KARMA_SUMMARY'], $karma_report['reported_karma_score'], $item_data['title'], $item_data['author']),
-// 						'REPORTED_KARMA_GIVER_FULL'	=> get_username_string('full', $karma_row['user_id'], $karma_row['username'], $karma_row['user_colour']),
-						'REPORTED_KARMA_TIME'		=> $this->user->format_date($karma_report['reported_karma_time']),
+						'U_VIEW_DETAILS'				=> append_sid("{$this->phpbb_root_path}mcp.{$this->php_ext}", "i=phpbb_ext_phpbb_karma_mcp_reported_karma&amp;mode=report_details&amp;r={$karma_report['karma_report_id']}"),
+						'REPORTED_KARMA_SUMMARY'		=> ($karma_row !== false)
+							? sprintf($this->user->lang['REPORTED_KARMA_SUMMARY'], $karma_report['reported_karma_score'], $item_data['title'])
+							: $this->user->lang['KARMA_DELETED'],
+ 						'REPORTED_KARMA_GIVER_FULL'		=> get_username_string('full', $karma_row['giving_user_id'], $karma_row['giving_username'], $karma_row['giving_user_colour']),
+ 						'REPORTED_KARMA_RECEIVER_FULL'	=> get_username_string('full', $karma_row['receiving_user_id'], $karma_row['receiving_username'], $karma_row['receiving_user_colour']),
+						'REPORTED_KARMA_TIME'			=> $this->user->format_date($karma_report['reported_karma_time']),
 
-						'REPORTER_FULL'			=> get_username_string('full', $karma_report['user_id'], $karma_report['username'], $karma_report['user_colour']),
-						'REPORT_TIME'			=> $this->user->format_date($karma_report['karma_report_time']),
-						'REPORT_ID'				=> $karma_report['karma_report_id']
+						'REPORTER_FULL'	=> get_username_string('full', $karma_report['user_id'], $karma_report['username'], $karma_report['user_colour']),
+						'REPORT_TIME'	=> $this->user->format_date($karma_report['karma_report_time']),
+						'REPORT_ID'		=> $karma_report['karma_report_id']
 					));
 				}
 
 				$this->template->assign_vars(array(
-					'L_EXPLAIN'				=> ($mode == 'reports') ? $this->user->lang['MCP_KARMA_REPORTS_OPEN_EXPLAIN'] : $this->user->lang['MCP_PM_REPORTS_CLOSED_EXPLAIN'],
+					'L_EXPLAIN'				=> ($mode == 'reports') ? $this->user->lang['MCP_KARMA_REPORTS_OPEN_EXPLAIN'] : $this->user->lang['MCP_KARMA_REPORTS_CLOSED_EXPLAIN'],
 					'L_TITLE'				=> ($mode == 'reports') ? $this->user->lang['MCP_KARMA_REPORTS_OPEN'] : $this->user->lang['MCP_KARMA_REPORTS_CLOSED'],
 					
 					'S_MCP_ACTION'			=> $this->u_action,
@@ -224,23 +212,9 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 			foreach ($karma_reports as $karma_report)
 			{
 				$karma_row = $karma_manager->get_karma_row($karma_report['karma_id']);
-				if ($karma_row === false)
-				{
-					$item_data = array(
-						'author'	=> '[karma deleted]',
-						'title'		=> '[karma deleted]',
-					);
-				}
-				else
+				if ($karma_row !== false)
 				{
 					$item_data = $karma_manager->get_item_data($karma_row['karma_type_name'], $karma_row['karma_id']);
-
-					// TODO there must be a prettier way to convert a user_id to a username
-					include_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-					$user_ids = array($item_data['author']);
-					$usernames = array();
-					user_get_id_name($user_ids, $usernames);
-					$item_data['author'] = reset($usernames);
 				}
 
 				// TODO That phpbb_log::add() function seriously needs some examples or documentation; requires lots of source reading now :/
@@ -253,8 +227,8 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					array(
 						'forum_id'	=> 0,
 						'topic_id'	=> 0,
-						$item_data['title'],
-						$item_data['author'],
+						($karma_row !== false) ? $item_data['title'] : $this->user->lang['KARMA_DELETED'],
+						($karma_row !== false) ? $item_data['author']['username'] : $this->user->lang['KARMA_DELETED'],
 					)
 				);
 				// TODO Would it be a good idea to use the forum_id and topic_id when the karma_type_name === 'post'?

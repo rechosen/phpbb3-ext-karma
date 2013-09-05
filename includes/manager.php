@@ -112,7 +112,8 @@ class phpbb_ext_phpbb_karma_includes_manager
 	{
 		// Set the receiving user ID
 		$karma_type = $this->get_type_class($karma_type_name);
-		$receiving_user_id = $karma_type->get_author($item_id);
+		$receiving_user = $karma_type->get_author($item_id);
+		$receiving_user_id = $receiving_user['user_id'];
 
 		// Get the karma_type_id
 		$karma_type_id = $this->get_karma_type_id($karma_type_name);
@@ -316,12 +317,16 @@ class phpbb_ext_phpbb_karma_includes_manager
 	public function get_karma_row($karma_id)
 	{
 		$sql_array = array(
-			'SELECT'	=> 'k.*, kt.karma_type_name',
+			'SELECT'	=> 'k.*, kt.karma_type_name, gu.username as giving_username, gu.user_colour as giving_user_colour, ru.username as receiving_username, ru.user_colour as receiving_user_colour',
 			'FROM'		=> array(
 				$this->karma_table			=> 'k',
 				$this->karma_types_table	=> 'kt',
+				USERS_TABLE					=> 'gu',
+				USERS_TABLE . ' '			=> 'ru', // TODO this looks kind of ugly, improvement possible?
 			),
 			'WHERE'		=> 'k.karma_type_id = kt.karma_type_id
+							AND k.giving_user_id = gu.user_id
+							AND k.receiving_user_id = ru.user_id
 							AND kt.karma_type_enabled = 1
 							AND karma_id = ' . (int) $karma_id,
 		);

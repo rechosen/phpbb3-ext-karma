@@ -34,10 +34,10 @@ interface phpbb_ext_phpbb_karma_includes_type_interface
 	public function get_title($item_id);
 
 	/**
-	 * Get the user_id of the author of the specified item
+	 * Get the user_id, username and user_colour of the author of the specified item
 	 * 
 	 * @param	$item_id	The ID of the item
-	 * @return	int			The user_id of the author of the specified item
+	 * @return	array		The user_id, username and user_colour of the author of the specified item
 	 */
 	public function get_author($item_id);
 

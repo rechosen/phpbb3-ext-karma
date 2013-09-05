@@ -69,7 +69,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		}
 		catch (Exception $e)
 		{
-			trigger_error(e.getMessage());
+			trigger_error($e->getMessage());
 		}
 
 		// Handle the form submission if appropriate
@@ -93,7 +93,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 
 		// Set the template variables to display the form
 		$item_link = "<a href=\"{$item_data['url']}\">{$item_data['title']}</a>";
-		$receiving_user = $this->get_full_username_string($item_data['author']);
+		$receiving_user = get_username_string('full', $item_data['author']['user_id'], $item_data['author']['username'], $item_data['author']['user_colour']);
 		$karma_score = $this->request->variable('karma_score', 0);
 		if ($karma_score === 0)
 		{
@@ -172,27 +172,5 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		$error = array_map(array($this->user, 'lang'), $error);
 
 		return $error;
-	}
-
-	/**
-	 * Get a linked and colored string of the username belonging with the specified user_id
-	 * 
-	 * @param	int	$user_id	The ID of the user to get the username string of
-	 * @return	string			A linked an colored username string, obtained from get_username_string('full', ...)
-	 */
-	private function get_full_username_string($user_id)
-	{
-		$sql_array = array(
-			'SELECT'	=> 'username, user_colour',
-			'FROM'		=> array(USERS_TABLE => 'u'),
-			'WHERE'		=> 'user_id = ' . (int) $user_id,
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
-		$result = $this->db->sql_query($sql);
-		$username = $this->db->sql_fetchfield('username');
-		$user_colour = $this->db->sql_fetchfield('user_colour');
-		$this->db->sql_freeresult($result);
-
-		return get_username_string('full', $user_id, $username, $user_colour);
 	}
 }
