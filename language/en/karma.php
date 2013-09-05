@@ -91,5 +91,9 @@ $lang = array_merge($lang, array(
 		1	=> '%d karma report',
 		2	=> '%d karma reports',
 	),
+	'LIST_RECEIVED_KARMA'				=> array(
+		1	=> '%d received karma',
+		2	=> '%d received karma',
+	),
 
 ));

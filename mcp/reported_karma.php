@@ -174,7 +174,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 
 					'PAGE_NUMBER'			=> phpbb_on_page($this->template, $this->user, $base_url, $total, $this->config['topics_per_page'], $start),
 					'TOTAL'					=> $total,
-					'TOTAL_REPORTS'			=> $this->user->lang('LIST_KARMA_REPORTS', (int) $total),
+					'TOTAL_KARMA_REPORTS'	=> $this->user->lang('LIST_KARMA_REPORTS', (int) $total),
 					)
 				);
 

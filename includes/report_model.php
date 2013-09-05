@@ -177,7 +177,6 @@ class phpbb_ext_phpbb_karma_includes_report_model
 			),
 			'WHERE'		=> 'kr.reporter_id = u.user_id
 							AND kr.karma_report_closed = ' . (int) $closed,
-			'ORDER BY'	=> 'kr.karma_report_time DESC' // TODO this should probably be an option
 		);
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query($sql);
@@ -186,6 +185,7 @@ class phpbb_ext_phpbb_karma_includes_report_model
 
 		// Now get the reports to be listed
 		$sql_array['SELECT'] = 'kr.*, u.user_id, u.username, u.user_colour';
+		$sql_array['ORDER_BY'] = 'kr.karma_report_time DESC'; // TODO this should probably be an option
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query_limit($sql, (int) $reports_per_page, (int) $start_at);
 		$karma_reports = array();
