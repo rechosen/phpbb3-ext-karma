@@ -87,5 +87,9 @@ $lang = array_merge($lang, array(
 	'MCP_KARMA_REPORTS_CLOSED'			=> 'Karma reports',
 	'KARMA_DELETED'						=> '[karma deleted]',
 	'KARMA_GIVEN_TO'					=> 'To',
+	'LIST_KARMA_REPORTS'				=> array(
+		1	=> '%d karma report',
+		2	=> '%d karma reports',
+	),
 
 ));

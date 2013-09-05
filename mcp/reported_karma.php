@@ -19,8 +19,9 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 {
 	public function __construct()
 	{
-		global $phpbb_container, $phpbb_log, $phpbb_root_path, $phpEx, $request, $user, $template;
+		global $config, $phpbb_container, $phpbb_log, $phpbb_root_path, $phpEx, $request, $user, $template;
 
+		$this->config = $config;
 		$this->container = $phpbb_container;
 		$this->phpbb_log = $phpbb_log;
 		$this->phpbb_root_path = $phpbb_root_path;
@@ -124,9 +125,12 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 				// Get the reports
 				// TODO only show reports for forums that this moderator may moderate
 				// TODO allow different ways of sorting
-				// TODO allow only showing recent reports?
+				// TODO allow showing only recent reports?
 				$closed = ($mode == 'reports_closed');
-				$karma_reports = $report_model->list_karma_reports($closed);
+				$start = $this->request->variable('start', 0);
+				$karma_reports_list = $report_model->list_karma_reports($closed, $this->config['topics_per_page'], $start);
+				$total = $karma_reports_list['total'];
+				$karma_reports = $karma_reports_list['karma_reports'];
 
 				// Put them in a template block variable
 				$karma_manager = $this->container->get('karma.includes.manager'); // TODO We use this everywhere, so only get it once above
@@ -157,6 +161,10 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					));
 				}
 
+				// Generate pagination
+				$base_url = $this->u_action;
+				phpbb_generate_template_pagination($this->template, $base_url, 'pagination', 'start', $total, $this->config['topics_per_page'], $start);
+
 				$this->template->assign_vars(array(
 					'L_EXPLAIN'				=> ($mode == 'reports') ? $this->user->lang['MCP_KARMA_REPORTS_OPEN_EXPLAIN'] : $this->user->lang['MCP_KARMA_REPORTS_CLOSED_EXPLAIN'],
 					'L_TITLE'				=> ($mode == 'reports') ? $this->user->lang['MCP_KARMA_REPORTS_OPEN'] : $this->user->lang['MCP_KARMA_REPORTS_CLOSED'],
@@ -164,9 +172,9 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					'S_MCP_ACTION'			=> $this->u_action,
 					'S_CLOSED'				=> $closed,
 
-					// TODO 'PAGE_NUMBER'			=> phpbb_on_page($template, $user, $base_url, $total, $config['topics_per_page'], $start),
-					// 'TOTAL'					=> $total,
-					// 'TOTAL_REPORTS'			=> $user->lang('LIST_REPORTS', (int) $total),
+					'PAGE_NUMBER'			=> phpbb_on_page($this->template, $this->user, $base_url, $total, $this->config['topics_per_page'], $start),
+					'TOTAL'					=> $total,
+					'TOTAL_REPORTS'			=> $this->user->lang('LIST_KARMA_REPORTS', (int) $total),
 					)
 				);
 

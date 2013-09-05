@@ -139,6 +139,7 @@ class phpbb_ext_phpbb_karma_includes_report_model
 
 	public function get_karma_reports($karma_report_id_list)
 	{
+		// TODO the code of these functions isn't dry enough; they all look so alike that I often type something in the wrong function :P
 		$sql_array = array(
 			'SELECT'	=> 'kr.*, u.user_id, u.username, u.user_colour',
 			'FROM'		=> array(
@@ -165,11 +166,11 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		return $karma_reports;
 	}
 
-	public function list_karma_reports($closed = false)
+	public function list_karma_reports($closed, $reports_per_page, $start_at)
 	{
-		// TODO the code of these functions isn't dry enough; they all look so alike that I often type something in the wrong function :P
+		// First, count the total amount of reports
 		$sql_array = array(
-			'SELECT'	=> 'kr.*, u.user_id, u.username, u.user_colour',
+			'SELECT'	=> 'COUNT(kr.karma_report_id) as total',
 			'FROM'		=> array(
 				$this->karma_reports_table => 'kr',
 				USERS_TABLE => 'u',
@@ -180,6 +181,13 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		);
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query($sql);
+		$total = $this->db->sql_fetchfield('total');
+		$this->db->sql_freeresult($result);
+
+		// Now get the reports to be listed
+		$sql_array['SELECT'] = 'kr.*, u.user_id, u.username, u.user_colour';
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query_limit($sql, (int) $reports_per_page, (int) $start_at);
 		$karma_reports = array();
 		while ($row = $this->db->sql_fetchrow($result))
 		{
@@ -193,7 +201,10 @@ class phpbb_ext_phpbb_karma_includes_report_model
 // 			throw new OutOfBoundsException('NO_KARMA_REPORT');
 // 		}
 
-		return $karma_reports;
+		return array(
+			'total'			=> $total,
+			'karma_reports'	=> $karma_reports,
+		);
 	}
 
 	public function close_karma_reports($karma_report_id_list, $delete = false)
