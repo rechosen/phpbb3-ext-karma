@@ -41,9 +41,9 @@ $lang = array_merge($lang, array(
 	'UCP_KARMA'					=> 'Karma',
 	'UCP_RECEIVED_KARMA'		=> 'Received karma',
 	'MCP_KARMA'					=> 'Reported karma',
-	'MCP_KARMA_REPORTS_OPEN'	=> 'Open reports',
-	'MCP_KARMA_REPORTS_CLOSED'	=> 'Closed reports',
-	'MCP_KARMA_REPORT_DETAILS'	=> 'Report details',
+	'MCP_KARMA_REPORTS_OPEN'	=> 'Open karma reports',
+	'MCP_KARMA_REPORTS_CLOSED'	=> 'Closed karma reports',
+	'MCP_KARMA_REPORT_DETAILS'	=> 'Karma report details',
 	'LOG_KARMA_REPORT_CLOSED'	=> '<strong>Closed karma report</strong><br />» on “%1$s” by %2$s',
 	'LOG_KARMA_REPORT_DELETED'	=> '<strong>Deleted karma report</strong><br />» on “%1$s” by %2$s',
 
