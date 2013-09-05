@@ -17,7 +17,7 @@ if (!defined('IN_PHPBB'))
 
 class phpbb_ext_phpbb_karma_mcp_reported_karma
 {
-	public function __construct()
+	public function __construct($p_master)
 	{
 		global $config, $phpbb_container, $phpbb_log, $phpbb_root_path, $phpEx, $request, $user, $template;
 
@@ -30,6 +30,8 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 		$this->user = $user;
 		$this->template = $template;
 
+		$this->p_master = $p_master;
+
 		$user->add_lang_ext('phpbb/karma', 'karma');
 	}
 
@@ -39,10 +41,16 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 
 		$this->page_title = 'MCP_REPORTED_KARMA';
 
+		// Hide the "Karma report details" module tab (this is undone if $mode == 'report_details')
+		$this->p_master->set_display('phpbb_ext_phpbb_karma_mcp_reported_karma', 'report_details', false);
+
 		$report_model = $this->container->get('karma.includes.report_model');
 		switch ($mode)
 		{
 			case 'report_details':
+				// Display this module's tab (it is hidden by default)
+				$this->p_master->set_display('phpbb_ext_phpbb_karma_mcp_reported_karma', 'report_details', true);
+
 				// Determine if the moderator wants to close or delete the report
 				switch ($action)
 				{
