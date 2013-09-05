@@ -7,6 +7,9 @@
 		<div class="postbody">
 			<h3>{L_KARMA_REPORT_REASON}{L_COLON}</h3>
 			<p class="author">{L_KARMA_REPORTED_BY} <strong>{KARMA_REPORTER}</strong> &laquo; {KARMA_REPORT_DATE}</p>
+			<!-- IF S_KARMA_REPORT_CLOSED -->
+				<p class="rules">{L_REPORT_CLOSED}</p>
+			<!-- ENDIF -->
 			<div class="content">{KARMA_REPORT_TEXT}</div>
 		</div>
 	</div>
@@ -15,7 +18,9 @@
 <form method="post" id="mcp_karma_report" action="{S_CLOSE_ACTION}">
 
 <fieldset class="submit-buttons">
-	<input class="button1" type="submit" value="{L_CLOSE_REPORT}" name="action[close]" /> &nbsp;
+	<!-- IF not S_KARMA_REPORT_CLOSED -->
+		<input class="button1" type="submit" value="{L_CLOSE_REPORT}" name="action[close]" /> &nbsp;
+	<!-- ENDIF -->
 	<input class="button2" type="submit" value="{L_DELETE_REPORT}" name="action[delete]" />
 	<input type="hidden" name="karma_report_id_list[]" value="{KARMA_REPORT_ID}" />
 	{S_FORM_TOKEN}

@@ -111,9 +111,10 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 
 					'KARMA_REPORTER'				=> get_username_string('full', $karma_report['user_id'], $karma_report['username'], $karma_report['user_colour']),
 					'KARMA_REPORT_DATE'				=> $this->user->format_date($karma_report['karma_report_time']),
-					'KARMA_REPORT_TEXT'				=> $karma_report['karma_report_text'],
+					'KARMA_REPORT_TEXT'				=> nl2br($karma_report['karma_report_text']),
 					'KARMA_REPORT_ID'				=> $karma_report['karma_report_id'],
 					'S_KARMA_REPORT_ITEM_EDITED'	=> $karma['item_last_edit'] > $karma_report['karma_report_time'],
+					'S_KARMA_REPORT_CLOSED'			=> $karma_report['karma_report_closed'],
 				));
 
 				$this->tpl_name = 'mcp_karma_report_details';
