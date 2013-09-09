@@ -150,13 +150,14 @@ class phpbb_ext_phpbb_karma_includes_type_post extends phpbb_ext_phpbb_karma_inc
 		// Check if the forum is password-protected but no password was entered yet
 		// TODO this query could be avoided by using a JOIN earlier
 		$sql_array = array(
-			'SELECT'	=> 'forum_password',
+			'SELECT'	=> 'forum_password, forum_name',
 			'FROM'		=> array(FORUMS_TABLE => 'f'),
 			'WHERE'		=> 'forum_id = ' . (int) $forum_id,
 		);
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query($sql);
 		$forum_password = $this->db->sql_fetchfield('forum_password');
+		$forum_name = $this->db->sql_fetchfield('forum_name');
 		$this->db->sql_freeresult($result);
 		if ($forum_password === false) {
 			throw new OutOfBoundsException('NO_TOPIC');
@@ -165,7 +166,11 @@ class phpbb_ext_phpbb_karma_includes_type_post extends phpbb_ext_phpbb_karma_inc
 		// TODO There must be a way to check this without overriding output with a password form
 		if ($forum_password)
 		{
-			login_forum_box($topic_data);
+			login_forum_box(array(
+				'forum_id'			=> $forum_id,
+				'forum_password'	=> $forum_password,
+				'forum_name'		=> $forum_name,
+			));
 		}
 	}
 }
