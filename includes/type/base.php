@@ -30,6 +30,12 @@ class phpbb_ext_phpbb_karma_includes_type_base
 	protected $db;
 
 	/**
+	 * User object
+	 * @var phpbb_user
+	 */
+	protected $user;
+
+	/**
 	 * phpBB root path
 	 * @var string
 	 */
@@ -57,10 +63,11 @@ class phpbb_ext_phpbb_karma_includes_type_base
 	 * @param string			$php_ext			php file extension
 	 * @param string			$table_name			Name of the karma database table
 	 */
-	public function __construct(phpbb_auth $auth, phpbb_db_driver $db, $phpbb_root_path, $php_ext, $table_name)
+	public function __construct(phpbb_auth $auth, phpbb_db_driver $db, phpbb_user $user, $phpbb_root_path, $php_ext, $table_name)
 	{
 		$this->auth = $auth;
 		$this->db = $db;
+		$this->user = $user;
 		$this->phpbb_root_path = $phpbb_root_path;
 		$this->php_ext = $php_ext;
 		$this->table_name = $table_name;
