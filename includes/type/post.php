@@ -144,7 +144,7 @@ class phpbb_ext_phpbb_karma_includes_type_post extends phpbb_ext_phpbb_karma_inc
 				trigger_error('SORRY_AUTH_READ');
 			}
 
-			login_box('', $user->lang['LOGIN_VIEWFORUM']); // TODO if login_forum_box can be avoided, avoid this as well
+			login_box('', $this->user->lang['LOGIN_VIEWFORUM']); // TODO if login_forum_box can be avoided, avoid this as well
 		}
 
 		// Check if the forum is password-protected but no password was entered yet
