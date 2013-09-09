@@ -95,5 +95,6 @@ $lang = array_merge($lang, array(
 		1	=> '%d received karma',
 		2	=> '%d received karma',
 	),
+	'NO_SELF_KARMA'						=> 'You are not allowed to give karma to yourself.'
 
 ));

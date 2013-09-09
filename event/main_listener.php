@@ -54,7 +54,8 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 	{
 		global $user, $phpbb_root_path, $phpEx;
 
-		if ($event['row']['user_id'] != ANONYMOUS)
+		if ($event['row']['user_id'] != ANONYMOUS
+			&& $event['row']['user_id'] != $user->data['user_id'])
 		{
 			// Load the karma language file
 			$user->add_lang_ext('phpbb/karma', 'karma');

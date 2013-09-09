@@ -62,7 +62,6 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		$karma_manager = $this->container->get('karma.includes.manager');
 
 		// Retrieve info about the item karma is given on
-		// TODO prevent the user from giving karma on his/her own item
 		try
 		{
 			$item_data = $karma_manager->get_item_data($karma_type_name, $item_id);
@@ -70,6 +69,12 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		catch (Exception $e)
 		{
 			trigger_error($e->getMessage());
+		}
+
+		// Prevent the user from giving karma on his/her own item
+		if ($this->user->data['user_id'] == $item_data['author']['user_id'])
+		{
+			trigger_error('NO_SELF_KARMA');
 		}
 
 		// Handle the form submission if appropriate
