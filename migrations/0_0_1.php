@@ -96,7 +96,17 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 	public function update_data()
 	{
 		return array(
+			// Config values
 			array('config.add', array('phpbb_karma_version', '0.0.1')),
+
+			// Permissions
+			// Note that the boolean parameter indicates if the permission is global,
+			// while the last parameter indicates which permission to copy settings from.
+			array('permission.add', array('u_givekarma', true, 'u_sendpm')),
+			// The moderator permissions need to be both global and local, so add them twice
+			array('permission.add', array('m_karma_report', true)),
+ 			//array('permission.add', array('m_karma_report', false, 'm_report')),
+			// TODO either make m_karma_report global AND local, or find a way to copy only the global m_report permissions
 
 			// UCP module
 			array('module.add', array('ucp', '', 'UCP_KARMA')),
@@ -113,19 +123,19 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 				'module_basename'	=> 'phpbb_ext_phpbb_karma_mcp_reported_karma',
 				'module_langname'	=> 'MCP_KARMA_REPORTS_OPEN',
 				'module_mode'		=> 'reports',
-				'module_auth'		=> '', //TODO
+				'module_auth'		=> 'acl_m_karma_report',
 			))),
 			array('module.add', array('mcp', 'MCP_KARMA', array(
 				'module_basename'	=> 'phpbb_ext_phpbb_karma_mcp_reported_karma',
 				'module_langname'	=> 'MCP_KARMA_REPORTS_CLOSED',
 				'module_mode'		=> 'reports_closed',
-				'module_auth'		=> '', //TODO
+				'module_auth'		=> 'acl_m_karma_report',
 			))),
 			array('module.add', array('mcp', 'MCP_KARMA', array(
 				'module_basename'	=> 'phpbb_ext_phpbb_karma_mcp_reported_karma',
 				'module_langname'	=> 'MCP_KARMA_REPORT_DETAILS',
 				'module_mode'		=> 'report_details',
-				'module_auth'		=> '', //TODO
+				'module_auth'		=> 'acl_m_karma_report',
 			))),
 		);
 	}

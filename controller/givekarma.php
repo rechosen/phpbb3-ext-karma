@@ -58,6 +58,17 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		$this->user->add_lang_ext('phpbb/karma', 'karma');
 		$this->user->add_lang(array('posting'));
 
+		// Check if the user is allowed to give karma
+		if (!$this->auth->acl_get('u_givekarma'))
+		{
+			if ($this->user->data['user_id'] != ANONYMOUS)
+			{
+				trigger_error('SORRY_AUTH_KARMA');
+			}
+
+			login_box('', $this->user->lang['LOGIN_GIVEKARMA']);
+		}
+
 		// Get an instance of the karma manager
 		$karma_manager = $this->container->get('karma.includes.manager');
 

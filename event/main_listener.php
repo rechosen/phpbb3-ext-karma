@@ -25,12 +25,21 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 	static public function getSubscribedEvents()
 	{
 		return array(
+			'core.permissions'						=> 'add_permissions',
 			'core.user_setup'						=> 'load_global_translations',
 			'core.viewtopic_cache_user_data'		=> 'viewtopic_body_add_karma_score_to_user_cache_data',
 			'core.viewtopic_modify_post_row'		=> 'viewtopic_body_postrow_add_karma_score_and_controls',
 			'core.ucp_pm_view_messsage'				=> 'ucp_pm_viewmessage_add_pm_author_karma_score',
 			'core.memberlist_prepare_profile_data'	=> 'memberlist_view_add_karma_score_to_user_statistics',
 		);
+	}
+
+	public function add_permissions($event)
+	{
+			$permissions = $event['permissions'];
+			$permissions['u_givekarma'] = array('lang' => 'ACL_U_GIVEKARMA', 'cat' => 'misc');
+			$permissions['m_karma_report'] = array('lang' => 'ACL_M_KARMA_REPORT', 'cat' => 'misc');
+			$event['permissions'] = $permissions;
 	}
 
 	public function load_global_translations($event)
