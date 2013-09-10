@@ -102,11 +102,11 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 			// Permissions
 			// Note that the boolean parameter indicates if the permission is global,
 			// while the last parameter indicates which permission to copy settings from.
-			array('permission.add', array('u_givekarma', true, 'u_sendpm')),
-			// The moderator permissions need to be both global and local, so add them twice
 			array('permission.add', array('m_karma_report', true)),
- 			//array('permission.add', array('m_karma_report', false, 'm_report')),
-			// TODO either make m_karma_report global AND local, or find a way to copy only the global m_report permissions
+			// For m_karma_report, only copy the global instances of the m_report permission
+			array('custom', array(array($this, 'copy_m_karma_report_permissions'))),
+			// Need to run a permission.add with a copy_from argument now because it calls acl_clear_prefetch()
+			array('permission.add', array('u_givekarma', true, 'u_sendpm')),
 
 			// UCP module
 			array('module.add', array('ucp', '', 'UCP_KARMA')),
@@ -138,5 +138,76 @@ class phpbb_ext_phpbb_karma_migrations_0_0_1 extends phpbb_db_migration
 				'module_auth'		=> 'acl_m_karma_report',
 			))),
 		);
+	}
+
+	public function copy_m_karma_report_permissions()
+	{
+		// Get the ids of the m_report and m_karma_report options
+		$sql = 'SELECT auth_option, auth_option_id
+				FROM ' . ACL_OPTIONS_TABLE . "
+				WHERE auth_option = 'm_report'
+				OR auth_option = 'm_karma_report'";
+		$result = $this->db->sql_query($sql);
+		$permission_ids = array();
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$permission_ids[$row['auth_option']] = $row['auth_option_id'];
+		}
+		$this->db->sql_freeresult($result);
+		if (!isset($permission_ids['m_report']) || !isset($permission_ids['m_karma_report']))
+		{
+			throw new phpbb_db_migration_exception('Failed to get the ids of the m_report and m_karma_report permissions!');
+		}
+
+		// Check if there already are entries for the m_karma_report permission
+		// TODO I needed to add this because purging the extension would fail otherwise; why is this method called upon purging in exactly the same manner as at enabling?
+		$old_id = $permission_ids['m_report'];
+		$new_id = $permission_ids['m_karma_report'];
+		
+		$tables = array(ACL_GROUPS_TABLE, ACL_ROLES_DATA_TABLE, ACL_USERS_TABLE);
+
+		foreach ($tables as $table)
+		{
+			$sql = 'SELECT COUNT(auth_option_id) as entries
+				FROM ' . $table . '
+				WHERE auth_option_id = ' . $new_id;
+			$result = $this->db->sql_query($sql);
+			$entries = $this->db->sql_fetchfield('entries');
+			$this->db->sql_freeresult($result);
+
+			if ($entries > 0)
+			{
+				// Do not copy if there already are entries
+				return;
+			}
+		}
+
+		// Now copy only the global permission data from m_report to m_karma_report
+		// Based on phpbb_db_migration_tool_permission::add()
+		foreach ($tables as $table)
+		{
+			$sql = 'SELECT *
+				FROM ' . $table . '
+				WHERE auth_option_id = ' . $old_id;
+			if ($table === ACL_USERS_TABLE)
+			{
+				// Prevent local permissions from being copied
+				$sql .= ' AND forum_id = 0';
+			}
+			$result = $this->db->sql_query($sql);
+
+			$sql_ary = array();
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$row['auth_option_id'] = $new_id;
+				$sql_ary[] = $row;
+			}
+			$this->db->sql_freeresult($result);
+
+			if (!empty($sql_ary))
+			{
+				$this->db->sql_multi_insert($table, $sql_ary);
+			}
+		}
 	}
 }
