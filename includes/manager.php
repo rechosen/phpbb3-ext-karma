@@ -360,7 +360,8 @@ class phpbb_ext_phpbb_karma_includes_manager
 			'given_by'			=> get_username_string('full', $karma_row['user_id'], $karma_row['username'], $karma_row['user_colour']),
 			'comment'			=> $karma_row['karma_comment'],
 			'reported'			=> (bool) $karma_row['karma_reported'],
-			'report_url'		=> append_sid($this->phpbb_root_path . 'app.' . $this->php_ext, "controller=reportkarma/{$karma_row['karma_id']}"),
+			'report_url'		=> append_sid("{$this->phpbb_root_path}app.{$this->php_ext}/reportkarma/{$karma_row['karma_id']}"),
+			// TODO only include app.php when rewriting isn't enabled
 			'item_last_edit'	=> $karma_type->get_last_edit($karma_row['item_id']),
 		);
 	}
