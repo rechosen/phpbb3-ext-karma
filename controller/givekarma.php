@@ -88,6 +88,27 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			trigger_error('NO_SELF_KARMA');
 		}
 
+		// Check if the user has already given karma on this item
+		$given_karma = $karma_manager->get_given_karma_row($karma_type_name, $item_id, $this->user->data['user_id']);
+		if ($given_karma !== false)
+		{
+			// Karma was already given, so we're editing it now.
+			// TODO this would be the place to check if editing karma is allowed :)
+			$edit = true;
+			$karma_score = $given_karma['karma_score'];
+			$karma_comment = $given_karma['karma_comment'];
+			$title = $this->user->lang['KARMA_EDIT_KARMA'];
+			$giving_karma_text = $this->user->lang['KARMA_EDITING_KARMA'];
+			$karma_given_text = $this->user->lang['KARMA_KARMA_EDITED'];
+		}
+		else
+		{
+			$edit = false;
+			$title = $this->user->lang['KARMA_GIVE_KARMA'];
+			$giving_karma_text = $this->user->lang['KARMA_GIVING_KARMA'];
+			$karma_given_text = $this->user->lang['KARMA_KARMA_GIVEN'];
+		}
+
 		// Handle the form submission if appropriate
 		if ($this->request->is_set_post('submit'))
 		{
@@ -102,7 +123,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			{
 				// Show the success page and redirect after three seconds
 				meta_refresh(3, $item_data['url']);
-				$message = $this->user->lang['KARMA_KARMA_GIVEN'] . '<br /><br />' . sprintf($this->user->lang['KARMA_VIEW_ITEM'], "<a href=\"{$item_data['url']}\">", '</a>');
+				$message = $karma_given_text . '<br /><br />' . sprintf($this->user->lang['KARMA_VIEW_ITEM'], "<a href=\"{$item_data['url']}\">", '</a>');
 				trigger_error($message);
 			}
 		}
@@ -110,23 +131,27 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		// Set the template variables to display the form
 		$item_link = "<a href=\"{$item_data['url']}\">{$item_data['title']}</a>";
 		$receiving_user = get_username_string('full', $item_data['author']['user_id'], $item_data['author']['username'], $item_data['author']['user_colour']);
-		$karma_score = $this->request->variable('karma_score', 0);
-		if ($karma_score === 0)
+		if (!$edit)
 		{
-			$get_score = $this->request->variable('score', '');
-			if ($get_score === 'positive')
+			$karma_score = $this->request->variable('karma_score', 0);
+			if ($karma_score === 0)
 			{
-				$karma_score = 1;
-			}
-			if ($get_score === 'negative')
-			{
-				$karma_score = -1;
+				$get_score = $this->request->variable('score', '');
+				if ($get_score === 'positive')
+				{
+					$karma_score = 1;
+				}
+				if ($get_score === 'negative')
+				{
+					$karma_score = -1;
+				}
 			}
 		}
 		$template_vars = array(
+			'L_TITLE'				=> $title,
 			'ERROR'					=> (!empty($error)) ? implode('<br />', $error) : '',
-			'KARMA_GIVING_KARMA'	=> sprintf($this->user->lang['KARMA_GIVING_KARMA'], $item_link, $receiving_user),
-			'KARMA_COMMENT'			=> $this->request->variable('karma_comment', ''),
+			'KARMA_GIVING_KARMA'	=> sprintf($giving_karma_text, $item_link, $receiving_user),
+			'KARMA_COMMENT'			=> ($edit) ? $karma_comment : $this->request->variable('karma_comment', ''),
 			'KARMA_SCORE'			=> $karma_score,
 		);
 		$this->template->assign_vars($template_vars);
@@ -143,7 +168,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		* @param string Page title
 		* @param int Status code of the page (200 - OK [ default ], 403 - Unauthorized, 404 - Page not found)
 		*/
-		return $this->helper->render('givekarma_body.html', $this->user->lang['KARMA_GIVE_KARMA'], 200);
+		return $this->helper->render('givekarma_body.html', $title, 200);
 	}
 
 	/**
@@ -156,7 +181,6 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		$error = array();
 
 		// Validate the input TODO make karma_comment required depending on a setting
-		// TODO prevent the anonymous user from giving karma?
 		$karma_score = $this->request->variable('karma_score', 0);
 		if ($karma_score == 0)
 		{

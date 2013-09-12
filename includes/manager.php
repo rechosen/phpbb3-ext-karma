@@ -367,6 +367,38 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
+	 * Retrieve karma given on a certain item by a certain user
+	 * 
+	 * @param	string	$karma_type_name	The name of the type of the karma
+	 * @param	int		$item_id			The ID of the item
+	 * @param	int		$giving_user_id		The ID of the giving user
+	 * @return	array|bool					The row of the karma, or false if it doesn't exist
+	 */
+	public function get_given_karma_row($karma_type_name, $item_id, $giving_user_id)
+	{
+		$sql_array = array(
+			'SELECT'	=> 'k.*, gu.username as giving_username, gu.user_colour as giving_user_colour',
+			'FROM'		=> array(
+				$this->karma_table			=> 'k',
+				$this->karma_types_table	=> 'kt',
+				USERS_TABLE					=> 'gu',
+			),
+			'WHERE'		=> 'k.karma_type_id = kt.karma_type_id
+							AND k.giving_user_id = gu.user_id
+							AND kt.karma_type_enabled = 1
+							AND kt.karma_type_name = \'' . $this->db->sql_escape($karma_type_name) . '\'
+							AND k.item_id = ' . (int) $item_id . '
+							AND k.giving_user_id = ' . (int) $giving_user_id,
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		$karma_row = $this->db->sql_fetchrow();
+		$this->db->sql_freeresult($result);
+
+		return $karma_row;
+	}
+
+	/**
 	 * Helper to get the type class of a certain karma type
 	 * 
 	 * @param	string	$karma_type_name						The name of the type to get a class instance of
