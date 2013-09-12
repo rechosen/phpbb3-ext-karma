@@ -69,6 +69,26 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			login_box('', $this->user->lang['LOGIN_GIVEKARMA']);
 		}
 
+		// Check if somebody else's karma is to be edited
+		$giving_user_id = $this->request->variable('giver', 0);
+		if ($giving_user_id !== 0)
+		{
+			// Check if this user has the appropriate moderator permissions
+			// TODO is an m_edit_karma permission appropriate?
+			if (!$this->auth->acl_get('m_karma_report'))
+			{
+				trigger_error('SORRY_AUTH_KARMA_EDIT');
+			}
+
+			$moderator_edit = true;
+		}
+		else
+		{
+			// This user is giving karma as him/herself
+			$giving_user_id = $this->user->data['user_id'];
+			$moderator_edit = false;
+		}
+
 		// Get an instance of the karma manager
 		$karma_manager = $this->container->get('karma.includes.manager');
 
@@ -83,29 +103,50 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		}
 
 		// Prevent the user from giving karma on his/her own item
-		if ($this->user->data['user_id'] == $item_data['author']['user_id'])
+		// TODO should I also prevent moderators from editing karma given to their own items? If I don't, a moderator gone bad might make all karma to him/herself positive
+		if (!$moderator_edit && $giving_user_id == $item_data['author']['user_id'])
 		{
 			trigger_error('NO_SELF_KARMA');
 		}
 
 		// Check if the user has already given karma on this item
-		$given_karma = $karma_manager->get_given_karma_row($karma_type_name, $item_id, $this->user->data['user_id']);
+		$given_karma = $karma_manager->get_given_karma_row($karma_type_name, $item_id, $giving_user_id);
 		if ($given_karma !== false)
 		{
 			// Karma was already given, so we're editing it now.
-			// TODO this would be the place to check if editing karma is allowed :)
+			// TODO this would be the place to check if editing karma is allowed on this board :)
+
+			// If this is a moderator edit, check if the karma was reported
+			// Moderators may not edit unreported karma
+			if ($moderator_edit && !$given_karma['karma_reported'])
+			{
+				// Do not give an alternative error message as that yield the information that this user gave karma on the item
+				trigger_error('NO_KARMA');
+			}
+
 			$edit = true;
 			$karma_score = $given_karma['karma_score'];
 			$karma_comment = $given_karma['karma_comment'];
 			$title = $this->user->lang['KARMA_EDIT_KARMA'];
 			$giving_karma_text = $this->user->lang['KARMA_EDITING_KARMA'];
+			$giving_user = ($moderator_edit)
+				? get_username_string('full', $giving_user_id, $given_karma['giving_username'], $given_karma['giving_user_colour'])
+				: $this->user->lang['KARMA_EDITING_KARMA_YOU'];
 			$karma_given_text = $this->user->lang['KARMA_KARMA_EDITED'];
 		}
 		else
 		{
+			// Check if this is supposed to be a moderator edit
+			if ($moderator_edit)
+			{
+				// Do not allow moderators to give new karma in somebody else's name
+				trigger_error('NO_KARMA');
+			}
+
 			$edit = false;
 			$title = $this->user->lang['KARMA_GIVE_KARMA'];
 			$giving_karma_text = $this->user->lang['KARMA_GIVING_KARMA'];
+			$giving_user = ''; // Not used
 			$karma_given_text = $this->user->lang['KARMA_KARMA_GIVEN'];
 		}
 
@@ -117,7 +158,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 				trigger_error('FORM_INVALID');
 			}
 
-			$error = $this->validate_and_store_karma($karma_type_name, $item_id);
+			$error = $this->validate_and_store_karma($karma_type_name, $item_id, $giving_user_id);
 
 			if (empty($error))
 			{
@@ -150,7 +191,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		$template_vars = array(
 			'L_TITLE'				=> $title,
 			'ERROR'					=> (!empty($error)) ? implode('<br />', $error) : '',
-			'KARMA_GIVING_KARMA'	=> sprintf($giving_karma_text, $item_link, $receiving_user),
+			'KARMA_GIVING_KARMA'	=> sprintf($giving_karma_text, $giving_user, $item_link, $receiving_user),
 			'KARMA_COMMENT'			=> ($edit) ? $karma_comment : $this->request->variable('karma_comment', ''),
 			'KARMA_SCORE'			=> $karma_score,
 		);
@@ -176,7 +217,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	 * 
 	 * @return	array	An array of form errors to be displayed to the user
 	 */
-	private function validate_and_store_karma($karma_type_name, $item_id)
+	private function validate_and_store_karma($karma_type_name, $item_id, $giving_user_id)
 	{
 		$error = array();
 
@@ -200,7 +241,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			$karma_manager = $this->container->get('karma.includes.manager');
 			try
 			{
-				$karma_manager->store_karma($karma_type_name, $item_id, $this->user->data['user_id'], $karma_score, $this->request->variable('karma_comment', ''));
+				$karma_manager->store_karma($karma_type_name, $item_id, $giving_user_id, $karma_score, $this->request->variable('karma_comment', ''));
 			}
 			catch (Exception $e)
 			{

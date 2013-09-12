@@ -41,8 +41,9 @@ $lang = array_merge($lang, array(
 	'KARMA'								=> 'Karma',
 	'KARMA_GIVE_KARMA'					=> 'Give karma',
 	'KARMA_EDIT_KARMA'					=> 'Edit karma',
-	'KARMA_GIVING_KARMA'				=> 'You’re giving karma on %1$s by %2$s.',
-	'KARMA_EDITING_KARMA'				=> 'You’re editing the karma you gave on %1$s by %2$s.',
+	'KARMA_GIVING_KARMA'				=> 'You’re giving karma on %2$s by %3$s.',
+	'KARMA_EDITING_KARMA'				=> 'You’re editing the karma %1$s gave on %2$s by %3$s.',
+	'KARMA_EDITING_KARMA_YOU'			=> 'you',
 	'KARMA_SCORE'						=> 'Score',
 	'KARMA_POSITIVE'					=> 'Positive',
 	'KARMA_NEGATIVE'					=> 'Negative',
@@ -100,6 +101,7 @@ $lang = array_merge($lang, array(
 	),
 	'SORRY_AUTH_KARMA'					=> 'You are not authorised to give karma.',
 	'LOGIN_GIVEKARMA'					=> 'The board requires you to be registered and logged in to give karma.',
-	'NO_SELF_KARMA'						=> 'You are not allowed to give karma to yourself.'
+	'NO_SELF_KARMA'						=> 'You are not allowed to give karma to yourself.',
+	'SORRY_AUTH_KARMA_EDIT'				=> 'You are not authorised to edit somebody else’s karma.',
 
 ));

@@ -115,6 +115,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					$this->template->assign_block_vars('received_karma', $block_row);
 				}
 
+				$karma_row = $karma_manager->get_karma_row($karma_report['karma_id']);
 				$this->template->assign_vars(array(
 					'L_TITLE'			=> $this->user->lang['MCP_REPORTED_KARMA'],
 
@@ -124,6 +125,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					'KARMA_REPORT_ID'				=> $karma_report['karma_report_id'],
 					'S_KARMA_REPORT_ITEM_EDITED'	=> $karma['item_last_edit'] > $karma_report['karma_report_time'],
 					'S_KARMA_REPORT_CLOSED'			=> $karma_report['karma_report_closed'],
+					'U_KARMA_EDIT'					=> append_sid("{$this->phpbb_root_path}app.{$this->php_ext}/givekarma/{$karma_row['karma_type_name']}/{$karma_row['item_id']}", "giver={$karma_row['giving_user_id']}"),
 				));
 
 				$this->tpl_name = 'mcp_karma_report_details';
