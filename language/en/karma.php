@@ -103,5 +103,6 @@ $lang = array_merge($lang, array(
 	'LOGIN_GIVEKARMA'					=> 'The board requires you to be registered and logged in to give karma.',
 	'NO_SELF_KARMA'						=> 'You are not allowed to give karma to yourself.',
 	'SORRY_AUTH_KARMA_EDIT'				=> 'You are not authorised to edit somebody else’s karma.',
+	'GIVEN_KARMA_DESC'					=> 'You gave this %1$s with comment “%2$s”',
 
 ));

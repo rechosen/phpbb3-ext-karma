@@ -17,6 +17,11 @@ ul.profile-icons li.givekarma-positive-icon {
 	background-image: url("./images/icon_karma_negative.gif");
 }
 
+ul.profile-icons li.givekarma-positive-icon a.karma-given,
+ul.profile-icons li.givekarma-negative-icon a.karma-given {
+	background: none;
+}
+
 /* Styles for the UCP received karma table
 ---------------------------------------- */
 table.karma-table {

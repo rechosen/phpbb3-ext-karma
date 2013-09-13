@@ -27,6 +27,8 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 		return array(
 			'core.permissions'						=> 'add_permissions',
 			'core.user_setup'						=> 'load_global_translations',
+			'core.viewtopic_get_post_data'			=> 'viewtopic_body_retrieve_given_karma_with_posts',
+			'core.viewtopic_post_rowset_data'		=> 'viewtopic_body_add_given_karma_to_postrow',
 			'core.viewtopic_cache_user_data'		=> 'viewtopic_body_add_karma_score_to_user_cache_data',
 			'core.viewtopic_modify_post_row'		=> 'viewtopic_body_postrow_add_karma_score_and_controls',
 			'core.ucp_pm_view_messsage'				=> 'ucp_pm_viewmessage_add_pm_author_karma_score',
@@ -52,6 +54,51 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 		$event['lang_set_ext'] = $lang_set_ext;
 	}
 
+	public function viewtopic_body_retrieve_given_karma_with_posts($event)
+	{
+		global $user, $phpbb_container;
+
+		$karma_table = $phpbb_container->getParameter('tables.karma.karma');
+		$karma_types_table = $phpbb_container->getParameter('tables.karma.karma_types');
+
+		// Extend the post information retrieval query to retrieve any karma given by $user on any of the posts
+		$sql_ary = $event['sql_ary'];
+		$sql_ary['SELECT'] .= ', karma.karma_score, karma.karma_comment';
+		if (!isset($sql_ary['LEFT_JOIN']))
+		{
+			$sql_ary['LEFT_JOIN'] = array();
+		}
+		$sql_ary['LEFT_JOIN'][] = array(
+			'FROM'	=> array(
+				$karma_table		=> 'karma',
+			),
+			'ON'	=> "karma.karma_type_id = (
+							SELECT karma_type_id
+							FROM $karma_types_table
+							WHERE karma_type_name = 'post'
+						)
+						AND karma.item_id = p.post_id
+						AND karma.giving_user_id =" . (int) $user->data['user_id'],
+						// TODO that 'post' type probably shouldn't be hardcoded. Perhaps a definition somewhere?
+						// TODO this could be done using a cross join if only the LEFT_JOIN sub-array supported that
+		);
+		$event['sql_ary'] = $sql_ary;
+	}
+
+	public function viewtopic_body_add_given_karma_to_postrow($event)
+	{
+		if (isset($event['row']['karma_score']))
+		{
+			$rowset_data = $event['rowset_data'];
+			$fields_to_copy = array('karma_score', 'karma_comment');
+			foreach ($fields_to_copy as $field)
+			{
+				$rowset_data[$field] = $event['row'][$field];
+			}
+			$event['rowset_data'] = $rowset_data;
+		}
+	}
+
 	public function viewtopic_body_add_karma_score_to_user_cache_data($event)
 	{
 		$user_cache_data = $event['user_cache_data'];
@@ -68,11 +115,13 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 			// Load the karma language file
 			$user->add_lang_ext('phpbb/karma', 'karma');
 
+			// Add the user's karma score to the template
 			$post_row = $event['post_row'];
 			$post_row['POSTER_KARMA_SCORE'] = $event['user_poster_data']['karma_score'];
 
 			if ($event['row']['user_id'] != $user->data['user_id'])
 			{
+				// Add the URLs for the karma controls (thumbs up/down)
 				// TODO only include app.php when rewriting isn't enabled
 				$post_row['U_GIVEKARMA_POSITIVE'] = append_sid(
 					"{$phpbb_root_path}app.$phpEx/givekarma/post/{$event['row']['post_id']}",
@@ -82,6 +131,22 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 					"{$phpbb_root_path}app.$phpEx/givekarma/post/{$event['row']['post_id']}",
 					"score=negative"
 				);
+
+				// Add a description if the user already gave karma on this post
+				if (isset($event['row']['karma_score']) && $event['row']['karma_score'] != 0)
+				{
+					$post_row[
+						($event['row']['karma_score'] > 0)
+						? 'S_GIVEN_KARMA_POSITIVE'
+						: 'S_GIVEN_KARMA_NEGATIVE'
+					] = true;
+					$post_row['GIVEN_KARMA_DESC'] = sprintf(
+						$user->lang['GIVEN_KARMA_DESC'],
+						$event['row']['karma_score'],
+						// TODO There should be a + before the score if it's positive
+						$event['row']['karma_comment']
+					);
+				}
 			}
 			$event['post_row'] = $post_row;
 		}
