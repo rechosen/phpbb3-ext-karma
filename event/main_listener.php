@@ -63,23 +63,26 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 	{
 		global $user, $phpbb_root_path, $phpEx;
 
-		if ($event['row']['user_id'] != ANONYMOUS
-			&& $event['row']['user_id'] != $user->data['user_id'])
+		if ($event['row']['user_id'] != ANONYMOUS)
 		{
 			// Load the karma language file
 			$user->add_lang_ext('phpbb/karma', 'karma');
 
 			$post_row = $event['post_row'];
 			$post_row['POSTER_KARMA_SCORE'] = $event['user_poster_data']['karma_score'];
-			// TODO only include app.php when rewriting isn't enabled
-			$post_row['U_GIVEKARMA_POSITIVE'] = append_sid(
-				"{$phpbb_root_path}app.$phpEx/givekarma/post/{$event['row']['post_id']}",
-				"score=positive"
-			);
-			$post_row['U_GIVEKARMA_NEGATIVE'] = append_sid(
-				"{$phpbb_root_path}app.$phpEx/givekarma/post/{$event['row']['post_id']}",
-				"score=negative"
-			);
+
+			if ($event['row']['user_id'] != $user->data['user_id'])
+			{
+				// TODO only include app.php when rewriting isn't enabled
+				$post_row['U_GIVEKARMA_POSITIVE'] = append_sid(
+					"{$phpbb_root_path}app.$phpEx/givekarma/post/{$event['row']['post_id']}",
+					"score=positive"
+				);
+				$post_row['U_GIVEKARMA_NEGATIVE'] = append_sid(
+					"{$phpbb_root_path}app.$phpEx/givekarma/post/{$event['row']['post_id']}",
+					"score=negative"
+				);
+			}
 			$event['post_row'] = $post_row;
 		}
 	}
