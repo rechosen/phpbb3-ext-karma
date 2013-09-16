@@ -178,14 +178,58 @@ class phpbb_ext_phpbb_karma_includes_manager
 					AND giving_user_id = ' . (int) $giving_user_id
 			);
 		}
+
 		// Now update the karma_score column in the _users table
 		$score_change = $karma_score - $current_score;
-		$change_sign = ($score_change < 0) ? '-' : '+';
-		$this->db->sql_query('
-			UPDATE ' . USERS_TABLE . '
-			SET user_karma_score = user_karma_score ' . $change_sign . ' ' . abs($score_change) . '
-			WHERE user_id = ' . (int) $receiving_user_id
-		);
+		$this->update_user_karma_score($receiving_user_id, $score_change);
+	}
+
+	/**
+	 * Deletes given karma from the database
+	 * 
+	 * @param string	$karma_type_name	The type of item on which the karma was given
+	 * @param int		$item_id			The ID of the item on which the karma was given
+	 * @param int		$giving_user_id		The ID of the user giving the karma
+	 */
+	public function delete_karma($karma_type_name, $item_id, $giving_user_id)
+	{
+		// Set the receiving user ID to update the user_karma_score later
+		$karma_type = $this->get_type_class($karma_type_name);
+		$receiving_user = $karma_type->get_author($item_id);
+		$receiving_user_id = $receiving_user['user_id'];
+
+		// Get the karma_type_id
+		$karma_type_id = $this->get_karma_type_id($karma_type_name);
+
+		// Check if the giving user ID exists
+		if (!$this->user_id_exists($giving_user_id))
+		{
+			throw new OutOfBoundsException('NO_USER');
+		}
+
+		// Begin a transaction because we're doing multiple related database operations in a row
+		$this->db->sql_transaction('begin');
+
+		// Get the karma to be deleted
+		$karma_row = $this->get_given_karma_row($karma_type_name, $item_id, $giving_user_id);
+
+		// Delete the karma from the database
+		$sql = "DELETE FROM {$this->karma_table}
+				WHERE karma_type_id = " . (int) $karma_type_id . '
+					AND item_id = ' . (int) $item_id . '
+					AND giving_user_id = ' . (int) $giving_user_id;
+		$this->db->sql_query($sql);
+
+		// Now update the karma_score column in the _users table
+		$score_change = -$karma_row['karma_score'];
+		$this->update_user_karma_score($receiving_user_id, $score_change);
+		
+		// End the transaction
+		$this->db->sql_transaction('commit');
+
+		// Delete all karma reports on this karma
+		$report_model = $this->container->get('karma.includes.report_model');
+		$report_model->delete_karma_reports_by_karma_id($karma_row['karma_id']);
 	}
 
 	/**
@@ -455,6 +499,23 @@ class phpbb_ext_phpbb_karma_includes_manager
 		$this->db->sql_freeresult($result);
 
 		return ($karma_score !== false) ? (int) $karma_score : false;
+	}
+
+	/**
+	 * Updates the user_karma_score column for a certain user
+	 * 
+	 * @param	int	$user_id		The ID of the user
+	 * @param	int	$score_change	The value to add to the score (can be < 0)
+	 * @return	null
+	 */
+	private function update_user_karma_score($user_id, $score_change)
+	{
+		$change_sign = ($score_change < 0) ? '-' : '+';
+		$this->db->sql_query('
+			UPDATE ' . USERS_TABLE . '
+			SET user_karma_score = user_karma_score ' . $change_sign . ' ' . abs($score_change) . '
+			WHERE user_id = ' . (int) $user_id
+		);
 	}
 
 	/**

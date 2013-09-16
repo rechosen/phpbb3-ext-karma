@@ -243,6 +243,20 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		$this->db->sql_transaction('commit');
 	}
 
+	public function delete_karma_reports_by_karma_id($karma_id)
+	{
+		// Delete the karma reports
+		$sql = 'DELETE FROM ' . $this->karma_reports_table . '
+				WHERE karma_id = ' . (int) $karma_id;
+		$this->db->sql_query($sql);
+
+		// Unmark the reported karma (if applicable)
+		$sql = 'UPDATE ' . $this->karma_table . '
+				SET karma_reported = 0
+				WHERE karma_id = ' . (int) $karma_id;
+		$this->db->sql_query($sql);
+	}
+
 	/**
 	 * Checks if the given user ID belongs to an existing user
 	 * 

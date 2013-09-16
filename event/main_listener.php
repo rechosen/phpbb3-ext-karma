@@ -39,8 +39,13 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 	public function add_permissions($event)
 	{
 			$permissions = $event['permissions'];
+			// TODO Perhaps I had better make a karma permissions category
 			$permissions['u_givekarma'] = array('lang' => 'ACL_U_GIVEKARMA', 'cat' => 'misc');
+			$permissions['u_karma_edit'] = array('lang' => 'ACL_U_KARMA_EDIT', 'cat' => 'misc');
+			$permissions['u_karma_delete'] = array('lang' => 'ACL_U_KARMA_DELETE', 'cat' => 'misc');
 			$permissions['m_karma_report'] = array('lang' => 'ACL_M_KARMA_REPORT', 'cat' => 'misc');
+			$permissions['m_karma_edit'] = array('lang' => 'ACL_M_KARMA_EDIT', 'cat' => 'misc');
+			$permissions['m_karma_delete'] = array('lang' => 'ACL_M_KARMA_DELETE', 'cat' => 'misc');
 			$event['permissions'] = $permissions;
 	}
 

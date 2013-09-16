@@ -19,8 +19,9 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 {
 	public function __construct($p_master)
 	{
-		global $config, $phpbb_container, $phpbb_log, $phpbb_root_path, $phpEx, $request, $user, $template;
+		global $auth, $config, $phpbb_container, $phpbb_log, $phpbb_root_path, $phpEx, $request, $user, $template;
 
+		$this->auth = $auth;
 		$this->config = $config;
 		$this->container = $phpbb_container;
 		$this->phpbb_log = $phpbb_log;
@@ -125,7 +126,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					'KARMA_REPORT_ID'				=> $karma_report['karma_report_id'],
 					'S_KARMA_REPORT_ITEM_EDITED'	=> $karma['item_last_edit'] > $karma_report['karma_report_time'],
 					'S_KARMA_REPORT_CLOSED'			=> $karma_report['karma_report_closed'],
-					'U_KARMA_EDIT'					=> append_sid("{$this->phpbb_root_path}app.{$this->php_ext}/givekarma/{$karma_row['karma_type_name']}/{$karma_row['item_id']}", "giver={$karma_row['giving_user_id']}"),
+					'U_KARMA_EDIT'					=> ($this->auth->acl_get('m_karma_edit')) ? append_sid("{$this->phpbb_root_path}app.{$this->php_ext}/givekarma/{$karma_row['karma_type_name']}/{$karma_row['item_id']}", "giver={$karma_row['giving_user_id']}") : '',
 				));
 
 				$this->tpl_name = 'mcp_karma_report_details';
