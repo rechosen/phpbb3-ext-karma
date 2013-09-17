@@ -45,22 +45,22 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 		// Hide the "Karma report details" module tab (this is undone if $mode == 'report_details')
 		$this->p_master->set_display('phpbb_ext_phpbb_karma_mcp_reported_karma', 'report_details', false);
 
+		// Determine if the moderator wants to close or delete reports
+		switch ($action)
+		{
+			case 'close':
+			case 'delete':
+				$karma_report_id_list = $this->request->variable('karma_report_id_list', array(0));
+				$this->close_karma_report($karma_report_id_list, $action);
+			break;
+		}
+
 		$report_model = $this->container->get('karma.includes.report_model');
 		switch ($mode)
 		{
 			case 'report_details':
 				// Display this module's tab (it is hidden by default)
 				$this->p_master->set_display('phpbb_ext_phpbb_karma_mcp_reported_karma', 'report_details', true);
-
-				// Determine if the moderator wants to close or delete the report
-				switch ($action)
-				{
-					case 'close':
-					case 'delete':
-						$karma_report_id_list = $this->request->variable('karma_report_id_list', array(0));
-						$this->close_karma_report($karma_report_id_list, $action);
-					break;
-				}
 
 				// Get the report and the karma
 				try
@@ -260,7 +260,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 			// Show the succes page
 			$redirect = build_url(array('mode', 'r', 'quickmod', 'confirm_key')) . '&amp;mode=reports'; // TODO how to redirect to the right module id? Perhaps give the karma module a string name?
 // 			meta_refresh(3, $redirect); TODO enable this redirect once karma report listing is implemented
-			trigger_error($this->user->lang['KARMA_REPORT_' . ((sizeof($karma_report_id_list) > 1) ? 'S' : '') . strtoupper($action) . 'D_SUCCESS']); // TODO return links
+			trigger_error($this->user->lang['KARMA_REPORT' . ((sizeof($karma_report_id_list) > 1) ? 'S_' : '_') . strtoupper($action) . 'D_SUCCESS']); // TODO return links
 		}
 		else
 		{
