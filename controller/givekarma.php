@@ -201,6 +201,10 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 						'karma_score' => 0,
 					));
 					confirm_box(false, $this->user->lang['KARMA_DELETE_CONFIRM'], $s_hidden_fields);
+
+					// If we arrive here, the confirm_box was cancelled
+					// TODO Find a way to redirect moderators back to the right karma report
+					redirect($item_data['url']);
 				}
 			break;
 		}
