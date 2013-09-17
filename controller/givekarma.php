@@ -86,40 +86,8 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		$this->user->add_lang_ext('phpbb/karma', 'karma');
 		$this->user->add_lang(array('posting'));
 
-		// Check if the user is allowed to give karma
-		if (!$this->auth->acl_get('u_givekarma'))
-		{
-			if ($this->user->data['user_id'] != ANONYMOUS)
-			{
-				trigger_error('SORRY_AUTH_KARMA');
-			}
-
-			login_box('', $this->user->lang['LOGIN_GIVEKARMA']);
-		}
-
-		// Check if somebody else's karma is to be edited
-		$giving_user_id = $this->request->variable('giver', 0);
-		if ($giving_user_id !== 0)
-		{
-			// Check if this user has the appropriate moderator permissions
-			if (!$this->auth->acl_get('m_karma_edit'))
-			{
-				trigger_error('SORRY_AUTH_KARMA_EDIT');
-			}
-
-			$moderator_edit = true;
-		}
-		else
-		{
-			// This user is giving karma as him/herself
-			$giving_user_id = $this->user->data['user_id'];
-			$moderator_edit = false;
-		}
-
-		// Get an instance of the karma manager
-		$karma_manager = $this->container->get('karma.includes.manager');
-
 		// Retrieve info about the item karma is given on
+		$karma_manager = $this->container->get('karma.includes.manager');
 		try
 		{
 			$item_data = $karma_manager->get_item_data($karma_type_name, $item_id);
@@ -129,63 +97,115 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			trigger_error($e->getMessage());
 		}
 
-		// Prevent the user from giving karma on his/her own item
+		// Determine the mode in which this controller is being user right now
+		$giving_user_id = $this->request->variable('giver', $this->user->data['user_id']);
+		$given_karma = $karma_manager->get_given_karma_row($karma_type_name, $item_id, $giving_user_id);
+		if ($giving_user_id === $this->user->data['user_id'])
+		{
+			// This user is giving, editing or deleting karma on his/her own behalf
+			if ($this->request->is_set('delete'))
+			{
+				// The user is trying to delete karma
+				$mode = 'u_karma_delete';
+			}
+			else if ($given_karma === false)
+			{
+				// The user is trying to give new karma
+				$mode = 'u_givekarma';
+			}
+			else
+			{
+				// The user is trying to edit his/her karma
+				$mode = 'u_karma_edit';
+			}
+		}
+		else
+		{
+			// This is a moderator editing or deleting reported karma
+			if ($this->request->is_set('delete'))
+			{
+				// The moderator is trying to delete karma
+				$mode = 'm_karma_delete';
+			}
+			else
+			{
+				// The moderator is trying to edit karma
+				$mode = 'm_karma_edit';
+			}
+		}
+
+		// Now check if the user is authorised to use the controller in this mode
+		$this->check_permission($mode);
+
+		// If we're in moderator mode, check if given karma exists and was reported
+		if (strpos($mode, 'm_') === 0 && ($given_karma === false || !$given_karma['karma_reported']))
+		{
+			// No specific error messages to avoid yielding information about
+			// existence of given karma to moderators
+			trigger_error('NO_KARMA');
+		}
+
+		// If we're in user mode, check if the user isn't giving him/herself karma
 		// TODO should I also prevent moderators from editing karma given to their own items? If I don't, a moderator gone bad might make all karma to him/herself positive
-		if (!$moderator_edit && $giving_user_id == $item_data['author']['user_id'])
+		if (strpos($mode, 'u_') === 0 && $giving_user_id == $item_data['author']['user_id'])
 		{
 			trigger_error('NO_SELF_KARMA');
 		}
 
-		// Check if the user has already given karma on this item
-		$given_karma = $karma_manager->get_given_karma_row($karma_type_name, $item_id, $giving_user_id);
-		if ($given_karma !== false)
+		// Set the necessary variables depending on the mode
+		$submitted = false;
+		switch ($mode)
 		{
-			// Karma was already given, so we're editing it now.
-			// If this is a normal edit, check if the user may edit his/her karma
-			if (!$moderator_edit && !$this->auth->acl_get('u_karma_edit'))
-			{
-				trigger_error('SORRY_AUTH_KARMA_EDIT');
-			}
-
-			// If this is a moderator edit, check if the karma was reported
-			// Moderators may not edit unreported karma
-			if ($moderator_edit && !$given_karma['karma_reported'])
-			{
-				// For security reasons, do not give a specific error message as that
-				// would yield the information that this user gave karma on the item
-				trigger_error('NO_KARMA');
-			}
-
-			$edit = true;
-			$deletion_allowed = $this->auth->acl_get(($moderator_edit) ? 'm_karma_delete' : 'u_karma_delete');
-			$karma_score = $given_karma['karma_score'];
-			$karma_comment = $given_karma['karma_comment'];
-			$title = $this->user->lang['KARMA_EDIT_KARMA'];
-			$giving_karma_text = $this->user->lang['KARMA_EDITING_KARMA'];
-			$giving_user = ($moderator_edit)
-				? get_username_string('full', $giving_user_id, $given_karma['giving_username'], $given_karma['giving_user_colour'])
-				: $this->user->lang['KARMA_EDITING_KARMA_YOU'];
-			$karma_given_text = $this->user->lang['KARMA_KARMA_EDITED'];
+			case 'u_givekarma':
+				$title = $this->user->lang['KARMA_GIVE_KARMA'];
+				$giving_karma_text = $this->user->lang['KARMA_GIVING_KARMA'];
+				$giving_user = ''; // Not used
+				$karma_given_text = $this->user->lang['KARMA_KARMA_GIVEN'];
+				$karma_score = 0;
+				$karma_comment = '';
+				$allow_delete = false;
+			break;
+			case 'u_karma_edit':
+			case 'm_karma_edit':
+				$title = $this->user->lang['KARMA_EDIT_KARMA'];
+				$giving_karma_text = $this->user->lang['KARMA_EDITING_KARMA'];
+				$giving_user = ($mode === 'm_karma_edit')
+					? get_username_string('full', $giving_user_id, $given_karma['giving_username'], $given_karma['giving_user_colour'])
+					: $this->user->lang['KARMA_EDITING_KARMA_YOU'];
+				$karma_given_text = $this->user->lang['KARMA_KARMA_EDITED'];
+				$karma_score = $given_karma['karma_score'];
+				$karma_comment = $given_karma['karma_comment'];
+				$allow_delete = $this->auth->acl_get(($mode === 'm_karma_edit') ? 'm_karma_delete' : 'u_karma_delete');
+			break;
+			case 'u_karma_delete':
+			case 'm_karma_delete':
+				$title = $this->user->lang['KARMA_DELETE_KARMA'];
+				$giving_karma_text = ''; // Not used
+				$giving_user = ''; // Not used
+				$karma_given_text = $this->user->lang['KARMA_KARMA_DELETED'];
+				$karma_score = 0;
+				$karma_comment = '';
+				// Use a confirm box
+				if (confirm_box(true))
+				{
+					// The delete operation was confirmed, so carry it out
+					$allow_delete = true;
+					// Indicate a successful submit happened; the rest is done later by validate_and_store_karma()
+					$submitted = true;
+				}
+				else
+				{
+					// No confirmation received, display the confirm_box
+					$allow_delete = false; // Just to be sure that no karma gets deleted
+					$s_hidden_fields = build_hidden_fields(array(
+						'karma_score' => 0,
+					));
+					confirm_box(false, $this->user->lang['KARMA_DELETE_CONFIRM'], $s_hidden_fields);
+				}
+			break;
 		}
-		else
-		{
-			// No given karma exists, so the user is trying to give new karma
-			// Check if this is supposed to be a moderator edit
-			if ($moderator_edit)
-			{
-				// Do not allow moderators to give new karma in somebody else's name
-				trigger_error('NO_KARMA');
-			}
 
-			$edit = false;
-			$deletion_allowed = false; // No sense in allowing deletion of something that isn't there yet
-			$title = $this->user->lang['KARMA_GIVE_KARMA'];
-			$giving_karma_text = $this->user->lang['KARMA_GIVING_KARMA'];
-			$giving_user = ''; // Not used
-			$karma_given_text = $this->user->lang['KARMA_KARMA_GIVEN'];
-		}
-
-		// Handle the form submission if appropriate
+		// If new or edited karma was submitted, check the form key
 		if ($this->request->is_set_post('submit'))
 		{
 			if (!check_form_key('give_karma_form'))
@@ -193,7 +213,14 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 				trigger_error('FORM_INVALID');
 			}
 
-			$store_result = $this->validate_and_store_karma($karma_type_name, $item_id, $giving_user_id, $deletion_allowed);
+			// Indicate a successful submit happened
+			$submitted = true;
+		}
+
+		if ($submitted)
+		{
+			// Validate the input and store the karma
+			$store_result = $this->validate_and_store_karma($karma_type_name, $item_id, $giving_user_id, $allow_delete);
 			if ($store_result['karma_deleted'])
 			{
 				$karma_given_text = $this->user->lang['KARMA_KARMA_DELETED']; // TODO rename this and friends to KARMA_SUCCESSFULLY_*
@@ -209,31 +236,31 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			}
 		}
 
-		// Set the template variables to display the form
+		// Set the template variables to display the form for giving or editing karma
+		// In *_karma_delete mode, the confirm_box and success page make sure we never get here
 		$item_link = "<a href=\"{$item_data['url']}\">{$item_data['title']}</a>";
 		$receiving_user = get_username_string('full', $item_data['author']['user_id'], $item_data['author']['username'], $item_data['author']['user_colour']);
-		if (!$edit)
+		// Check if there the request variables contain a karma_score that should overrule the default
+		$karma_score = $this->request->variable('karma_score', (int) $karma_score);
+		if ($mode === 'u_givekarma' && $karma_score === 0)
 		{
-			$karma_score = $this->request->variable('karma_score', 0);
-			if ($karma_score === 0)
+			// Preset the karma score if the appropriate request variable is set
+			$get_score = $this->request->variable('score', '');
+			if ($get_score === 'positive')
 			{
-				$get_score = $this->request->variable('score', '');
-				if ($get_score === 'positive')
-				{
-					$karma_score = 1;
-				}
-				if ($get_score === 'negative')
-				{
-					$karma_score = -1;
-				}
+				$karma_score = 1;
+			}
+			if ($get_score === 'negative')
+			{
+				$karma_score = -1;
 			}
 		}
 		$template_vars = array(
 			'L_TITLE'				=> $title,
-			'S_DELETE_KARMA'		=> $deletion_allowed,
+			'S_DELETE_KARMA'		=> $allow_delete,
 			'ERROR'					=> (!empty($error)) ? implode('<br />', $error) : '',
 			'KARMA_GIVING_KARMA'	=> sprintf($giving_karma_text, $giving_user, $item_link, $receiving_user),
-			'KARMA_COMMENT'			=> ($edit) ? $karma_comment : $this->request->variable('karma_comment', ''),
+			'KARMA_COMMENT'			=> $this->request->variable('karma_comment', $karma_comment),
 			'KARMA_SCORE'			=> $karma_score,
 		);
 		$this->template->assign_vars($template_vars);
@@ -259,12 +286,12 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	 * @param	string	$karma_type_name	The name of the type of the item on which the karma is given
 	 * @param	int		$item_id			The ID of the item on which karma is given
 	 * @param	int		$giving_user_id		The ID of the user giving this karma
-	 * @param	bool	$deletion_allowed	Whether the current user is allowed to delete this karma
+	 * @param	bool	$allow_delete		Whether the current user is allowed to delete this karma
 	 * @return	array	An array with the following key-value pairs:
 	 * 						'karma_deleted' => (bool) Whether the karma was deleted or not
 	 * 						'error' => (array) An array of form errors to be displayed to the user
 	 */
-	private function validate_and_store_karma($karma_type_name, $item_id, $giving_user_id, $deletion_allowed)
+	private function validate_and_store_karma($karma_type_name, $item_id, $giving_user_id, $allow_delete)
 	{
 		$karma_deleted = false;
 		$error = array();
@@ -294,11 +321,10 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			{
 				if ($karma_score === 0)
 				{
-					if (!$deletion_allowed)
+					if (!$allow_delete)
 					{
 						// For security reasons, do not give a specific error message as that
 						// could yield the information that this user gave karma on the item
-						// Besides, you can't end up here normally without delete permissions
 						trigger_error('NO_KARMA');
 					}
 
@@ -323,5 +349,28 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			'karma_deleted'	=> $karma_deleted,
 			'error'			=> $error,
 		);
+	}
+
+	private function check_permission($permission_name)
+	{
+		// Errors to display when certain permissions aren't YES
+		$errors = array(
+			'm_karma_delete'	=> 'SORRY_AUTH_KARMA_DELETE',
+			'm_karma_edit'		=> 'SORRY_AUTH_KARMA_EDIT',
+			'u_karma_delete'	=> 'SORRY_AUTH_KARMA_DELETE',
+			'u_givekarma'		=> 'SORRY_AUTH_KARMA',
+			'u_karma_edit'		=> 'SORRY_AUTH_KARMA_EDIT',
+		);
+
+		// Check if the user is allowed to give karma
+		if (!$this->auth->acl_get($permission_name))
+		{
+			if ($this->user->data['user_id'] != ANONYMOUS)
+			{
+				trigger_error($errors[$permission_name]);
+			}
+
+			login_box('');
+		}
 	}
 }
