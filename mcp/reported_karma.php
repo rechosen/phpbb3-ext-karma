@@ -153,7 +153,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					{
 						// TODO it might make sense to write a get_item_data alternative that takes a karma_id :P
 						// On the other hand, I could follow the pattern I see most in phpBB and always get the reported karma with the report... Hmmm...
-						$item_data = $karma_manager->get_item_data($karma_row['karma_type_name'], $karma_row['karma_id']);
+						$item_data = $karma_manager->get_item_data($karma_row['karma_type_name'], $karma_row['item_id']);
 					}
 					
 					$this->template->assign_block_vars('karma_reports', array(
@@ -234,7 +234,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 				$karma_row = $karma_manager->get_karma_row($karma_report['karma_id']);
 				if ($karma_row !== false)
 				{
-					$item_data = $karma_manager->get_item_data($karma_row['karma_type_name'], $karma_row['karma_id']);
+					$item_data = $karma_manager->get_item_data($karma_row['karma_type_name'], $karma_row['item_id']);
 				}
 
 				// TODO That phpbb_log::add() function seriously needs some examples or documentation; requires lots of source reading now :/
