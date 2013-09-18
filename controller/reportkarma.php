@@ -19,28 +19,64 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class phpbb_ext_phpbb_karma_controller_reportkarma
 {
-	// TODO add variable declarations
+	/**
+	 * Container object
+	 * @var ContainerBuilder
+	 */
+	protected $container;
+
+	/**
+	 * Request object
+	 * @var phpbb_request
+	 */
+	protected $request;
+
+	/**
+	 * Template object
+	 * @var phpbb_template
+	 */
+	protected $template;
+
+	/**
+	 * User object
+	 * @var phpbb_user
+	 */
+	protected $user;
+
+	/**
+	 * Controller helper object
+	 * @var phpbb_controller_helper
+	 */
+	protected $helper;
+
+	/**
+	 * phpBB root path
+	 * @var string
+	 */
+	protected $phpbb_root_path;
+
+	/**
+	 * php file extension
+	 * @var string
+	 */
+	protected $php_ext;
 
 	/**
 	* Constructor
 	* NOTE: The parameters of this method must match in order and type with
 	* the dependencies defined in the services.yml file for this service.
 	*
-	* @param phpbb_auth					$auth				Auth object
 	* @param ContainerBuilder			$container			Container object
-	* @param phpbb_db_driver			$db					Database object
 	* @param phpbb_request				$request			Request object
 	* @param phpbb_template				$template			Template object
 	* @param phpbb_user					$user				User object
 	* @param phpbb_controller_helper	$helper				Controller helper object
 	* @param string						$phpbb_root_path	phpBB root path
-	* @param string						$php_ext			phpEx
+	* @param string						$php_ext			php file extension
 	*/
-	public function __construct(phpbb_auth $auth, ContainerBuilder $container, phpbb_db_driver $db, phpbb_request $request, phpbb_template $template, phpbb_user $user, phpbb_controller_helper $helper, $phpbb_root_path, $php_ext)
+	public function __construct(ContainerBuilder $container, phpbb_request $request, phpbb_template $template, phpbb_user $user, phpbb_controller_helper $helper, $phpbb_root_path, $php_ext)
 	{
-		$this->auth = $auth;
 		$this->container = $container;
-		$this->db = $db;
 		$this->request = $request;
 		$this->template = $template;
 		$this->user = $user;
