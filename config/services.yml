@@ -28,6 +28,7 @@ services:
             - @cache
             - @service_container
             - @dbal.conn
+            - @controller.helper
             - @user
             - %core.root_path%
             - %core.php_ext%

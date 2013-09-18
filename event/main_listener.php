@@ -38,15 +38,15 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 
 	public function add_permissions($event)
 	{
-			$permissions = $event['permissions'];
-			// TODO Perhaps I had better make a karma permissions category
-			$permissions['u_givekarma'] = array('lang' => 'ACL_U_GIVEKARMA', 'cat' => 'misc');
-			$permissions['u_karma_edit'] = array('lang' => 'ACL_U_KARMA_EDIT', 'cat' => 'misc');
-			$permissions['u_karma_delete'] = array('lang' => 'ACL_U_KARMA_DELETE', 'cat' => 'misc');
-			$permissions['m_karma_report'] = array('lang' => 'ACL_M_KARMA_REPORT', 'cat' => 'misc');
-			$permissions['m_karma_edit'] = array('lang' => 'ACL_M_KARMA_EDIT', 'cat' => 'misc');
-			$permissions['m_karma_delete'] = array('lang' => 'ACL_M_KARMA_DELETE', 'cat' => 'misc');
-			$event['permissions'] = $permissions;
+		$permissions = $event['permissions'];
+		// TODO Perhaps I had better make a karma permissions category
+		$permissions['u_givekarma'] = array('lang' => 'ACL_U_GIVEKARMA', 'cat' => 'misc');
+		$permissions['u_karma_edit'] = array('lang' => 'ACL_U_KARMA_EDIT', 'cat' => 'misc');
+		$permissions['u_karma_delete'] = array('lang' => 'ACL_U_KARMA_DELETE', 'cat' => 'misc');
+		$permissions['m_karma_report'] = array('lang' => 'ACL_M_KARMA_REPORT', 'cat' => 'misc');
+		$permissions['m_karma_edit'] = array('lang' => 'ACL_M_KARMA_EDIT', 'cat' => 'misc');
+		$permissions['m_karma_delete'] = array('lang' => 'ACL_M_KARMA_DELETE', 'cat' => 'misc');
+		$event['permissions'] = $permissions;
 	}
 
 	public function load_global_translations($event)
@@ -113,7 +113,7 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 
 	public function viewtopic_body_postrow_add_karma_score_and_controls($event)
 	{
-		global $user, $phpbb_root_path, $phpEx;
+		global $phpbb_container, $user, $phpbb_root_path, $phpEx;
 
 		if ($event['row']['user_id'] != ANONYMOUS)
 		{
@@ -126,16 +126,12 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 
 			if ($event['row']['user_id'] != $user->data['user_id'])
 			{
+				// Get a controller helper for generating the URLs
+				$helper = $phpbb_container->get('controller.helper');
+
 				// Add the URLs for the karma controls (thumbs up/down)
-				// TODO only include app.php when rewriting isn't enabled
-				$post_row['U_GIVEKARMA_POSITIVE'] = append_sid(
-					"{$phpbb_root_path}app.$phpEx/givekarma/post/{$event['row']['post_id']}",
-					"score=positive"
-				);
-				$post_row['U_GIVEKARMA_NEGATIVE'] = append_sid(
-					"{$phpbb_root_path}app.$phpEx/givekarma/post/{$event['row']['post_id']}",
-					"score=negative"
-				);
+				$post_row['U_GIVEKARMA_POSITIVE'] = $helper->url("givekarma/post/{$event['row']['post_id']}", 'score=positive');
+				$post_row['U_GIVEKARMA_NEGATIVE'] = $helper->url("givekarma/post/{$event['row']['post_id']}", 'score=negative');
 
 				// Add a description if the user already gave karma on this post
 				if (isset($event['row']['karma_score']) && $event['row']['karma_score'] != 0)

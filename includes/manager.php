@@ -43,6 +43,12 @@ class phpbb_ext_phpbb_karma_includes_manager
 	private $db;
 
 	/**
+	 * Controller helper object
+	 * @var phpbb_controller_helper
+	 */
+	protected $helper;
+
+	/**
 	 * User object
 	 * @var phpbb_user
 	 */
@@ -77,20 +83,22 @@ class phpbb_ext_phpbb_karma_includes_manager
 	 * NOTE: The parameters of this method must match in order and type with
 	 * the dependencies defined in the services.yml file for this service.
 	 * 
-	 * @param array					$karma_types		Available karma type names
-	 * @param phpbb_cache_service	$cache				Cache object
-	 * @param ContainerBuilder		$container			Container object (no type verification to allow testing with a mock container)
-	 * @param phpbb_db_driver		$db					Database Object
-	 * @param phpbb_user			$user				User object
-	 * @param string				$karma_table		Name of the karma database table
-	 * @param string				$karma_types_table	Name of the karma_types database table
+	 * @param array						$karma_types		Available karma type names
+	 * @param phpbb_cache_service		$cache				Cache object
+	 * @param ContainerBuilder			$container			Container object (no type verification to allow testing with a mock container)
+	 * @param phpbb_db_driver			$db					Database Object
+	 * @param phpbb_controller_helper	$helper				Controller helper object
+	 * @param phpbb_user				$user				User object
+	 * @param string					$karma_table		Name of the karma database table
+	 * @param string					$karma_types_table	Name of the karma_types database table
 	 */
-	public function __construct($karma_types, phpbb_cache_service $cache, $container, phpbb_db_driver $db, phpbb_user $user, $phpbb_root_path, $php_ext, $karma_table, $karma_types_table)
+	public function __construct($karma_types, phpbb_cache_service $cache, $container, phpbb_db_driver $db, phpbb_controller_helper $helper, phpbb_user $user, $phpbb_root_path, $php_ext, $karma_table, $karma_types_table)
 	{
 		$this->karma_types = $karma_types;
 		$this->cache = $cache;
 		$this->container = $container;
 		$this->db = $db;
+		$this->helper = $helper;
 		$this->user = $user;
 		$this->phpbb_root_path = $phpbb_root_path;
 		$this->php_ext = $php_ext;
@@ -404,8 +412,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 			'given_by'			=> get_username_string('full', $karma_row['user_id'], $karma_row['username'], $karma_row['user_colour']),
 			'comment'			=> $karma_row['karma_comment'],
 			'reported'			=> (bool) $karma_row['karma_reported'],
-			'report_url'		=> append_sid("{$this->phpbb_root_path}app.{$this->php_ext}/reportkarma/{$karma_row['karma_id']}"),
-			// TODO only include app.php when rewriting isn't enabled
+			'report_url'		=> $this->helper->url("reportkarma/{$karma_row['karma_id']}"),
 			'item_last_edit'	=> $karma_type->get_last_edit($karma_row['item_id']),
 		);
 	}

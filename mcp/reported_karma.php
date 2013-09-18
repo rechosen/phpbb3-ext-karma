@@ -24,6 +24,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 		$this->auth = $auth;
 		$this->config = $config;
 		$this->container = $phpbb_container;
+		$this->helper = $phpbb_container->get('controller.helper');
 		$this->phpbb_log = $phpbb_log;
 		$this->phpbb_root_path = $phpbb_root_path;
 		$this->php_ext = $phpEx;
@@ -126,8 +127,8 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					'KARMA_REPORT_ID'				=> $karma_report['karma_report_id'],
 					'S_KARMA_REPORT_ITEM_EDITED'	=> $karma['item_last_edit'] > $karma_report['karma_report_time'],
 					'S_KARMA_REPORT_CLOSED'			=> $karma_report['karma_report_closed'],
-					'U_KARMA_EDIT'					=> ($this->auth->acl_get('m_karma_edit')) ? append_sid("{$this->phpbb_root_path}app.{$this->php_ext}/givekarma/{$karma_row['karma_type_name']}/{$karma_row['item_id']}", "giver={$karma_row['giving_user_id']}") : '',
-					'U_KARMA_DELETE'				=> ($this->auth->acl_get('m_karma_delete')) ? append_sid("{$this->phpbb_root_path}app.{$this->php_ext}/givekarma/{$karma_row['karma_type_name']}/{$karma_row['item_id']}", "giver={$karma_row['giving_user_id']}&amp;delete") : '',
+					'U_KARMA_EDIT'					=> ($this->auth->acl_get('m_karma_edit')) ? $this->helper->url("givekarma/{$karma_row['karma_type_name']}/{$karma_row['item_id']}", "giver={$karma_row['giving_user_id']}") : '',
+					'U_KARMA_DELETE'				=> ($this->auth->acl_get('m_karma_delete')) ? $this->helper->url("givekarma/{$karma_row['karma_type_name']}/{$karma_row['item_id']}", "giver={$karma_row['giving_user_id']}&amp;delete") : '',
 				));
 
 				$this->tpl_name = 'mcp_karma_report_details';
