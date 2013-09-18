@@ -37,12 +37,25 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 		$this->container = new phpbb_mock_container_builder();
 		$this->user = new phpbb_user();
 
+		$this->phpbb_filesystem = new phpbb_filesystem(
+			new phpbb_symfony_request(
+				new phpbb_mock_request()
+			),
+			$phpbb_root_path,
+			$phpEx
+		);
+		$this->template = new phpbb_template_twig($this->phpbb_filesystem, $this->config, $this->user, new phpbb_template_context());
+		$this->helper = new phpbb_controller_helper($this->template, $this->user, $this->config, '', 'php');
+
 		$this->karma_manager = new phpbb_ext_phpbb_karma_includes_manager(
 			array('karma.type.post' => array()),
 			$this->cache,
 			$this->container,
 			$this->db,
+			$this->helper,
 			$this->user,
+			$phpbb_root_path,
+			$phpEx,
 			'phpbb_karma',
 			'phpbb_karma_types'
 		);
@@ -50,7 +63,7 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 		$this->container->set(
 			'karma.type.post',
 			new phpbb_ext_phpbb_karma_includes_type_post(
-				new phpbb_mock_karma_auth(), $this->db, $phpbb_root_path, $phpEx, 'phpbb_karma'
+				new phpbb_mock_karma_auth(), $this->db, $this->user, $phpbb_root_path, $phpEx, 'phpbb_karma'
 			)
 		);
 	}

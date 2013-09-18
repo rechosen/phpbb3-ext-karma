@@ -89,6 +89,8 @@ class phpbb_ext_phpbb_karma_includes_manager
 	 * @param phpbb_db_driver			$db					Database Object
 	 * @param phpbb_controller_helper	$helper				Controller helper object
 	 * @param phpbb_user				$user				User object
+	 * @param string					$phpbb_root_path	phpBB root path
+	 * @param string					$php_ext			php file extension
 	 * @param string					$karma_table		Name of the karma database table
 	 * @param string					$karma_types_table	Name of the karma_types database table
 	 */
