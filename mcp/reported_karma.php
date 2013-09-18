@@ -57,6 +57,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 		}
 
 		$report_model = $this->container->get('karma.includes.report_model');
+		$karma_manager = $this->container->get('karma.includes.manager');
 		switch ($mode)
 		{
 			case 'report_details':
@@ -74,7 +75,6 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					trigger_error($e->getMessage());
 				}
 
-				$karma_manager = $this->container->get('karma.includes.manager');
 				$karma = $karma_manager->get_karma_data($karma_report['karma_id']);
 				if ($karma === false)
 				{
@@ -146,7 +146,6 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 				$karma_reports = $karma_reports_list['karma_reports'];
 
 				// Put them in a template block variable
-				$karma_manager = $this->container->get('karma.includes.manager'); // TODO We use this everywhere, so only get it once above
 				foreach ($karma_reports as $karma_report)
 				{
 					// Get the reported karma
@@ -197,7 +196,6 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 
 	private function close_karma_report($karma_report_id_list, $action)
 	{
-		global $phpbb_root_path, $phpEx; // TODO see note with user_get_id_name() below
 		$report_model = $this->container->get('karma.includes.report_model');
 
 		// Get the karma reports
@@ -210,8 +208,6 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 		{
 			trigger_error($e->getMessage());
 		}
-
-		// TODO check moderator permissions
 
 		// Prepare the confirm_box
 		$redirect = $this->request->variable('redirect', '');
@@ -259,9 +255,9 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 			// TODO notifications
 
 			// Show the succes page
-			$redirect = build_url(array('mode', 'r', 'quickmod', 'confirm_key')) . '&amp;mode=reports'; // TODO how to redirect to the right module id? Perhaps give the karma module a string name?
-// 			meta_refresh(3, $redirect); TODO enable this redirect once karma report listing is implemented
-			trigger_error($this->user->lang['KARMA_REPORT' . ((sizeof($karma_report_id_list) > 1) ? 'S_' : '_') . strtoupper($action) . 'D_SUCCESS']); // TODO return links
+			$redirect = build_url(array('mode', 'r', 'quickmod', 'confirm_key')) . '&amp;mode=reports';
+ 			meta_refresh(3, $redirect);
+			trigger_error($this->user->lang['KARMA_REPORT' . ((sizeof($karma_report_id_list) > 1) ? 'S_' : '_') . strtoupper($action) . 'D_SUCCESS'] . '<br /><br />' . sprintf($this->user->lang['RETURN_PAGE'], "<a href=\"$redirect\">", '</a>'));
 		}
 		else
 		{
