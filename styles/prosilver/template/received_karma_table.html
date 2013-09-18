@@ -20,7 +20,7 @@
 				<td>{received_karma.RECEIVED_AT}</td>
 				<td>{received_karma.GIVEN_BY}</td>
 				<td>{received_karma.COMMENT}</td>
-				<!-- IF S_REPORT_KARMA --><td><a href="{received_karma.REPORT_URL}">{L_KARMA_REPORT}</a></td><!-- ENDIF -->
+				<!-- IF S_REPORT_KARMA --><td><!-- IF received_karma.REPORTED -->{L_KARMA_ALREADY_REPORTED}<!-- ELSE --><a href="{received_karma.REPORT_URL}">{L_KARMA_REPORT}</a><!-- ENDIF --></td><!-- ENDIF -->
 			</tr>
 		<!-- ENDIF -->
 	<!-- BEGINELSE -->

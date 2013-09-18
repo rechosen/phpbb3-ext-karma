@@ -108,5 +108,6 @@ $lang = array_merge($lang, array(
 	'GIVEN_KARMA_DESC'					=> 'You gave this %1$s with comment “%2$s”',
 	'KARMA_SCORE_NONE'					=> 'None (undo giving this karma)',
 	'KARMA_DELETE_CONFIRM'				=> 'Are you sure you want to delete this karma?',
+	'KARMA_ALREADY_REPORTED'			=> 'Reported',
 
 ));

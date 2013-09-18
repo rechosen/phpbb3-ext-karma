@@ -71,8 +71,6 @@ class phpbb_ext_phpbb_karma_controller_reportkarma
 		if ($karma_data['reported'])
 		{
 			trigger_error('KARMA_ALREADY_REPORTED');
-			// TODO allow returning to the received karma list
-			// TODO even better: don't show a report link on the received karma list for already reported karma
 		}
 
 		// Handle the form submission if appropriate

@@ -61,7 +61,6 @@ class phpbb_ext_phpbb_karma_ucp_received_karma
 		$this->template->assign_vars(array(
 			'L_TITLE'			=> $this->user->lang['UCP_RECEIVED_KARMA'],
 			'S_REPORT_KARMA'	=> true, // TODO make this depend on permissions and perhaps a setting
-			// And of course on if the karma was reported already as well :)
 
 			'PAGE_NUMBER'			=> phpbb_on_page($this->template, $this->user, $base_url, $total, $this->config['topics_per_page'], $start),
 			'TOTAL'					=> $total,
