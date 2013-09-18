@@ -130,7 +130,7 @@ class phpbb_ext_phpbb_karma_controller_reportkarma
 				// Show the success page and redirect after three seconds
 				$redirect = append_sid("{$this->phpbb_root_path}ucp.{$this->php_ext}", 'i=phpbb_ext_phpbb_karma_ucp_received_karma&amp;mode=overview');
 				meta_refresh(3, $redirect);
-				$message = $this->user->lang['KARMA_KARMA_REPORTED'] . '<br /><br />' . sprintf($this->user->lang['RETURN_PAGE'], "<a href=\"$redirect\">", '</a>');
+				$message = $this->user->lang['KARMA_SUCCESSFULLY_REPORTED'] . '<br /><br />' . sprintf($this->user->lang['RETURN_PAGE'], "<a href=\"$redirect\">", '</a>');
 				// TODO generation of <a>'s is inconsistent right now; sometimes the template does it, and sometimes the sprintf
 				trigger_error($message);
 			}

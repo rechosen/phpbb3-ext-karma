@@ -160,7 +160,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 				$title = $this->user->lang['KARMA_GIVE_KARMA'];
 				$giving_karma_text = $this->user->lang['KARMA_GIVING_KARMA'];
 				$giving_user = ''; // Not used
-				$karma_given_text = $this->user->lang['KARMA_KARMA_GIVEN'];
+				$karma_given_text = $this->user->lang['KARMA_SUCCESSFULLY_GIVEN'];
 				$karma_score = 0;
 				$karma_comment = '';
 				$allow_delete = false;
@@ -172,7 +172,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 				$giving_user = ($mode === 'm_karma_edit')
 					? get_username_string('full', $giving_user_id, $given_karma['giving_username'], $given_karma['giving_user_colour'])
 					: $this->user->lang['KARMA_EDITING_KARMA_YOU'];
-				$karma_given_text = $this->user->lang['KARMA_KARMA_EDITED'];
+				$karma_given_text = $this->user->lang['KARMA_SUCCESSFULLY_EDITED'];
 				$karma_score = $given_karma['karma_score'];
 				$karma_comment = $given_karma['karma_comment'];
 				$allow_delete = $this->auth->acl_get(($mode === 'm_karma_edit') ? 'm_karma_delete' : 'u_karma_delete');
@@ -182,7 +182,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 				$title = $this->user->lang['KARMA_DELETE_KARMA'];
 				$giving_karma_text = ''; // Not used
 				$giving_user = ''; // Not used
-				$karma_given_text = $this->user->lang['KARMA_KARMA_DELETED'];
+				$karma_given_text = $this->user->lang['KARMA_SUCCESSFULLY_DELETED'];
 				$karma_score = 0;
 				$karma_comment = '';
 				// Use a confirm box
@@ -227,7 +227,7 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 			$store_result = $this->validate_and_store_karma($karma_type_name, $item_id, $giving_user_id, $allow_delete);
 			if ($store_result['karma_deleted'])
 			{
-				$karma_given_text = $this->user->lang['KARMA_KARMA_DELETED']; // TODO rename this and friends to KARMA_SUCCESSFULLY_*
+				$karma_given_text = $this->user->lang['KARMA_SUCCESSFULLY_DELETED'];
 			}
 			$error = $store_result['error'];
 
