@@ -109,5 +109,6 @@ $lang = array_merge($lang, array(
 	'KARMA_SCORE_NONE'					=> 'None (undo giving this karma)',
 	'KARMA_DELETE_CONFIRM'				=> 'Are you sure you want to delete this karma?',
 	'KARMA_ALREADY_REPORTED'			=> 'Reported',
+	'NO_REPORT_OTHERS_KARMA'			=> 'You are not allowed to report karma given to others.',
 
 ));

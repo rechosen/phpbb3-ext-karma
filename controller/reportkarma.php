@@ -67,6 +67,12 @@ class phpbb_ext_phpbb_karma_controller_reportkarma
 			trigger_error('NO_KARMA');
 		}
 
+		// Check if the user isn't trying to report karma given to someone else
+		if ($karma_data['receiving_user_id'] != $this->user->data['user_id'])
+		{
+			trigger_error('NO_REPORT_OTHERS_KARMA');
+		}
+
 		// Check if this karma has already been reported
 		if ($karma_data['reported'])
 		{
@@ -132,7 +138,6 @@ class phpbb_ext_phpbb_karma_controller_reportkarma
 		$error = array();
 
 		// Validate the input
-		// TODO prevent reporting karma you didn't receive
 		$karma_report_text = $this->request->variable('karma_report_text', '');
 		if (empty($karma_report_text))
 		{
