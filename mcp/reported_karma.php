@@ -75,41 +75,46 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					trigger_error($e->getMessage());
 				}
 
-				$karma = $karma_manager->get_karma_data($karma_report['karma_id']);
-				if ($karma === false)
+				$karma_row = $karma_manager->get_karma_row($karma_report['karma_id']);
+				if ($karma_row === false)
 				{
 					trigger_error('NO_KARMA');
 				}
 
-				// Ready the reported karma for display
-				$block_row = array();
-				foreach ($karma as $key => $value)
+				// Reconstruct the karma the way it was when it was reported
+				$report_fields = array(
+					'karma_score',
+					'karma_time',
+					'karma_comment',
+				);
+				$reported_karma_row = $karma_row;
+				foreach ($report_fields as $report_field)
 				{
-					switch ($key)
-					{
-						case 'score':
-						case 'received_at':
-						case 'comment':
-							$value = ($key == 'received_at') ? $this->user->format_date($karma_report['reported_karma_time']) : $karma_report['reported_karma_' . $key];
-							// TODO perhaps it wasn't the best idea to stop the karma_data keys from matching database field names? :)
-					}
+					$reported_karma_row[$report_field] = $karma_report['reported_' . $report_field];
+				}
+				// Ready the reported karma for display
+				$reported_karma_data = $karma_manager->format_karma_row($reported_karma_row);
+				$block_row = array();
+				foreach ($reported_karma_data as $key => $value)
+				{
 					$block_row[strtoupper($key)] = $value;
 				}
 				// Determine if the item was edited after the reported karma was given
-				if ($karma['item_last_edit'] > $karma_report['karma_report_time'])
+				if ($reported_karma_data['item_last_edit'] > $karma_report['karma_report_time'])
 				{
 					$block_row['ITEM_REMARK'] = $this->user->lang['KARMA_REPORT_ITEM_EDITED'];
 				}
 				$this->template->assign_block_vars('received_karma', $block_row);
 
 				// Determine if the karma was altered after being reported
-				if ($karma['score'] != $karma_report['reported_karma_score'] || $karma['comment'] != $karma_report['reported_karma_comment'])
+				if ($karma_row['karma_score'] != $karma_report['reported_karma_score'] || $karma_row['karma_comment'] != $karma_report['reported_karma_comment'])
 				{
 					$this->template->assign_var('S_KARMA_REPORT_KARMA_EDITED', true);
 
 					// Add the karma as it is now to the template
+					$karma_data = $karma_manager->format_karma_row($karma_row);
 					$block_row = array();
-					foreach ($karma as $key => $value)
+					foreach ($karma_data as $key => $value)
 					{
 						$block_row[strtoupper($key)] = $value;
 					}
@@ -117,7 +122,6 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					$this->template->assign_block_vars('received_karma', $block_row);
 				}
 
-				$karma_row = $karma_manager->get_karma_row($karma_report['karma_id']);
 				$this->template->assign_vars(array(
 					'L_TITLE'			=> $this->user->lang['MCP_REPORTED_KARMA'],
 
@@ -125,7 +129,6 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 					'KARMA_REPORT_DATE'				=> $this->user->format_date($karma_report['karma_report_time']),
 					'KARMA_REPORT_TEXT'				=> nl2br($karma_report['karma_report_text']),
 					'KARMA_REPORT_ID'				=> $karma_report['karma_report_id'],
-					'S_KARMA_REPORT_ITEM_EDITED'	=> $karma['item_last_edit'] > $karma_report['karma_report_time'],
 					'S_KARMA_REPORT_CLOSED'			=> $karma_report['karma_report_closed'],
 					'U_KARMA_EDIT'					=> ($this->auth->acl_get('m_karma_edit')) ? $this->helper->url("givekarma/{$karma_row['karma_type_name']}/{$karma_row['item_id']}", "giver={$karma_row['giving_user_id']}") : '',
 					'U_KARMA_DELETE'				=> ($this->auth->acl_get('m_karma_delete')) ? $this->helper->url("givekarma/{$karma_row['karma_type_name']}/{$karma_row['item_id']}", "giver={$karma_row['giving_user_id']}&amp;delete") : '',
