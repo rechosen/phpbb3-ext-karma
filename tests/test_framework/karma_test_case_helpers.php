@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Karma Testing
-* @copyright (c) 2013 rechosen
+* @copyright (c) 2013 phpBB
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
