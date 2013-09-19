@@ -18,39 +18,46 @@ if (!defined('IN_PHPBB'))
 class phpbb_ext_phpbb_karma_includes_report_model
 {
 	/**
-	 * Container object
-	 * @var ContainerBuilder
-	 */
+	* Container object
+	* @var ContainerBuilder
+	*/
 	protected $container;
 
 	/**
-	 * Database object
-	 * @var phpbb_db_driver
-	 */
+	* Database object
+	* @var phpbb_db_driver
+	*/
 	protected $db;
 
 	/**
-	 * User object
-	 * @var phpbb_user
-	 */
+	* User object
+	* @var phpbb_user
+	*/
 	protected $user;
 
 	/**
-	 * Name of the karma_reports database table
-	 * @var string
-	 */
+	* Name of the karma database table
+	* @var string
+	*/
+	protected $karma_table;
+
+	/**
+	* Name of the karma_reports database table
+	* @var string
+	*/
 	protected $karma_reports_table;
 
 	/**
-	 * Constructor
-	 * NOTE: The parameters of this method must match in order and type with
-	 * the dependencies defined in the services.yml file for this service.
-	 * 
-	 * @param ContainerBuilder		$container				Container object (no type verification to allow testing with a mock container)
-	 * @param phpbb_db_driver		$db						Database Object
-	 * @param phpbb_user			$user					User object
-	 * @param string				$karma_reports_table	Name of the karma_reports database table
-	 */
+	* Constructor
+	* NOTE: The parameters of this method must match in order and type with
+	* the dependencies defined in the services.yml file for this service.
+	* 
+	* @param ContainerBuilder	$container				Container object (no type verification to allow testing with a mock container)
+	* @param phpbb_db_driver	$db						Database Object
+	* @param phpbb_user			$user					User object
+	* @param string				$karma_table			Name of the karma database table
+	* @param string				$karma_reports_table	Name of the karma_reports database table
+	*/
 	public function __construct($container, phpbb_db_driver $db, phpbb_user $user, $karma_table, $karma_reports_table)
 	{
 		$this->container = $container;
@@ -60,10 +67,19 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		$this->karma_reports_table = $karma_reports_table;
 	}
 
+	/**
+	* Stores a given karma report in the database
+	* 
+	* @param	int		$karma_id			The ID of the reported karma
+	* @param	int		$reporter_id		The ID of the user reporting
+	* @param	string	$karma_report_text	Why the report was filed
+	* @param	int		$karma_report_time	Timestamp of the moment of reporting
+	* @return	null
+	*/
 	public function report_karma($karma_id, $reporter_id, $karma_report_text = '', $karma_report_time = -1)
 	{
 		// Retrieve information about the reported karma
-		$karma_manager = $this->container->get('karma.includes.manager');
+		$karma_manager = $this->container->get('karma.includes.manager'); // TODO, The manager should probably be given to this service instead of the container
 		$karma_row = $karma_manager->get_karma_row($karma_id);
 		if ($karma_row === false)
 		{
@@ -113,6 +129,12 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		$this->db->sql_query($sql);
 	}
 
+	/**
+	* Gets a karma report from the database
+	* 
+	* @param	int	$karma_report_id	The ID of the karma report to be retrieved
+	* @return	array					The karma report database row
+	*/
 	public function get_karma_report($karma_report_id)
 	{
 		$sql_array = array(
@@ -137,6 +159,12 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		return $karma_report;
 	}
 
+	/**
+	* Gets multiple karma reports from the database
+	* 
+	* @param	array	$karma_report_id_list	List of IDs of the karma reports to be retrieved
+	* @return	array							Array of arrays containing karma report database rows
+	*/
 	public function get_karma_reports($karma_report_id_list)
 	{
 		// TODO the code of these functions isn't dry enough; they all look so alike that I often type something in the wrong function :P
@@ -166,6 +194,16 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		return $karma_reports;
 	}
 
+	/**
+	* Lists open/closed karma reports
+	* 
+	* @param	bool	$closed				True to list closed reports, false to list open ones
+	* @param	int		$reports_per_page	How many karma reports to get for this page
+	* @param	int		$start_at			The row to start at for this page
+	* @return	array						An array with the following keys:
+	* 											'total' => (int) The total amount of reports matching $closed
+	* 											'karma_reports' => (array) Array of arrays containing karma report database rows
+	*/
 	public function list_karma_reports($closed, $reports_per_page, $start_at)
 	{
 		// First, count the total amount of reports
@@ -207,6 +245,13 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		);
 	}
 
+	/**
+	* Closes or deletes the specifies karma reports
+	* 
+	* @param	array	$karma_report_id_list	List of IDs of karma reports to be closed/deleted
+	* @param	bool	$delete					True to delete the karma reports, false to close them
+	* @return	null
+	*/
 	public function close_karma_reports($karma_report_id_list, $delete = false)
 	{
 		// Get the ids of the karma reported
@@ -243,6 +288,12 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		$this->db->sql_transaction('commit');
 	}
 
+	/**
+	* Deletes all karma reports concerning the specified karma
+	* 
+	* @param	int	$karma_id	The ID of the karma the reports are on
+	* @return	null
+	*/
 	public function delete_karma_reports_by_karma_id($karma_id)
 	{
 		// Delete the karma reports
@@ -258,11 +309,11 @@ class phpbb_ext_phpbb_karma_includes_report_model
 	}
 
 	/**
-	 * Checks if the given user ID belongs to an existing user
-	 * 
-	 * @param	int		$user_id	The user ID to be validated
-	 * @return	bool				true if the user exists, false otherwise
-	 */
+	* Checks if the given user ID belongs to an existing user
+	* 
+	* @param	int	$user_id	The user ID to be validated
+	* @return	bool			true if the user exists, false otherwise
+	*/
 	private function user_id_exists($user_id) {
 		// TODO Just copied this from the manager, but there should be some way to make this DRY
 		$sql_array = array(

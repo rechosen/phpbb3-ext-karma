@@ -20,45 +20,45 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 class phpbb_ext_phpbb_karma_controller_reportkarma
 {
 	/**
-	 * Container object
-	 * @var ContainerBuilder
-	 */
+	* Container object
+	* @var ContainerBuilder
+	*/
 	protected $container;
 
 	/**
-	 * Request object
-	 * @var phpbb_request
-	 */
+	* Request object
+	* @var phpbb_request
+	*/
 	protected $request;
 
 	/**
-	 * Template object
-	 * @var phpbb_template
-	 */
+	* Template object
+	* @var phpbb_template
+	*/
 	protected $template;
 
 	/**
-	 * User object
-	 * @var phpbb_user
-	 */
+	* User object
+	* @var phpbb_user
+	*/
 	protected $user;
 
 	/**
-	 * Controller helper object
-	 * @var phpbb_controller_helper
-	 */
+	* Controller helper object
+	* @var phpbb_controller_helper
+	*/
 	protected $helper;
 
 	/**
-	 * phpBB root path
-	 * @var string
-	 */
+	* phpBB root path
+	* @var string
+	*/
 	protected $phpbb_root_path;
 
 	/**
-	 * php file extension
-	 * @var string
-	 */
+	* php file extension
+	* @var string
+	*/
 	protected $php_ext;
 
 	/**
@@ -86,6 +86,10 @@ class phpbb_ext_phpbb_karma_controller_reportkarma
 	}
 
 	/**
+	* Handle incoming requests to this controller
+	* 
+	* @param	int		$karma_id	The id of the karma to be reported
+	* 
 	* @return Symfony\Component\HttpFoundation\Response A Symfony Response object
 	*/
 	public function handle($karma_id)
@@ -165,11 +169,11 @@ class phpbb_ext_phpbb_karma_controller_reportkarma
 	}
 
 	/**
-	 * Validates the POST variables and, if successful, stores the karma report
-	 * 
-	 * @param	int		$karma_id	The ID of the karma being reported
-	 * @return	array	An array of form errors to be displayed to the user
-	 */
+	* Validates the POST variables and, if successful, stores the karma report
+	* 
+	* @param	int		$karma_id	The ID of the karma being reported
+	* @return	array	An array of form errors to be displayed to the user
+	*/
 	private function validate_and_store_karma_report($karma_id)
 	{
 		$error = array();

@@ -20,39 +20,39 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 class phpbb_ext_phpbb_karma_controller_givekarma
 {
 	/**
-	 * Auth object
-	 * @var phpbb_auth
-	 */
+	* Auth object
+	* @var phpbb_auth
+	*/
 	protected $auth;
 
 	/**
-	 * Container object
-	 * @var ContainerBuilder
-	 */
+	* Container object
+	* @var ContainerBuilder
+	*/
 	protected $container;
 
 	/**
-	 * Request object
-	 * @var phpbb_request
-	 */
+	* Request object
+	* @var phpbb_request
+	*/
 	protected $request;
 
 	/**
-	 * Template object
-	 * @var phpbb_template
-	 */
+	* Template object
+	* @var phpbb_template
+	*/
 	protected $template;
 
 	/**
-	 * User object
-	 * @var phpbb_user
-	 */
+	* User object
+	* @var phpbb_user
+	*/
 	protected $user;
 
 	/**
-	 * Controller helper object
-	 * @var phpbb_controller_helper
-	 */
+	* Controller helper object
+	* @var phpbb_controller_helper
+	*/
 	protected $helper;
 
 	/**
@@ -78,6 +78,11 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	}
 
 	/**
+	* Handle incoming requests to this controller
+	* 
+	* @param	string	$karma_type_name	The name of the type of karma to be given/modified
+	* @param	int		$item_id			The id of the item on which the karma is given
+	* 
 	* @return Symfony\Component\HttpFoundation\Response A Symfony Response object
 	*/
 	public function handle($karma_type_name, $item_id)
@@ -285,16 +290,16 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	}
 
 	/**
-	 * Validates the POST variables and, if successful, stores the karma
-	 * 
-	 * @param	string	$karma_type_name	The name of the type of the item on which the karma is given
-	 * @param	int		$item_id			The ID of the item on which karma is given
-	 * @param	int		$giving_user_id		The ID of the user giving this karma
-	 * @param	bool	$allow_delete		Whether the current user is allowed to delete this karma
-	 * @return	array	An array with the following key-value pairs:
-	 * 						'karma_deleted' => (bool) Whether the karma was deleted or not
-	 * 						'error' => (array) An array of form errors to be displayed to the user
-	 */
+	* Validates the POST variables and, if successful, stores/deletes the karma
+	* 
+	* @param	string	$karma_type_name	The name of the type of the item on which the karma is given
+	* @param	int		$item_id			The ID of the item on which karma is given
+	* @param	int		$giving_user_id		The ID of the user giving this karma
+	* @param	bool	$allow_delete		Whether the current user is allowed to delete this karma
+	* @return	array	An array with the following key-value pairs:
+	* 						'karma_deleted' => (bool) Whether the karma was deleted or not
+	* 						'error' => (array) An array of form errors to be displayed to the user
+	*/
 	private function validate_and_store_karma($karma_type_name, $item_id, $giving_user_id, $allow_delete)
 	{
 		$karma_deleted = false;
@@ -355,6 +360,14 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 		);
 	}
 
+	/**
+	* Checks if the user has the specified permission.
+	* If not, and the user is anonymous, display a login_box.
+	* If not, and the user is logged in, display an error.
+	* 
+	* @param	string	$permission_name	The name of the permission to be checked
+	* @return	null
+	*/
 	private function check_permission($permission_name)
 	{
 		// Errors to display when certain permissions aren't YES

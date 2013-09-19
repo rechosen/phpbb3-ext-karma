@@ -18,51 +18,53 @@ if (!defined('IN_PHPBB'))
 class phpbb_ext_phpbb_karma_includes_type_base
 {
 	/**
-	 * Authentication object
-	 * @var phpbb_auth
-	 */
+	* Authentication object
+	* @var phpbb_auth
+	*/
 	protected $auth;
 
 	/**
-	 * Database object
-	 * @var phpbb_db_driver
-	 */
+	* Database object
+	* @var phpbb_db_driver
+	*/
 	protected $db;
 
 	/**
-	 * User object
-	 * @var phpbb_user
-	 */
+	* User object
+	* @var phpbb_user
+	*/
 	protected $user;
 
 	/**
-	 * phpBB root path
-	 * @var string
-	 */
+	* phpBB root path
+	* @var string
+	*/
 	protected $phpbb_root_path;
 
 	/**
-	 * php file extension
-	 * @var string
-	 */
+	* php file extension
+	* @var string
+	*/
 	protected $php_ext;
 
 	/**
-	 * Name of the karma database table
-	 * @var string
-	 */
+	* Name of the karma database table
+	* @var string
+	*/
 	protected $table_name;
 
 	/**
-	 * Constructor
-	 * NOTE: The parameters of this method must match in order and type with
-	 * the dependencies defined in the services.yml file for this service.
-	 * 
-	 * @param phpbb_db_driver	$db					Database Object
-	 * @param string			$phpbb_root_path	phpBB root path
-	 * @param string			$php_ext			php file extension
-	 * @param string			$table_name			Name of the karma database table
-	 */
+	* Constructor
+	* NOTE: The parameters of this method must match in order and type with
+	* the dependencies defined in the services.yml file for this service.
+	* 
+	* @param phpbb_auth			$auth				Authentication object
+	* @param phpbb_db_driver	$db					Database object
+	* @param phpbb_user			$user				User object
+	* @param string				$phpbb_root_path	phpBB root path
+	* @param string				$php_ext			php file extension
+	* @param string				$table_name			Name of the karma database table
+	*/
 	public function __construct(phpbb_auth $auth, phpbb_db_driver $db, phpbb_user $user, $phpbb_root_path, $php_ext, $table_name)
 	{
 		$this->auth = $auth;

@@ -18,82 +18,82 @@ if (!defined('IN_PHPBB'))
 class phpbb_ext_phpbb_karma_includes_manager
 {
 	/**
-	 * Array that contains all available karma types which are passed via the
-	 * service container
-	 * @var array
-	 */
+	* Array that contains all available karma types which are passed via the
+	* service container
+	* @var array
+	*/
 	private $karma_types;
 
 	/**
-	 * Cache object
-	 * @var phpbb_cache_service
-	 */
+	* Cache object
+	* @var phpbb_cache_service
+	*/
 	private $cache;
 
 	/**
-	 * Container object
-	 * @var ContainerBuilder
-	 */
+	* Container object
+	* @var ContainerBuilder
+	*/
 	private $container;
 
 	/**
-	 * Database object
-	 * @var phpbb_db_driver
-	 */
+	* Database object
+	* @var phpbb_db_driver
+	*/
 	private $db;
 
 	/**
-	 * Controller helper object
-	 * @var phpbb_controller_helper
-	 */
+	* Controller helper object
+	* @var phpbb_controller_helper
+	*/
 	protected $helper;
 
 	/**
-	 * User object
-	 * @var phpbb_user
-	 */
+	* User object
+	* @var phpbb_user
+	*/
 	private $user;
 
 	/**
-	 * phpBB root path
-	 * @var string
-	 */
+	* phpBB root path
+	* @var string
+	*/
 	protected $phpbb_root_path;
 
 	/**
-	 * php file extension
-	 * @var string
-	 */
+	* php file extension
+	* @var string
+	*/
 	protected $php_ext;
 
 	/**
-	 * Name of the karma database table
-	 * @var string
-	 */
+	* Name of the karma database table
+	* @var string
+	*/
 	private $karma_table;
 
 	/**
-	 * Name of the karma_types database table
-	 * @var string
-	 */
+	* Name of the karma_types database table
+	* @var string
+	*/
 	private $karma_types_table;
 
 	/**
-	 * Constructor
-	 * NOTE: The parameters of this method must match in order and type with
-	 * the dependencies defined in the services.yml file for this service.
-	 * 
-	 * @param array						$karma_types		Available karma type names
-	 * @param phpbb_cache_service		$cache				Cache object
-	 * @param ContainerBuilder			$container			Container object (no type verification to allow testing with a mock container)
-	 * @param phpbb_db_driver			$db					Database Object
-	 * @param phpbb_controller_helper	$helper				Controller helper object
-	 * @param phpbb_user				$user				User object
-	 * @param string					$phpbb_root_path	phpBB root path
-	 * @param string					$php_ext			php file extension
-	 * @param string					$karma_table		Name of the karma database table
-	 * @param string					$karma_types_table	Name of the karma_types database table
-	 */
+	* Constructor
+	* NOTE: The parameters of this method must match in order and type with
+	* the dependencies defined in the services.yml file for this service.
+	* 
+	* @param array						$karma_types		Available karma type names
+	* @param phpbb_cache_service		$cache				Cache object
+	* @param ContainerBuilder			$container			Container object (no type verification to allow testing with a mock container)
+	* @param phpbb_db_driver			$db					Database Object
+	* @param phpbb_controller_helper	$helper				Controller helper object
+	* @param phpbb_user					$user				User object
+	* @param string						$phpbb_root_path	phpBB root path
+	* @param string						$php_ext			php file extension
+	* @param string						$karma_table		Name of the karma database table
+	* @param string						$karma_types_table	Name of the karma_types database table
+	*/
 	public function __construct($karma_types, phpbb_cache_service $cache, $container, phpbb_db_driver $db, phpbb_controller_helper $helper, phpbb_user $user, $phpbb_root_path, $php_ext, $karma_table, $karma_types_table)
 	{
 		$this->karma_types = $karma_types;
@@ -109,15 +109,16 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Stores given karma in the database
-	 * 
-	 * @param string	$karma_type_name	The type of item on which the karma was given
-	 * @param int		$item_id			The ID of the item on which the karma was given
-	 * @param int		$giving_user_id		The ID of the user giving the karma
-	 * @param int		$karma_score		The given karma score
-	 * @param string	$karma_comment		The comment given with the karma
-	 * @param int		$karma_time			The time on which the karma was given
-	 */
+	* Stores given karma in the database
+	* 
+	* @param	string	$karma_type_name	The type of item on which the karma was given
+	* @param	int		$item_id			The ID of the item on which the karma was given
+	* @param	int		$giving_user_id		The ID of the user giving the karma
+	* @param	int		$karma_score		The given karma score
+	* @param	string	$karma_comment		The comment given with the karma
+	* @param	int		$karma_time			The time on which the karma was given
+	* @return	null
+	*/
 	public function store_karma($karma_type_name, $item_id, $giving_user_id, $karma_score, $karma_comment = '', $karma_time = -1 /* TODO perhaps false is better than -1 as a default? */)
 	{
 		// Set the receiving user ID
@@ -195,12 +196,13 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Deletes given karma from the database
-	 * 
-	 * @param string	$karma_type_name	The type of item on which the karma was given
-	 * @param int		$item_id			The ID of the item on which the karma was given
-	 * @param int		$giving_user_id		The ID of the user giving the karma
-	 */
+	* Deletes given karma from the database
+	* 
+	* @param	string	$karma_type_name	The type of item on which the karma was given
+	* @param	int		$item_id			The ID of the item on which the karma was given
+	* @param	int		$giving_user_id		The ID of the user giving the karma
+	* @return	null
+	*/
 	public function delete_karma($karma_type_name, $item_id, $giving_user_id)
 	{
 		// Set the receiving user ID to update the user_karma_score later
@@ -243,11 +245,12 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Gets the karma score of the user(s) with the specified ID(s)
-	 * 
-	 * @param	int|array	$user_id	A user_id or array of user_ids
-	 * @return	int						The karma score of the specified user
-	 */
+	* Gets the karma score of the user(s) with the specified ID(s)
+	* TODO Currently unused; can it be deleted or will it be used externally?
+	* 
+	* @param	int|array	$user_id	A user_id or array of user_ids
+	* @return	int						The karma score of the specified user
+	*/
 	public function get_user_karma_score($user_id)
 	{
 		if (is_array($user_id))
@@ -279,18 +282,21 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Retrieves the url, title and author user_id of the specified item
-	 * 
-	 * @param	string	$karma_type_name	The type of the item
-	 * @param	int		$item_id			The ID of the item
-	 * @return	array						An array containing the keys 'url', 'title' and 'author' pointing to the corresponding information
-	 */
+	* Retrieves the url, title and author user_id of the specified item
+	* 
+	* @param	string	$karma_type_name	The type of the item
+	* @param	int		$item_id			The ID of the item
+	* @return	array						An array containing the keys 'url', 'title' and 'author' pointing to the corresponding information
+	*/
 	public function get_item_data($karma_type_name, $item_id)
 	{
 		$karma_type = $this->get_type_class($karma_type_name);
 
 		// Ensure the current user has permission to get this information
-		$karma_type->check_permission($item_id);
+		if (!$karma_type->check_permission($item_id))
+		{
+			trigger_error('NOT_AUTHORISED');
+		}
 
 		return array(
 			'url'		=> $karma_type->get_url($item_id),
@@ -300,12 +306,16 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Gets all karma that was ever received by a certain user in template-ready format
-	 * 
-	 * @param	int		$user_id		The ID of the user
-	 * @param	bool	$newestfirst	Sort on time DESC (true) or ASC (false)
-	 * @return	array					An array of arrays with received karma generated by format_karma_row
-	 */
+	* Gets all karma that was ever received by a certain user in template-ready format
+	* 
+	* @param	int		$user_id		The ID of the user
+	* @param	int		$karma_per_page	How many karma rows to get for this page
+	* @param	int		$start_at		The row to start at for this page
+	* @param	bool	$newestfirst	Sort on time DESC (true) or ASC (false)
+	* @return	array					An array with the following keys:
+	* 											'total' => (int) The total amount of karma rows received by this user
+	* 											'received_karma' => (array) An array of arrays with received karma generated by format_karma_row
+	*/
 	public function get_karma_received_by_user($user_id, $karma_per_page, $start_at, $newestfirst = true)
 	{
 		// First, count the total amount of karma received by this user
@@ -345,11 +355,11 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 	
 	/**
-	 * Gets a specific karma row and returns it in template-ready format
-	 * 
-	 * @param	int	$karma_id	The ID of the karma
-	 * @return	array|bool		An array with the information generated by format_karma_row; false otherwise
-	 */
+	* Gets a specific karma row and returns it in template-ready format
+	* 
+	* @param	int	$karma_id	The ID of the karma
+	* @return	array|bool		An array with the information generated by format_karma_row; false otherwise
+	*/
 	public function get_karma_data($karma_id)
 	{
 		$karma_row = $this->get_karma_row($karma_id);
@@ -357,11 +367,11 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Gets the raw database row of the karma with the specified ID
-	 * 
-	 * @param	int			$karma_id	The ID of the karma to retrieve
-	 * @return	array|bool				The row of the karma, or false if it doesn't exist
-	 */
+	* Gets the raw database row of the karma with the specified ID
+	* 
+	* @param	int	$karma_id	The ID of the karma to retrieve
+	* @return	array|bool		The row of the karma, or false if it doesn't exist
+	*/
 	public function get_karma_row($karma_id)
 	{
 		$sql_array = array(
@@ -387,21 +397,21 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Converts raw karma database values to template-ready values
-	 * 
-	 * @param	array	$karma_row	The karma row from the database
-	 * @return	array	The formatted karma row with the following keys:
-	 * 		'score' => (int) The karma score
-	 * 		'item_url' => (string) The URL of the item the karma was given on
-	 * 		'item_title' => (string) The title of the item the karma was given on
-	 * 		'received_at' => (string) The user-formatted date on which the karma was received
-	 * 		'given_by' => (string) The full username_string of the giving user
-	 * 		'comment' => (string) The comment given with the karma
-	 * 		'reported' => (bool) Whether the karma was reported or not
-	 * 		'report_url' => (string) The URL of the page on which the karma may be reported
-	 * 		'item_last_edit' => (int) The timestamp of the last time the item the karma was given on was edited
-	 * 		'receiving_user_id' => (int) The ID of the user receiving the karma
-	 */
+	* Converts raw karma database values to template-ready values
+	* 
+	* @param	array	$karma_row	The karma row from the database
+	* @return	array				The formatted karma row with the following keys:
+	* 		'score' => (string) The formatted karma score
+	* 		'item_url' => (string) The URL of the item the karma was given on
+	* 		'item_title' => (string) The title of the item the karma was given on
+	* 		'received_at' => (string) The user-formatted date on which the karma was received
+	* 		'given_by' => (string) The full username_string of the giving user
+	* 		'comment' => (string) The comment given with the karma
+	* 		'reported' => (bool) Whether the karma was reported or not
+	* 		'report_url' => (string) The URL of the page on which the karma may be reported
+	* 		'item_last_edit' => (int) The timestamp of the last time the item the karma was given on was edited
+	* 		'receiving_user_id' => (int) The ID of the user receiving the karma
+	*/
 	public function format_karma_row($karma_row) {
 		$karma_type = $this->get_type_class($karma_row['karma_type_name']);
 
@@ -420,13 +430,13 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Retrieve karma given on a certain item by a certain user
-	 * 
-	 * @param	string	$karma_type_name	The name of the type of the karma
-	 * @param	int		$item_id			The ID of the item
-	 * @param	int		$giving_user_id		The ID of the giving user
-	 * @return	array|bool					The row of the karma, or false if it doesn't exist
-	 */
+	* Retrieve karma given on a certain item by a certain user
+	* 
+	* @param	string	$karma_type_name	The name of the type of the karma
+	* @param	int		$item_id			The ID of the item
+	* @param	int		$giving_user_id		The ID of the giving user
+	* @return	array|bool					The row of the karma, or false if it doesn't exist
+	*/
 	public function get_given_karma_row($karma_type_name, $item_id, $giving_user_id)
 	{
 		$sql_array = array(
@@ -452,23 +462,23 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Put a + in front of the karma score if it is positive.
-	 * TODO this function probably doesn't belong here
-	 * 
-	 * @param	int		$karma_score	The karma score to be formatted
-	 * @return	string	The formatted karma score
-	 */
+	* Put a + in front of the karma score if it is positive.
+	* TODO this function probably doesn't belong here
+	* 
+	* @param	int	$karma_score	The karma score to be formatted
+	* @return	string				The formatted karma score
+	*/
 	public function format_karma_score($karma_score)
 	{
 		return ($karma_score > 0) ? "+$karma_score" : (string) $karma_score;
 	}
 
 	/**
-	 * Helper to get the type class of a certain karma type
-	 * 
-	 * @param	string	$karma_type_name						The name of the type to get a class instance of
-	 * @return	phpbb_ext_phpbb_karma_includes_type_interface	An instance of the corresponding type class
-	 */
+	* Helper to get the type class of a certain karma type
+	* 
+	* @param	string	$karma_type_name						The name of the type to get a class instance of
+	* @return	phpbb_ext_phpbb_karma_includes_type_interface	An instance of the corresponding type class
+	*/
 	private function get_type_class($karma_type_name)
 	{
 		$karma_type_name = (strpos($karma_type_name, 'karma.type.') === 0) ? $karma_type_name : 'karma.type.' . $karma_type_name;
@@ -477,11 +487,11 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Checks if the given user ID belongs to an existing user
-	 * 
-	 * @param	int		$user_id	The user ID to be validated
-	 * @return	bool				true if the user exists, false otherwise
-	 */
+	* Checks if the given user ID belongs to an existing user
+	* 
+	* @param	int	$user_id	The user ID to be validated
+	* @return	bool			true if the user exists, false otherwise
+	*/
 	private function user_id_exists($user_id) {
 		$sql_array = array(
 			'SELECT'	=> 'count(*) AS num_users',
@@ -497,13 +507,13 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Gets the karma score given on the specified item by the specified user
-	 * 
-	 * @param	int		$karma_type_id	The type of the item on which the karma was given
-	 * @param	int		$item_id		The item on which the karma was given
-	 * @param	int		$giving_user_id	The user which gave the karma
-	 * @return	int|bool				The given karma, or false if no karma was found
-	 */
+	* Gets the karma score given on the specified item by the specified user
+	* 
+	* @param	int	$karma_type_id	The type of the item on which the karma was given
+	* @param	int	$item_id		The item on which the karma was given
+	* @param	int	$giving_user_id	The user which gave the karma
+	* @return	int|bool			The given karma, or false if no karma was found
+	*/
 	private function get_karma_score($karma_type_id, $item_id, $giving_user_id)
 	{
 		$sql_array = array(
@@ -523,12 +533,12 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Updates the user_karma_score column for a certain user
-	 * 
-	 * @param	int	$user_id		The ID of the user
-	 * @param	int	$score_change	The value to add to the score (can be < 0)
-	 * @return	null
-	 */
+	* Updates the user_karma_score column for a certain user
+	* 
+	* @param	int	$user_id		The ID of the user
+	* @param	int	$score_change	The value to add to the score (can be < 0)
+	* @return	null
+	*/
 	private function update_user_karma_score($user_id, $score_change)
 	{
 		$change_sign = ($score_change < 0) ? '-' : '+';
@@ -540,11 +550,11 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
-	 * Get the karma type ID from the name
-	 * 
-	 * @param	string	$karma_type_name	The karma type to get the id of
-	 * @return	int							The id of the requested karma type
-	 */
+	* Get the karma type ID from the name
+	* 
+	* @param	string	$karma_type_name	The karma type to get the id of
+	* @return	int							The id of the requested karma type
+	*/
 	private function get_karma_type_id($karma_type_name) // TODO use protected instead of private unless the method _must_ not change, even when extending
 	{
 		$karma_type_ids = $this->cache->get('karma_type_ids');
