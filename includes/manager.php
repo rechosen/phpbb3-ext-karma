@@ -474,6 +474,24 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
+	* Marks/unmarks the specified karma as reported
+	* 
+	* @param	array	$karma_id_list	List of IDs of karma to be marked
+	* @param	bool	$reported		True to mark as reported, false to unmark
+	* @return	null
+	*/
+	public function mark_karma_reported($karma_id_list, $reported)
+	{
+		$sql_ary = array(
+			'karma_reported'	=> (int) $reported,
+		);
+		$sql = 'UPDATE ' . $this->karma_table . '
+				SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
+				WHERE ' . $this->db->sql_in_set('karma_id', $karma_id_list);
+		$this->db->sql_query($sql);
+	}
+
+	/**
 	* Helper to get the type class of a certain karma type
 	* 
 	* @param	string	$karma_type_name						The name of the type to get a class instance of
@@ -523,7 +541,6 @@ class phpbb_ext_phpbb_karma_includes_manager
 							AND item_id = ' . (int) $item_id . '
 							AND giving_user_id = ' . (int) $giving_user_id,
 		);
-		// TODO check if the karma type is enabled either here or before considering to insert karma at all
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query($sql);
 		$karma_score = $this->db->sql_fetchfield('karma_score');

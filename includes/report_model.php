@@ -18,12 +18,6 @@ if (!defined('IN_PHPBB'))
 class phpbb_ext_phpbb_karma_includes_report_model
 {
 	/**
-	* Container object
-	* @var ContainerBuilder
-	*/
-	protected $container;
-
-	/**
 	* Database object
 	* @var phpbb_db_driver
 	*/
@@ -36,10 +30,10 @@ class phpbb_ext_phpbb_karma_includes_report_model
 	protected $user;
 
 	/**
-	* Name of the karma database table
-	* @var string
+	* Karma manager object
+	* @var phpbb_ext_phpbb_karma_includes_manager
 	*/
-	protected $karma_table;
+	protected $karma_manager;
 
 	/**
 	* Name of the karma_reports database table
@@ -52,18 +46,15 @@ class phpbb_ext_phpbb_karma_includes_report_model
 	* NOTE: The parameters of this method must match in order and type with
 	* the dependencies defined in the services.yml file for this service.
 	* 
-	* @param ContainerBuilder	$container				Container object (no type verification to allow testing with a mock container)
 	* @param phpbb_db_driver	$db						Database Object
 	* @param phpbb_user			$user					User object
-	* @param string				$karma_table			Name of the karma database table
 	* @param string				$karma_reports_table	Name of the karma_reports database table
 	*/
-	public function __construct($container, phpbb_db_driver $db, phpbb_user $user, $karma_table, $karma_reports_table)
+	public function __construct(phpbb_db_driver $db, phpbb_user $user, phpbb_ext_phpbb_karma_includes_manager $karma_manager, $karma_reports_table)
 	{
-		$this->container = $container;
 		$this->db = $db;
 		$this->user = $user;
-		$this->karma_table = $karma_table;
+		$this->karma_manager = $karma_manager;
 		$this->karma_reports_table = $karma_reports_table;
 	}
 
@@ -79,8 +70,7 @@ class phpbb_ext_phpbb_karma_includes_report_model
 	public function report_karma($karma_id, $reporter_id, $karma_report_text = '', $karma_report_time = -1)
 	{
 		// Retrieve information about the reported karma
-		$karma_manager = $this->container->get('karma.includes.manager'); // TODO, The manager should probably be given to this service instead of the container
-		$karma_row = $karma_manager->get_karma_row($karma_id);
+		$karma_row = $this->karma_manager->get_karma_row($karma_id);
 		if ($karma_row === false)
 		{
 			throw new OutOfBoundsException('NO_KARMA');
@@ -120,13 +110,7 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		);
 
 		// Mark the karma in question as reported
-		$sql_ary = array(
-			'karma_reported'	=> 1,
-		);
-		$sql = 'UPDATE ' . $this->karma_table . '
-				SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
-				WHERE karma_id = ' . (int) $karma_id;
-		$this->db->sql_query($sql);
+		$this->karma_manager->mark_karma_reported(array($karma_id), true);
 	}
 
 	/**
@@ -137,26 +121,8 @@ class phpbb_ext_phpbb_karma_includes_report_model
 	*/
 	public function get_karma_report($karma_report_id)
 	{
-		$sql_array = array(
-			'SELECT'	=> 'kr.*, u.user_id, u.username, u.user_colour',
-			'FROM'		=> array(
-				$this->karma_reports_table => 'kr',
-				USERS_TABLE => 'u',
-			),
-			'WHERE'		=> 'kr.reporter_id = u.user_id
-							AND karma_report_id = ' . (int) $karma_report_id,
-		);
-		$sql = $this->db->sql_build_query('SELECT', $sql_array);
-		$result = $this->db->sql_query($sql);
-		$karma_report = $this->db->sql_fetchrow($result);
-		$this->db->sql_freeresult($result);
-
-		if ($karma_report === false)
-		{
-			throw new OutOfBoundsException('NO_KARMA_REPORT');
-		}
-
-		return $karma_report;
+		$karma_reports = $this->get_karma_reports(array($karma_report_id));
+		return reset($karma_reports);
 	}
 
 	/**
@@ -167,7 +133,6 @@ class phpbb_ext_phpbb_karma_includes_report_model
 	*/
 	public function get_karma_reports($karma_report_id_list)
 	{
-		// TODO the code of these functions isn't dry enough; they all look so alike that I often type something in the wrong function :P
 		$sql_array = array(
 			'SELECT'	=> 'kr.*, u.user_id, u.username, u.user_colour',
 			'FROM'		=> array(
@@ -279,10 +244,7 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		$this->db->sql_query($sql);
 
 		// Unmark the reported karma
-		$sql = 'UPDATE ' . $this->karma_table . '
-				SET karma_reported = 0
-				WHERE ' . $this->db->sql_in_set('karma_id', $karma_id_list);
-		$this->db->sql_query($sql);
+		$this->karma_manager->mark_karma_reported($karma_id_list, false);
 
 		// Commit the transaction
 		$this->db->sql_transaction('commit');
@@ -302,10 +264,7 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		$this->db->sql_query($sql);
 
 		// Unmark the reported karma (if applicable)
-		$sql = 'UPDATE ' . $this->karma_table . '
-				SET karma_reported = 0
-				WHERE karma_id = ' . (int) $karma_id;
-		$this->db->sql_query($sql);
+		$this->karma_manager->mark_karma_reported(array($karma_id), false);
 	}
 
 	/**

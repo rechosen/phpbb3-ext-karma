@@ -38,10 +38,9 @@ services:
     karma.includes.report_model:
         class: phpbb_ext_phpbb_karma_includes_report_model
         arguments:
-            - @service_container
             - @dbal.conn
             - @user
-            - %tables.karma.karma%
+            - @karma.includes.manager
             - %tables.karma.karma_reports%
 
     karma.controller.givekarma:
