@@ -57,9 +57,7 @@ services:
     karma.controller.reportkarma:
         class: phpbb_ext_phpbb_karma_controller_reportkarma
         arguments:
-            - @auth
             - @service_container
-            - @dbal.conn
             - @request
             - @template
             - @user
