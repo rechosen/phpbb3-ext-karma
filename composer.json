@@ -1,21 +1,20 @@
 {
 	"name": "phpbb/karma",
-	"type": "phpbb3-extension",
+	"type": "phpbb-extension",
 	"description": "Karma extension for phpBB 3.1",
 	"homepage": "https://github.com/rechosen/phpbb3-ext-karma",
 	"version": "0.0.1",
-	"time": "2013-06-25 14:50:00",
+	"time": "2013-06-25",
 	"licence": "GPL-2.0",
 	"authors": [{
 		"name": "Jesse Feddema",
-		"username": "rechosen",
 		"email": "jdfeddema@gmail.com",
 		"homepage": "http://www.jessefeddema.nl",
 		"role": "Lead Developer"
 	}],
 	"require": {
 		"php": ">=5.3.3",
-		"phpbb": ">=3.1-dev"
+		"phpbb/phpbb": "3.1.*@dev"
 	},
 	"extra": {
 		"display-name": "phpBB Karma"
