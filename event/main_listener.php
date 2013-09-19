@@ -125,13 +125,16 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 			// Load the karma language file
 			$user->add_lang_ext('phpbb/karma', 'karma');
 
+			// Get the karma manager to format the karma score
+			$karma_manager = $phpbb_container->get('karma.includes.manager');
+
 			// Add the user's karma score to the template
 			$post_row = $event['post_row'];
-			$post_row['POSTER_KARMA_SCORE'] = $event['user_poster_data']['karma_score'];
+			$post_row['POSTER_KARMA_SCORE'] = $karma_manager->format_karma_score($event['user_poster_data']['karma_score']);
 
 			if ($event['row']['user_id'] != $user->data['user_id'])
 			{
-				// Get a controller helper for generating the URLs
+				// Get the controller helper for generating the URLs
 				$helper = $phpbb_container->get('controller.helper');
 
 				// Add the URLs for the karma controls (thumbs up/down)
@@ -148,8 +151,7 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 					] = true;
 					$post_row['GIVEN_KARMA_DESC'] = sprintf(
 						$user->lang['GIVEN_KARMA_DESC'],
-						$event['row']['karma_score'],
-						// TODO There should be a + before the score if it's positive
+						$karma_manager->format_karma_score($event['row']['karma_score']),
 						$event['row']['karma_comment']
 					);
 				}
@@ -160,25 +162,33 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 
 	public function ucp_pm_viewmessage_add_pm_author_karma_score($event)
 	{
-		global $user;
+		global $phpbb_container, $user;
 
 		// Load the karma language file
 		$user->add_lang_ext('phpbb/karma', 'karma');
 
+		// Get the karma manager to format the karma score
+		$karma_manager = $phpbb_container->get('karma.includes.manager');
+
+		// Add the karma score to the template variables
 		$msg_data = $event['msg_data'];
-		$msg_data['AUTHOR_KARMA_SCORE'] = $event['message_row']['user_karma_score'];
+		$msg_data['AUTHOR_KARMA_SCORE'] = $karma_manager->format_karma_score($event['message_row']['user_karma_score']);
 		$event['msg_data'] = $msg_data;
 	}
 
 	public function memberlist_view_add_karma_score_to_user_statistics($event)
 	{
-		global $user;
+		global $phpbb_container, $user;
 
 		// Load the karma language file
 		$user->add_lang_ext('phpbb/karma', 'karma');
 
+		// Get the karma manager to format the karma score
+		$karma_manager = $phpbb_container->get('karma.includes.manager');
+
+		// Add the karma score to the template variables
 		$template_data = $event['template_data'];
-		$template_data['USER_KARMA_SCORE'] = $event['data']['user_karma_score'];
+		$template_data['USER_KARMA_SCORE'] = $karma_manager->format_karma_score($event['data']['user_karma_score']);
 		$event['template_data'] = $template_data;
 	}
 }

@@ -406,7 +406,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 		$karma_type = $this->get_type_class($karma_row['karma_type_name']);
 
 		return array(
-			'score'				=> $karma_row['karma_score'],
+			'score'				=> $this->format_karma_score($karma_row['karma_score']),
 			'item_url'			=> $karma_type->get_url($karma_row['item_id']),
 			'item_title'		=> $karma_type->get_title($karma_row['item_id']),
 			'received_at'		=> $this->user->format_date($karma_row['karma_time']),
@@ -449,6 +449,18 @@ class phpbb_ext_phpbb_karma_includes_manager
 		$this->db->sql_freeresult($result);
 
 		return $karma_row;
+	}
+
+	/**
+	 * Put a + in front of the karma score if it is positive.
+	 * TODO this function probably doesn't belong here
+	 * 
+	 * @param	int		$karma_score	The karma score to be formatted
+	 * @return	string	The formatted karma score
+	 */
+	public function format_karma_score($karma_score)
+	{
+		return ($karma_score > 0) ? "+$karma_score" : (string) $karma_score;
 	}
 
 	/**

@@ -164,7 +164,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 						// TODO that module name is ridiculously long right now, there probably should be a way to define a shorter one
 						'U_VIEW_DETAILS'				=> append_sid("{$this->phpbb_root_path}mcp.{$this->php_ext}", "i=phpbb_ext_phpbb_karma_mcp_reported_karma&amp;mode=report_details&amp;r={$karma_report['karma_report_id']}"),
 						'REPORTED_KARMA_SUMMARY'		=> ($karma_row !== false)
-							? sprintf($this->user->lang['REPORTED_KARMA_SUMMARY'], $karma_report['reported_karma_score'], $item_data['title'])
+							? sprintf($this->user->lang['REPORTED_KARMA_SUMMARY'], $karma_manager->format_karma_score($karma_report['reported_karma_score']), $item_data['title'])
 							: $this->user->lang['KARMA_DELETED'],
  						'REPORTED_KARMA_GIVER_FULL'		=> get_username_string('full', $karma_row['giving_user_id'], $karma_row['giving_username'], $karma_row['giving_user_colour']),
  						'REPORTED_KARMA_RECEIVER_FULL'	=> get_username_string('full', $karma_row['receiving_user_id'], $karma_row['receiving_username'], $karma_row['receiving_user_colour']),
