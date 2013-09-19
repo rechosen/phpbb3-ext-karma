@@ -337,7 +337,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 		$this->db->sql_freeresult($result);
 
 		// Now get the karma to be listed
-		$sql_array['SELECT'] = 'k.*, kt.*, u.user_id, u.username, u.user_colour';
+		$sql_array['SELECT'] = 'k.*, kt.*, u.username as giving_username, u.user_colour as giving_user_colour';
 		$sql_array['ORDER_BY'] = 'karma_time '. (($newestfirst) ? 'DESC' : 'ASC');
 		$sql = $this->db->sql_build_query('SELECT', $sql_array);
 		$result = $this->db->sql_query_limit($sql, $karma_per_page, $start_at);
