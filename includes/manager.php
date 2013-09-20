@@ -145,7 +145,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 		$karma_comment = truncate_string($karma_comment, 65535, 65535);
 
 		// Validate the karma time and ensure it is set
-		if ($karma_time >= pow(2, 32))
+		if ($karma_time >= pow(2, 31))
 		{
 			throw new OutOfBoundsException('KARMA_TIME_TOO_LARGE');
 		}

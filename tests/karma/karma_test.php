@@ -89,7 +89,7 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 			'giving_user_id'	=> $big_number,
 			'karma_score'		=> -128,
 			'karma_comment'		=> $big_string,
-			'karma_time'		=> pow(2, 32) - 1,
+			'karma_time'		=> pow(2, 31) - 1,
 		);
 		
 		// Missing values (should succeed as the missing values are optional)
