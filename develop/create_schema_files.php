@@ -1069,8 +1069,8 @@ foreach ($supported_dbms as $dbms)
 				}
 
 				// Output the statements
-				$line = implode("\n", $statements);
-				fwrite($fp, $line . "\n\n");
+				$line = implode(";\n", $statements);
+				fwrite($fp, $line . ";\n\n");
 			}
 		}
 	}

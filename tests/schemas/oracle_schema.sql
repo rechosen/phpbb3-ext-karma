@@ -106,5 +106,5 @@ END;
 /*
 	Table: 'phpbb_users'
 */
-ALTER TABLE phpbb_users ADD user_karma_score  number(11) DEFAULT '0' 
+ALTER TABLE phpbb_users ADD user_karma_score  number(11) DEFAULT '0' ;
 

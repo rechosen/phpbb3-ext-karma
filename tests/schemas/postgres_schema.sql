@@ -63,9 +63,9 @@ CREATE TABLE phpbb_karma_reports (
 /*
 	Table: 'phpbb_users'
 */
-ALTER TABLE phpbb_users ADD COLUMN "user_karma_score" INT4 
-ALTER TABLE phpbb_users ALTER COLUMN user_karma_score SET NOT NULL
-ALTER TABLE phpbb_users ALTER COLUMN user_karma_score SET DEFAULT '0'
+ALTER TABLE phpbb_users ADD COLUMN "user_karma_score" INT4 ;
+ALTER TABLE phpbb_users ALTER COLUMN user_karma_score SET NOT NULL;
+ALTER TABLE phpbb_users ALTER COLUMN user_karma_score SET DEFAULT '0';
 
 
 COMMIT;

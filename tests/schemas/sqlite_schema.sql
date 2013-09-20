@@ -42,7 +42,7 @@ CREATE TABLE phpbb_karma_reports (
 
 
 # Table: 'phpbb_users'
-ALTER TABLE phpbb_users ADD user_karma_score [ int(11) NOT NULL DEFAULT '0']
+ALTER TABLE phpbb_users ADD user_karma_score [ int(11) NOT NULL DEFAULT '0'];
 
 
 COMMIT;

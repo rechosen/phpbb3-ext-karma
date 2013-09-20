@@ -75,5 +75,5 @@ GO
 /*
 	Table: 'phpbb_users'
 */
-ALTER TABLE [phpbb_users] ADD [user_karma_score]  [int] DEFAULT (0) NOT NULL
+ALTER TABLE [phpbb_users] ADD [user_karma_score]  [int] DEFAULT (0) NOT NULL;
 

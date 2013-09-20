@@ -43,5 +43,5 @@ CREATE TABLE phpbb_karma_reports (
 
 
 # Table: 'phpbb_users'
-ALTER TABLE `phpbb_users` ADD COLUMN `user_karma_score`  int(11) DEFAULT '0' NOT NULL
+ALTER TABLE `phpbb_users` ADD COLUMN `user_karma_score`  int(11) DEFAULT '0' NOT NULL;
 
