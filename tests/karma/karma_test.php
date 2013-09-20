@@ -82,7 +82,7 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 
 		// Big values (should succeed)
 		$big_number = 1000000;
-		$big_string = str_repeat('a', pow(2, 16) + 100);
+		$big_string = str_repeat('a', 4000);
 		$big_values_test = array(
 			'item_id'			=> $big_number,
 			'karma_type_name'	=> 'post',

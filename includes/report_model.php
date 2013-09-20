@@ -83,10 +83,10 @@ class phpbb_ext_phpbb_karma_includes_report_model
 		}
 
 		// Ensure the report text isn't too long
-		$karma_report_text = truncate_string($karma_report_text, 65535, 65535);
+		$karma_report_text = truncate_string($karma_report_text, 4000, 4000);
 
 		// Validate the karma report time and ensure it is set
-		if ($karma_report_time >= pow(2, 32))
+		if ($karma_report_time >= pow(2, 31))
 		{
 			throw new OutOfBoundsException('KARMA_REPORT_TIME_TOO_LARGE');
 		}

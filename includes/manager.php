@@ -142,7 +142,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 		}
 
 		// Ensure the karma comment isn't too long
-		$karma_comment = truncate_string($karma_comment, 65535, 65535);
+		$karma_comment = truncate_string($karma_comment, 4000, 4000);
 
 		// Validate the karma time and ensure it is set
 		if ($karma_time >= pow(2, 31))
