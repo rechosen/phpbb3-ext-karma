@@ -253,18 +253,22 @@ class phpbb_ext_phpbb_karma_includes_report_model
 	/**
 	* Deletes all karma reports concerning the specified karma
 	* 
-	* @param	int	$karma_id	The ID of the karma the reports are on
+	* @param	int		$karma_id		The ID of the karma the reports are on
+	* @param	bool	$unmark_karma	If true, try to unmark the reported karma as reported
 	* @return	null
 	*/
-	public function delete_karma_reports_by_karma_id($karma_id)
+	public function delete_karma_reports_by_karma_ids($karma_id_list, $unmark_karma = true)
 	{
 		// Delete the karma reports
 		$sql = 'DELETE FROM ' . $this->karma_reports_table . '
-				WHERE karma_id = ' . (int) $karma_id;
+				WHERE ' . $this->db->sql_in_set('karma_id', $karma_id_list);
 		$this->db->sql_query($sql);
 
 		// Unmark the reported karma (if applicable)
-		$this->karma_manager->mark_karma_reported(array($karma_id), false);
+		if ($unmark_karma)
+		{
+			$this->karma_manager->mark_karma_reported($karma_id_list, false);
+		}
 	}
 
 	/**

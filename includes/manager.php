@@ -43,6 +43,12 @@ class phpbb_ext_phpbb_karma_includes_manager
 	private $db;
 
 	/**
+	* Dispatcher object
+	* @var phpbb_event_dispatcher
+	*/
+	private $dispatcher;
+
+	/**
 	* Controller helper object
 	* @var phpbb_controller_helper
 	*/
@@ -87,6 +93,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 	* @param phpbb_cache_service		$cache				Cache object
 	* @param ContainerBuilder			$container			Container object (no type verification to allow testing with a mock container)
 	* @param phpbb_db_driver			$db					Database Object
+	* @param phpbb_event_dispatcher			$dispatcher			Dispatcher object
 	* @param phpbb_controller_helper	$helper				Controller helper object
 	* @param phpbb_user					$user				User object
 	* @param string						$phpbb_root_path	phpBB root path
@@ -94,12 +101,13 @@ class phpbb_ext_phpbb_karma_includes_manager
 	* @param string						$karma_table		Name of the karma database table
 	* @param string						$karma_types_table	Name of the karma_types database table
 	*/
-	public function __construct($karma_types, phpbb_cache_service $cache, $container, phpbb_db_driver $db, phpbb_controller_helper $helper, phpbb_user $user, $phpbb_root_path, $php_ext, $karma_table, $karma_types_table)
+	public function __construct($karma_types, phpbb_cache_service $cache, $container, phpbb_db_driver $db, phpbb_event_dispatcher $dispatcher, phpbb_controller_helper $helper, phpbb_user $user, $phpbb_root_path, $php_ext, $karma_table, $karma_types_table)
 	{
 		$this->karma_types = $karma_types;
 		$this->cache = $cache;
 		$this->container = $container;
 		$this->db = $db;
+		$this->dispatcher = $dispatcher;
 		$this->helper = $helper;
 		$this->user = $user;
 		$this->phpbb_root_path = $phpbb_root_path;
@@ -200,7 +208,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 	* 
 	* @param	string	$karma_type_name	The type of item on which the karma was given
 	* @param	int		$item_id			The ID of the item on which the karma was given
-	* @param	int		$giving_user_id		The ID of the user giving the karma
+	* @param	int		$giving_user_id		The ID of the user who gave the karma
 	* @return	null
 	*/
 	public function delete_karma($karma_type_name, $item_id, $giving_user_id)
@@ -225,23 +233,18 @@ class phpbb_ext_phpbb_karma_includes_manager
 		// Get the karma to be deleted
 		$karma_row = $this->get_given_karma_row($karma_type_name, $item_id, $giving_user_id);
 
-		// Delete the karma from the database
-		$sql = "DELETE FROM {$this->karma_table}
-				WHERE karma_type_id = " . (int) $karma_type_id . '
-					AND item_id = ' . (int) $item_id . '
-					AND giving_user_id = ' . (int) $giving_user_id;
-		$this->db->sql_query($sql);
+		// Get the score change that will occur when this karma is deleted
+		$score_change = array();
+		if ($karma_row)
+		{
+			$score_change[$karma_row['receiving_user_id']] = -$karma_row['karma_score'];
+		}
 
-		// Now update the karma_score column in the _users table
-		$score_change = -$karma_row['karma_score'];
-		$this->update_user_karma_score($receiving_user_id, $score_change);
+		// Delete the karma from the database
+		$this->delete_karma_by_ids(array($karma_row['karma_id']), $score_change);
 		
 		// End the transaction
 		$this->db->sql_transaction('commit');
-
-		// Delete all karma reports on this karma
-		$report_model = $this->container->get('karma.includes.report_model');
-		$report_model->delete_karma_reports_by_karma_id($karma_row['karma_id']);
 	}
 
 	/**
@@ -398,6 +401,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 
 	/**
 	* Converts raw karma database values to template-ready values
+	* TODO: This function probably shouldn't be here, but it should be somewhere to keep the code DRY
 	* 
 	* @param	array	$karma_row	The karma row from the database
 	* @return	array				The formatted karma row with the following keys:
@@ -489,6 +493,78 @@ class phpbb_ext_phpbb_karma_includes_manager
 				SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
 				WHERE ' . $this->db->sql_in_set('karma_id', $karma_id_list);
 		$this->db->sql_query($sql);
+	}
+
+	/**
+	* Deletes the specified karma.
+	* Please do all karma deletions through this method as it calls an event
+	* that allows handling deleted karma.
+	* 
+	* @param	array		$karma_id_list	List of IDs of karma to be deleted
+	* @param	array|bool	$score_changes	An array of aggregated
+	* 										receiving_user_id => score_change
+	* 										pairs for all karma IDs to be
+	* 										deleted. False if no score changes
+	* 										are known.
+	* @return	null
+	*/
+	private function delete_karma_by_ids($karma_id_list, $score_changes = false)
+	{
+		// Multiple database-related operations going on; ensure we're in a transaction
+		$this->db->sql_transaction('begin');
+
+		// Get the changes in user karma scores caused by these deletions
+		if ($score_changes === false)
+		{
+			// No score changes specified, we'll have to construct them
+			$sql_array = array(
+				'SELECT'	=> 'k.receiving_user_id, k.karma_score',
+				'FROM'		=> array(
+					$this->karma_table			=> 'k',
+					$this->karma_types_table	=> 'kt',
+				),
+				'WHERE'		=> 'k.karma_type_id = kt.karma_type_id
+								AND kt.karma_type_enabled = 1
+								AND ' . $this->db->sql_in_set('karma_id', $karma_id_list),
+			);
+			$sql = $this->db->sql_build_query('SELECT', $sql_array);
+			$result = $this->db->sql_query($sql);
+			// Now build an array of karma score modifications per user
+			$score_changes = array();
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				if (!isset($score_changes[$row['receiving_user_id']]))
+				{
+					$score_changes[$row['receiving_user_id']] = 0;
+				}
+				$score_changes[$row['receiving_user_id']] -= $row['karma_score'];
+			}
+			$this->db->sql_freeresult($result);
+		}
+
+		/**
+		* Event before karma is deleted
+		*
+		* @event ext_phpbb_karma.delete_karma_before
+		* @var	array	karma_id_list	List of IDs of karma to be deleted
+		* @since 3.1-A1
+		*/
+		$vars = array('karma_id_list');
+		extract($this->dispatcher->trigger_event('ext_phpbb_karma.delete_karma_before', compact($vars)));
+
+		// Delete the karma
+		$sql = "DELETE FROM {$this->karma_table}
+				WHERE " . $this->db->sql_in_set('karma_id', $karma_id_list);
+		$this->db->sql_query($sql);
+
+		// Update the karma scores of the affected users
+		foreach ($score_changes as $receiving_user_id => $score_change)
+		{
+			$this->update_user_karma_score($receiving_user_id, $score_change);
+		}
+
+		// End the transaction
+		$this->db->sql_transaction('commit');
 	}
 
 	/**

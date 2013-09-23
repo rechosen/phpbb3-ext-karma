@@ -25,6 +25,7 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 	static public function getSubscribedEvents()
 	{
 		return array(
+			// Core events
 			'core.permissions'						=> 'add_permissions',
 			'core.user_setup'						=> 'load_global_translations',
 			'core.viewtopic_get_post_data'			=> 'viewtopic_body_retrieve_given_karma_with_posts',
@@ -33,6 +34,9 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 			'core.viewtopic_modify_post_row'		=> 'viewtopic_body_postrow_add_karma_score_and_controls',
 			'core.ucp_pm_view_messsage'				=> 'ucp_pm_viewmessage_add_pm_author_karma_score',
 			'core.memberlist_prepare_profile_data'	=> 'memberlist_view_add_karma_score_to_user_statistics',
+
+			// Extension events
+			'ext_phpbb_karma.delete_karma_before'	=> 'delete_karma_reports_when_karma_is_deleted',
 		);
 	}
 
@@ -190,5 +194,13 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 		$template_data = $event['template_data'];
 		$template_data['USER_KARMA_SCORE'] = $karma_manager->format_karma_score($event['data']['user_karma_score']);
 		$event['template_data'] = $template_data;
+	}
+
+	public function delete_karma_reports_when_karma_is_deleted($event)
+	{
+		global $phpbb_container;
+
+		$report_model = $phpbb_container->get('karma.includes.report_model');
+		$report_model->delete_karma_reports_by_karma_ids($event['karma_id_list'], false);
 	}
 }
