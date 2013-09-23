@@ -5,10 +5,15 @@
 <div class="panel bg3">
 	<form method="post" action="">
 		<p>{KARMA_GIVING_KARMA}</p>
+		<p>{L_KARMA_GIVE_KARMA_DESCR}</p>
 		<fieldset>
 			<!-- IF ERROR --><p class="error">{ERROR}</p><!-- ENDIF -->
 			<dl>
-				<dt><label for="karma_score_positive">{L_KARMA_SCORE}{L_COLON}</label></dt>
+				<dt>
+					<label for="karma_score_positive">{L_KARMA_SCORE}{L_COLON}</label>
+					<br>
+					<span>{L_KARMA_SCORE_DESCR}</span>
+				</dt>
 				<dd>
 					<label for="karma_score_positive"><input type="radio" name="karma_score" id="karma_score_positive" value="1"<!-- IF KARMA_SCORE > 0 --> checked="checked"<!-- ENDIF --> /> {L_KARMA_SCORE_POSITIVE}</label>
 					<label for="karma_score_negative"><input type="radio" name="karma_score" id="karma_score_negative" value="-1"<!-- IF KARMA_SCORE < 0 --> checked="checked"<!-- ENDIF --> /> {L_KARMA_SCORE_NEGATIVE}</label>
@@ -16,7 +21,11 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="karma_comment">{L_KARMA_COMMENT}{L_COLON}</label></dt>
+				<dt>
+					<label for="karma_comment">{L_KARMA_COMMENT}{L_COLON}</label>
+					<br>
+					<span>{L_KARMA_COMMENT_DESCR}</span>
+				</dt>
 				<dd><input type="text" name="karma_comment" id="karma_comment" value="{KARMA_COMMENT}" /></dd>
 			</dl>
 		</fieldset>
