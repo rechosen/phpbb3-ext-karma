@@ -17,6 +17,7 @@ Though lots of work has gone into the extension during the Google Summer of Code
 
 * **Only the prosilver style is supported at the moment.**
 * **It is not yet possible to view all given karma in the ACP.** Reported karma may be viewed and moderated in the MCP, though.
+* **The confirm box for deleting karma as a moderator doesn't work at the moment because of [issue 11850](http://tracker.phpbb.com/browse/PHPBB3-11850).** It should start working again once this bug in phpBB is fixed.
 * No spam protection is implemented yet.
 * The test suite is far from complete.
 * Permissions are quite coarse-grained at the moment (only global permissions are implemented).
