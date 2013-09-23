@@ -35,6 +35,7 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 			$phpEx
 		);
 		$this->container = new phpbb_mock_container_builder();
+		$this->dispatcher = new phpbb_event_dispatcher($this->container);
 		$this->user = new phpbb_user();
 
 		$this->phpbb_filesystem = new phpbb_filesystem(
@@ -52,6 +53,7 @@ class phpbb_ext_phpbb_karma_tests_karma_karma_test extends phpbb_ext_phpbb_karma
 			$this->cache,
 			$this->container,
 			$this->db,
+			$this->dispatcher,
 			$this->helper,
 			$this->user,
 			$phpbb_root_path,
