@@ -300,6 +300,60 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
+	* Deletes karma given by the specified user from the database
+	* 
+	* @param	int		$giving_user_id		The ID of the user who gave the karma
+	* @return	null
+	*/
+	public function delete_karma_given_by_user($giving_user_id)
+	{
+		// Check if the giving user ID exists
+		if (!$this->user_id_exists($giving_user_id))
+		{
+			throw new OutOfBoundsException('NO_USER');
+		}
+
+		// Begin a transaction because we're doing multiple related database operations in a row
+		$this->db->sql_transaction('begin');
+
+		// Get the karma to be deleted
+		$sql_array = array(
+			'SELECT'	=> 'k.karma_id, k.receiving_user_id, k.karma_score, kt.karma_type_enabled',
+			'FROM'		=> array(
+				$this->karma_table			=> 'k',
+				$this->karma_types_table	=> 'kt',
+			),
+			'WHERE'		=> 'k.karma_type_id = kt.karma_type_id
+							AND giving_user_id = ' . (int) $giving_user_id,
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		// Now build an array of both karma IDs and karma score modifications per user
+		$karma_id_list = array();
+		$score_changes = array();
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$karma_id_list[] = $row['karma_id'];
+
+			if ($row['karma_type_enabled'])
+			{
+				if (!isset($score_changes[$row['receiving_user_id']]))
+				{
+					$score_changes[$row['receiving_user_id']] = 0;
+				}
+				$score_changes[$row['receiving_user_id']] -= $row['karma_score'];
+			}
+		}
+		$this->db->sql_freeresult($result);
+
+		// Delete the karma from the database
+		$this->delete_karma_by_ids($karma_id_list, $score_changes);
+
+		// End the transaction
+		$this->db->sql_transaction('commit');
+	}
+
+	/**
 	* Gets the karma score of the user(s) with the specified ID(s)
 	* TODO Currently unused; can it be deleted or will it be used externally?
 	* 

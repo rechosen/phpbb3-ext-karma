@@ -34,6 +34,7 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 			'core.viewtopic_modify_post_row'		=> 'viewtopic_body_postrow_add_karma_score_and_controls',
 			'core.ucp_pm_view_messsage'				=> 'ucp_pm_viewmessage_add_pm_author_karma_score',
 			'core.memberlist_prepare_profile_data'	=> 'memberlist_view_add_karma_score_to_user_statistics',
+			'core.delete_user_before'				=> 'delete_karma_when_user_is_deleted',
 
 			// Extension events
 			'ext_phpbb_karma.delete_karma_before'	=> 'delete_karma_reports_when_karma_is_deleted',
@@ -194,6 +195,14 @@ class phpbb_ext_phpbb_karma_event_main_listener implements EventSubscriberInterf
 		$template_data = $event['template_data'];
 		$template_data['USER_KARMA_SCORE'] = $karma_manager->format_karma_score($event['data']['user_karma_score']);
 		$event['template_data'] = $template_data;
+	}
+
+	public function delete_karma_when_user_is_deleted($event)
+	{
+		global $phpbb_container;
+
+		$karma_manager = $phpbb_container->get('karma.includes.manager');
+		$karma_manager->delete_karma_given_by_user($event['user_id']);
 	}
 
 	public function delete_karma_reports_when_karma_is_deleted($event)
