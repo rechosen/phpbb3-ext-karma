@@ -204,6 +204,61 @@ class phpbb_ext_phpbb_karma_includes_manager
 	}
 
 	/**
+	* Deletes karma given on the specified item from the database
+	* 
+	* @param	string	$karma_type_name	The name of the type of the item
+	* @param	int		$item_id			The ID of the item on which the karma was given
+	* @return	null
+	*/
+	public function delete_karma_given_on_item($karma_type_name, $item_id)
+	{
+		// Set the receiving user ID to update the user_karma_score later
+		$karma_type = $this->get_type_class($karma_type_name);
+		$receiving_user = $karma_type->get_author($item_id);
+		$receiving_user_id = $receiving_user['user_id'];
+
+		// Begin a transaction because we're doing multiple related database operations in a row
+		$this->db->sql_transaction('begin');
+
+		// Get the karma to be deleted
+		$sql_array = array(
+			'SELECT'	=> 'k.karma_id, k.karma_score, kt.karma_type_enabled',
+			'FROM'		=> array(
+				$this->karma_table			=> 'k',
+				$this->karma_types_table	=> 'kt',
+			),
+			'WHERE'		=> 'k.karma_type_id = kt.karma_type_id
+							kt.karma_type_name = \'' . $this->db->sql_escape($karma_type_name) . '\'
+							AND item_id = ' . (int) $item_id,
+		);
+		$sql = $this->db->sql_build_query('SELECT', $sql_array);
+		$result = $this->db->sql_query($sql);
+		// Now build an array of both karma IDs and karma score modifications per user
+		$karma_id_list = array();
+		$score_changes = array();
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$karma_id_list[] = $row['karma_id'];
+
+			if ($row['karma_type_enabled'])
+			{
+				if (!isset($score_changes[$row['receiving_user_id']]))
+				{
+					$score_changes[$row['receiving_user_id']] = 0;
+				}
+				$score_changes[$row['receiving_user_id']] -= $row['karma_score'];
+			}
+		}
+		$this->db->sql_freeresult($result);
+
+		// Delete the karma from the database
+		$this->delete_karma_by_ids($karma_id_list, $score_changes);
+
+		// End the transaction
+		$this->db->sql_transaction('commit');
+	}
+
+	/**
 	* Deletes given karma from the database
 	* 
 	* @param	string	$karma_type_name	The type of item on which the karma was given
@@ -217,9 +272,6 @@ class phpbb_ext_phpbb_karma_includes_manager
 		$karma_type = $this->get_type_class($karma_type_name);
 		$receiving_user = $karma_type->get_author($item_id);
 		$receiving_user_id = $receiving_user['user_id'];
-
-		// Get the karma_type_id
-		$karma_type_id = $this->get_karma_type_id($karma_type_name);
 
 		// Check if the giving user ID exists
 		if (!$this->user_id_exists($giving_user_id))
