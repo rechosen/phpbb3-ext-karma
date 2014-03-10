@@ -7,6 +7,8 @@
 *
 */
 
+namespace phpbb\karma\controller;
+
 /**
 * @ignore
 */
@@ -17,7 +19,7 @@ if (!defined('IN_PHPBB'))
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class phpbb_ext_phpbb_karma_controller_reportkarma
+class reportkarma
 {
 	/**
 	* Container object
@@ -27,25 +29,25 @@ class phpbb_ext_phpbb_karma_controller_reportkarma
 
 	/**
 	* Request object
-	* @var phpbb_request
+	* @var \phpbb\request\request
 	*/
 	protected $request;
 
 	/**
 	* Template object
-	* @var phpbb_template
+	* @var \phpbb\template\template
 	*/
 	protected $template;
 
 	/**
 	* User object
-	* @var phpbb_user
+	* @var \phpbb\user
 	*/
 	protected $user;
 
 	/**
 	* Controller helper object
-	* @var phpbb_controller_helper
+	* @var \phpbb\controller\helper
 	*/
 	protected $helper;
 
@@ -67,14 +69,14 @@ class phpbb_ext_phpbb_karma_controller_reportkarma
 	* the dependencies defined in the services.yml file for this service.
 	*
 	* @param ContainerBuilder			$container			Container object
-	* @param phpbb_request				$request			Request object
-	* @param phpbb_template				$template			Template object
-	* @param phpbb_user					$user				User object
-	* @param phpbb_controller_helper	$helper				Controller helper object
+	* @param phpbb\request\request				$request			Request object
+	* @param phpbb\template\template				$template			Template object
+	* @param \phpbb\user					$user				User object
+	* @param \phpbb\controller\helper	$helper				Controller helper object
 	* @param string						$phpbb_root_path	phpBB root path
 	* @param string						$php_ext			php file extension
 	*/
-	public function __construct(ContainerBuilder $container, phpbb_request $request, phpbb_template $template, phpbb_user $user, phpbb_controller_helper $helper, $phpbb_root_path, $php_ext)
+	public function __construct(ContainerBuilder $container, phpbb\request\request $request, phpbb\template\template $template, \phpbb\user $user, \phpbb\controller\helper $helper, $phpbb_root_path, $php_ext)
 	{
 		$this->container = $container;
 		$this->request = $request;

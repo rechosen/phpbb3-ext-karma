@@ -7,6 +7,8 @@
 *
 */
 
+namespace phpbb\karma\mcp;
+
 /**
 * @ignore
 */
@@ -15,7 +17,7 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-class phpbb_ext_phpbb_karma_mcp_reported_karma
+class reported_karma
 {
 	public function __construct($p_master)
 	{
@@ -44,7 +46,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 		$this->page_title = 'MCP_REPORTED_KARMA';
 
 		// Hide the "Karma report details" module tab (this is undone if $mode == 'report_details')
-		$this->p_master->set_display('phpbb_ext_phpbb_karma_mcp_reported_karma', 'report_details', false);
+		$this->p_master->set_display('\phpbb\karma\mcp\reported_karma', 'report_details', false);
 
 		// Determine if the moderator wants to close or delete reports
 		switch ($action)
@@ -62,7 +64,7 @@ class phpbb_ext_phpbb_karma_mcp_reported_karma
 		{
 			case 'report_details':
 				// Display this module's tab (it is hidden by default)
-				$this->p_master->set_display('phpbb_ext_phpbb_karma_mcp_reported_karma', 'report_details', true);
+				$this->p_master->set_display('\phpbb\karma\mcp\reported_karma', 'report_details', true);
 
 				// Get the report and the karma
 				try

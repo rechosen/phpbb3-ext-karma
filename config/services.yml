@@ -3,14 +3,14 @@ imports:
 
 services:
     karma.type_collection:
-        class: phpbb_di_service_collection
+        class: phpbb\di\service_collection
         arguments:
             - @service_container
         tags:
             - { name: service_collection, tag: karma.type }
 
     karma.type.post:
-        class: phpbb_ext_phpbb_karma_includes_type_post
+        class: phpbb\karma\includes\type\type_post
         arguments:
             - @auth
             - @dbal.conn
@@ -22,7 +22,7 @@ services:
             - { name: karma.type }
 
     karma.includes.manager:
-        class: phpbb_ext_phpbb_karma_includes_manager
+        class: phpbb\karma\includes\manager
         arguments:
             - @karma.type_collection
             - @cache
@@ -37,7 +37,7 @@ services:
             - %tables.karma.karma_types%
 
     karma.includes.report_model:
-        class: phpbb_ext_phpbb_karma_includes_report_model
+        class: phpbb\karma\includes\report_model
         arguments:
             - @dbal.conn
             - @user
@@ -45,7 +45,7 @@ services:
             - %tables.karma.karma_reports%
 
     karma.controller.givekarma:
-        class: phpbb_ext_phpbb_karma_controller_givekarma
+        class: phpbb\karma\controller\givekarma
         arguments:
             - @auth
             - @service_container
@@ -55,7 +55,7 @@ services:
             - @controller.helper
 
     karma.controller.reportkarma:
-        class: phpbb_ext_phpbb_karma_controller_reportkarma
+        class: phpbb\karma\controller\reportkarma
         arguments:
             - @service_container
             - @request

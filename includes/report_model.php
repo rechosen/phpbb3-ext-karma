@@ -7,6 +7,8 @@
 *
 */
 
+namespace phpbb\karma\includes;
+
 /**
 * @ignore
 */
@@ -15,23 +17,23 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-class phpbb_ext_phpbb_karma_includes_report_model
+class report_model
 {
 	/**
 	* Database object
-	* @var phpbb_db_driver
+	* @var \phpbb\db\driver\driver
 	*/
 	protected $db;
 
 	/**
 	* User object
-	* @var phpbb_user
+	* @var \phpbb\user
 	*/
 	protected $user;
 
 	/**
 	* Karma manager object
-	* @var phpbb_ext_phpbb_karma_includes_manager
+	* @var \phpbb\karma\includes\manager
 	*/
 	protected $karma_manager;
 
@@ -46,11 +48,11 @@ class phpbb_ext_phpbb_karma_includes_report_model
 	* NOTE: The parameters of this method must match in order and type with
 	* the dependencies defined in the services.yml file for this service.
 	* 
-	* @param phpbb_db_driver	$db						Database Object
-	* @param phpbb_user			$user					User object
+	* @param \phpbb\db\driver\driver	$db						Database Object
+	* @param \phpbb\user			$user					User object
 	* @param string				$karma_reports_table	Name of the karma_reports database table
 	*/
-	public function __construct(phpbb_db_driver $db, phpbb_user $user, phpbb_ext_phpbb_karma_includes_manager $karma_manager, $karma_reports_table)
+	public function __construct(\phpbb\db\driver\driver $db, \phpbb\user $user, \phpbb\karma\includes\manager $karma_manager, $karma_reports_table)
 	{
 		$this->db = $db;
 		$this->user = $user;

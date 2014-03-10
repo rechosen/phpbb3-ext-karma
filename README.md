@@ -32,7 +32,7 @@ Extending the karma system
 
 To allow users to give karma on other entities than posts, follow these steps:
 
-1. Write a class implementing phpbb_ext_phpbb_karma_includes_type_interface, and add it to services.yml with a name tag of 'karma.type'. Pro tip: base your class on phpbb_ext_phpbb_karma_includes_type_base to easily get a lot of useful dependencies injected for you.
+1. Write a class implementing \phpbb\karma\includes\type\type_interface, and add it to services.yml with a name tag of 'karma.type'. Pro tip: base your class on \phpbb\karma\includes\type\type_base to easily get a lot of useful dependencies injected for you.
 2. Add links that allow users to give karma on the new entity. Use the 'givekarma/{karma_type_name}/{item_id}' controller, and the 'score' GET parameter with 'positive' or 'negative' to prefill the score radio buttons. See event/main_listener.php and styles/prosilver/template/event/* of this extension for some example material.
 3. If you like, add the user karma score wherever you display user data. Again, see event/main_listener.php and styles/prosilver/template/event/* of this extension for some example material.
 4. Whenever an item of your newly added karma_type is deleted, make sure delete_karma_given_on_item() of karma.includes.manager is called.

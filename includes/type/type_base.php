@@ -7,6 +7,8 @@
 *
 */
 
+namespace phpbb\karma\includes\type;
+
 /**
 * @ignore
 */
@@ -15,23 +17,23 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-class phpbb_ext_phpbb_karma_includes_type_base
+class type_base
 {
 	/**
 	* Authentication object
-	* @var phpbb_auth
+	* @var \phpbb\auth\auth
 	*/
 	protected $auth;
 
 	/**
 	* Database object
-	* @var phpbb_db_driver
+	* @var \phpbb\db\driver\driver
 	*/
 	protected $db;
 
 	/**
 	* User object
-	* @var phpbb_user
+	* @var \phpbb\user
 	*/
 	protected $user;
 
@@ -58,14 +60,14 @@ class phpbb_ext_phpbb_karma_includes_type_base
 	* NOTE: The parameters of this method must match in order and type with
 	* the dependencies defined in the services.yml file for this service.
 	* 
-	* @param phpbb_auth			$auth				Authentication object
-	* @param phpbb_db_driver	$db					Database object
-	* @param phpbb_user			$user				User object
+	* @param \phpbb\auth\auth			$auth				Authentication object
+	* @param \phpbb\db\driver\driver	$db					Database object
+	* @param \phpbb\user			$user				User object
 	* @param string				$phpbb_root_path	phpBB root path
 	* @param string				$php_ext			php file extension
 	* @param string				$table_name			Name of the karma database table
 	*/
-	public function __construct(phpbb_auth $auth, phpbb_db_driver $db, phpbb_user $user, $phpbb_root_path, $php_ext, $table_name)
+	public function __construct(\phpbb\auth\auth $auth, \phpbb\db\driver\driver $db, \phpbb\user $user, $phpbb_root_path, $php_ext, $table_name)
 	{
 		$this->auth = $auth;
 		$this->db = $db;

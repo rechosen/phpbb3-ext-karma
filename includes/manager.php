@@ -7,6 +7,8 @@
 *
 */
 
+namespace phpbb\karma\includes;
+
 /**
 * @ignore
 */
@@ -15,7 +17,7 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-class phpbb_ext_phpbb_karma_includes_manager
+class manager
 {
 	/**
 	* Array that contains all available karma types which are passed via the
@@ -26,7 +28,7 @@ class phpbb_ext_phpbb_karma_includes_manager
 
 	/**
 	* Cache object
-	* @var phpbb_cache_service
+	* @var \phpbb\cache\service
 	*/
 	private $cache;
 
@@ -38,25 +40,25 @@ class phpbb_ext_phpbb_karma_includes_manager
 
 	/**
 	* Database object
-	* @var phpbb_db_driver
+	* @var \phpbb\db\driver\driver
 	*/
 	private $db;
 
 	/**
 	* Dispatcher object
-	* @var phpbb_event_dispatcher
+	* @var \phpbb\event\dispatcher
 	*/
 	private $dispatcher;
 
 	/**
 	* Controller helper object
-	* @var phpbb_controller_helper
+	* @var \phpbb\controller\helper
 	*/
 	protected $helper;
 
 	/**
 	* User object
-	* @var phpbb_user
+	* @var \phpbb\user
 	*/
 	private $user;
 
@@ -90,18 +92,18 @@ class phpbb_ext_phpbb_karma_includes_manager
 	* the dependencies defined in the services.yml file for this service.
 	* 
 	* @param array						$karma_types		Available karma type names
-	* @param phpbb_cache_service		$cache				Cache object
+	* @param \phpbb\cache\service		$cache				Cache object
 	* @param ContainerBuilder			$container			Container object (no type verification to allow testing with a mock container)
-	* @param phpbb_db_driver			$db					Database Object
-	* @param phpbb_event_dispatcher			$dispatcher			Dispatcher object
-	* @param phpbb_controller_helper	$helper				Controller helper object
-	* @param phpbb_user					$user				User object
+	* @param \phpbb\db\driver\driver			$db					Database Object
+	* @param \phpbb\event\dispatcher			$dispatcher			Dispatcher object
+	* @param \phpbb\controller\helper	$helper				Controller helper object
+	* @param \phpbb\user					$user				User object
 	* @param string						$phpbb_root_path	phpBB root path
 	* @param string						$php_ext			php file extension
 	* @param string						$karma_table		Name of the karma database table
 	* @param string						$karma_types_table	Name of the karma_types database table
 	*/
-	public function __construct($karma_types, phpbb_cache_service $cache, $container, phpbb_db_driver $db, phpbb_event_dispatcher $dispatcher, phpbb_controller_helper $helper, phpbb_user $user, $phpbb_root_path, $php_ext, $karma_table, $karma_types_table)
+	public function __construct($karma_types, \phpbb\cache\service $cache, $container, \phpbb\db\driver\driver $db, \phpbb\event\dispatcher $dispatcher, \phpbb\controller\helper $helper, \phpbb\user $user, $phpbb_root_path, $php_ext, $karma_table, $karma_types_table)
 	{
 		$this->karma_types = $karma_types;
 		$this->cache = $cache;
@@ -676,8 +678,8 @@ class phpbb_ext_phpbb_karma_includes_manager
 	/**
 	* Helper to get the type class of a certain karma type
 	* 
-	* @param	string	$karma_type_name						The name of the type to get a class instance of
-	* @return	phpbb_ext_phpbb_karma_includes_type_interface	An instance of the corresponding type class
+	* @param	string	$karma_type_name					The name of the type to get a class instance of
+	* @return	\phpbb\karma\includes\type\type_interface	An instance of the corresponding type class
 	*/
 	private function get_type_class($karma_type_name)
 	{

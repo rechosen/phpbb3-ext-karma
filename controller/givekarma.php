@@ -7,6 +7,8 @@
 *
 */
 
+namespace phpbb\karma\controller;
+
 /**
 * @ignore
 */
@@ -17,11 +19,11 @@ if (!defined('IN_PHPBB'))
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class phpbb_ext_phpbb_karma_controller_givekarma
+class givekarma
 {
 	/**
 	* Auth object
-	* @var phpbb_auth
+	* @var \phpbb\auth\auth
 	*/
 	protected $auth;
 
@@ -33,25 +35,25 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 
 	/**
 	* Request object
-	* @var phpbb_request
+	* @var \phpbb\request\request
 	*/
 	protected $request;
 
 	/**
 	* Template object
-	* @var phpbb_template
+	* @var \phpbb\template\template
 	*/
 	protected $template;
 
 	/**
 	* User object
-	* @var phpbb_user
+	* @var \phpbb\user
 	*/
 	protected $user;
 
 	/**
 	* Controller helper object
-	* @var phpbb_controller_helper
+	* @var \phpbb\controller\helper
 	*/
 	protected $helper;
 
@@ -60,14 +62,14 @@ class phpbb_ext_phpbb_karma_controller_givekarma
 	* NOTE: The parameters of this method must match in order and type with
 	* the dependencies defined in the services.yml file for this service.
 	*
-	* @param phpbb_auth					$auth				Auth object
-	* @param ContainerBuilder			$container			Container object
-	* @param phpbb_request				$request			Request object
-	* @param phpbb_template				$template			Template object
-	* @param phpbb_user					$user				User object
-	* @param phpbb_controller_helper	$helper				Controller helper object
+	* @param \phpbb\auth\auth			$auth		Auth object
+	* @param ContainerBuilder			$container	Container object
+	* @param \phpbb\request\request		$request	Request object
+	* @param \phpbb\template\template	$template	Template object
+	* @param \phpbb\user				$user		User object
+	* @param \phpbb\controller\helper	$helper		Controller helper object
 	*/
-	public function __construct(phpbb_auth $auth, ContainerBuilder $container, phpbb_request $request, phpbb_template $template, phpbb_user $user, phpbb_controller_helper $helper)
+	public function __construct(\phpbb\auth\auth $auth, ContainerBuilder $container, \phpbb\request\request $request, \phpbb\template\template $template, \phpbb\user $user, \phpbb\controller\helper $helper)
 	{
 		$this->auth = $auth;
 		$this->container = $container;
